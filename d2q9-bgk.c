@@ -246,7 +246,7 @@ int timestep(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obst
   err = clSetKernelArg(ocl.lbm, 6, sizeof(cl_float), &params.accel);
   checkError(err, "setting lbm arg 6", __LINE__);
 
-  size_t global[2] = {params->nx, params->ny};
+  size_t global[2] = {params.nx, params.ny};
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, NULL, 0, NULL, NULL);
   checkError(err, "enqueuing lbm kernel", __LINE__);
 
