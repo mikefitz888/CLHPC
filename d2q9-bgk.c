@@ -90,6 +90,7 @@ typedef struct
   cl_program program;
   cl_kernel  accelerate_flow;
   cl_kernel  propagate;
+  cl_kernel  lbm;
 
   cl_mem cells;
   cl_mem tmp_cells;
@@ -733,6 +734,8 @@ int initialise(const char* paramfile, const char* obstaclefile,
   checkError(err, "creating accelerate_flow kernel", __LINE__);
   ocl->propagate = clCreateKernel(ocl->program, "propagate", &err);
   checkError(err, "creating propagate kernel", __LINE__);
+  ocl->lbm = clCreateKernel(ocl->program, "lbm", &err);
+  checkError(err, "creating lbm kernel", __LINE__);
 
   // Allocate OpenCL buffers
   ocl->cells = clCreateBuffer(
@@ -774,6 +777,7 @@ int finalise(const t_param* params, t_speed** cells_ptr, t_speed** tmp_cells_ptr
   clReleaseMemObject(ocl.obstacles);
   clReleaseKernel(ocl.accelerate_flow);
   clReleaseKernel(ocl.propagate);
+  clReleaseKernel(ocl.lbm);
   clReleaseProgram(ocl.program);
   clReleaseCommandQueue(ocl.queue);
   clReleaseContext(ocl.context);
