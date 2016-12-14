@@ -195,16 +195,16 @@ int main(int argc, char* argv[])
     sizeof(cl_int) * params.nx * params.ny, obstacles, 0, NULL, NULL);
   checkError(err, "writing obstacles data", __LINE__);
 
-  for (int tt = 0; tt < params.maxIters; tt++)
-  {
+  //for (int tt = 0; tt < params.maxIters; tt++)
+  //{
     timestep(params, cells, tmp_cells, obstacles, ocl);
-    av_vels[tt] = av_velocity(params, cells, obstacles, ocl);
-#ifdef DEBUG
-    printf("==timestep: %d==\n", tt);
-    printf("av velocity: %.12E\n", av_vels[tt]);
-    printf("tot density: %.12E\n", total_density(params, cells));
-#endif
-  }
+    //av_vels[tt] = av_velocity(params, cells, obstacles, ocl);
+//#ifdef DEBUG
+    //printf("==timestep: %d==\n", tt);
+    //printf("av velocity: %.12E\n", av_vels[tt]);
+    //printf("tot density: %.12E\n", total_density(params, cells));
+//#endif
+  //}
 
   gettimeofday(&timstr, NULL);
   toc = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
@@ -229,9 +229,40 @@ int main(int argc, char* argv[])
 int timestep(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obstacles, t_ocl ocl)
 {
   cl_int err;
+  //Have loop inside kernel
+  err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.cells);
+  checkError(err, "setting lbm arg 0", __LINE__);
+  err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.tmp_cells);
+  checkError(err, "setting lbm arg 1", __LINE__);
+  err = clSetKernelArg(ocl.lbm, 2, sizeof(cl_mem), &ocl.obstacles);
+  checkError(err, "setting lbm arg 2", __LINE__);
+  err = clSetKernelArg(ocl.lbm, 3, sizeof(cl_int), &params.nx);
+  checkError(err, "setting lbm arg 3", __LINE__);
+  err = clSetKernelArg(ocl.lbm, 4, sizeof(cl_int), &params.ny);
+  checkError(err, "setting lbm arg 4", __LINE__);
+  err = clSetKernelArg(ocl.lbm, 5, sizeof(cl_float), &params.density);
+  checkError(err, "setting lbm arg 5", __LINE__);
+  err = clSetKernelArg(ocl.lbm, 6, sizeof(cl_float), &params.accel);
+  checkError(err, "setting lbm arg 6", __LINE__);
+
+  size_t global[2] = {params->nx, params->ny};
+  err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, NULL, 0, NULL, NULL);
+  checkError(err, "enqueuing lbm kernel", __LINE__);
+
+  err = clFinish(ocl.queue);
+  checkError(err, "waiting for lbm kernel", __LINE__);
+
+  //Write all data back to memory
+
+
+
+
+
+
+
 
   // Write cells to device
-  err = clEnqueueWriteBuffer(
+  /*err = clEnqueueWriteBuffer(
     ocl.queue, ocl.cells, CL_TRUE, 0,
     sizeof(t_speed) * params.nx * params.ny, cells, 0, NULL, NULL);
   checkError(err, "writing cells data", __LINE__);
@@ -246,7 +277,7 @@ int timestep(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obst
   checkError(err, "reading tmp_cells data", __LINE__);
 
   rebound(params, cells, tmp_cells, obstacles, ocl);
-  collision(params, cells, tmp_cells, obstacles, ocl);
+  collision(params, cells, tmp_cells, obstacles, ocl);*/
   return EXIT_SUCCESS;
 }
 
