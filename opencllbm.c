@@ -78,6 +78,7 @@
 #define NSPEEDS         9
 #define FINALSTATEFILE  "final_state.dat"
 #define AVVELSFILE      "av_vels.dat"
+#define OCLFILE         "kernels.cl"
 
 #define VECTOR_SIZE 8
 #define L(X, Y, V, NX) ((X) + ((V)+(Y)*18)*(NX)) //Requires array to be offset correctly, and X to be x+4, this ensures 32byte alignment for vector intrinics
@@ -363,13 +364,6 @@ int rebound(const t_param* params, t_speed* tmp_cells, t_obstacle* obstacles)
   return EXIT_SUCCESS;
 }
 
-void printV(__m256* vec){
-  for(int i = 0; i < 8; i++){
-    printf("%f ", ((float*)vec)[i]);
-  }
-  printf("\n");
-}
-
 int timestep(const t_param* restrict params, t_speed* restrict cells, t_speed* restrict tmp_cells, t_obstacle* restrict obstacles, t_speed* restrict av_vels, t_speed inverse_available_cells, t_ocl ocl)
 {
   cl_int err;
@@ -384,7 +378,7 @@ int timestep(const t_param* restrict params, t_speed* restrict cells, t_speed* r
   checkError(err, "setting lbm arg 3", __LINE__);
   err = clSetKernelArg(ocl.lbm, 4, sizeof(cl_int), &(params->ny));
   checkError(err, "setting lbm arg 4", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 5, sizeof(cl_int), available_cells);
+  err = clSetKernelArg(ocl.lbm, 5, sizeof(cl_float), &inverse_available_cells);
   checkError(err, "setting lbm arg 5", __LINE__);
   err = clSetKernelArg(ocl.lbm, 6, sizeof(cl_float), &(params->density) );
   checkError(err, "setting lbm arg 6", __LINE__);
