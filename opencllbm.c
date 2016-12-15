@@ -368,7 +368,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   //2496 GPU cores available
   cl_int err;
   //sizeof(t_speed) * (NSPEEDS * ((params->ny_pad) * (params->nx_pad)) * 2 + 4)
-  err = clEnqueueWriteBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(t_speed) * (9 * ((params->ny_pad) * (params->nx_pad)) * 2 + 4), cells, 0, NULL, NULL);
+  /*err = clEnqueueWriteBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(t_speed) * (9 * ((params->ny_pad) * (params->nx_pad)) * 2 + 4), cells, 0, NULL, NULL);
   checkError(err, "writing cells data", __LINE__);
   err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.cells);
   checkError(err, "setting lbm arg 0", __LINE__);
@@ -392,7 +392,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   checkError(err, "enqueuing lbm kernel", __LINE__);
 
   err = clFinish(ocl.queue);
-  checkError(err, "waiting for lbm kernel", __LINE__);
+  checkError(err, "waiting for lbm kernel", __LINE__);*/
 
 
 

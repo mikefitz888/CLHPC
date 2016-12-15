@@ -17,7 +17,20 @@ kernel void lbm(global float* cells,
                 int nx, int ny, int nx_pad,
                 float inverse_available_cells, float density, float accel)
 {
-  
+  /*int x = get_global_id(0)*16;
+  int y = get_global_id(1);
+  int offset = 4 + (9 * nx_pad);
+  global t_speed* tmp_cells = cells + offset;
+
+  floatv u0_o = VEC_LOAD(&cells[L(x, y, 0, nx_pad)]);
+  floatv u1_o = VEC_LOAD(&cells[L(x, y, 1, nx_pad)]);
+  floatv u2_o = VEC_LOAD(&cells[L(x, y, 2, nx_pad)]);
+  floatv u3_o = VEC_LOAD(&cells[L(x, y, 3, nx_pad)]);
+  floatv u4_o = VEC_LOAD(&cells[L(x, y, 4, nx_pad)]);
+  floatv u5_o = VEC_LOAD(&cells[L(x, y, 5, nx_pad)]);
+  floatv u6_o = VEC_LOAD(&cells[L(x, y, 6, nx_pad)]);
+  floatv u7_o = VEC_LOAD(&cells[L(x, y, 7, nx_pad)]);
+  floatv u8_o = VEC_LOAD(&cells[L(x, y, 8, nx_pad)]);*/
 
 
 }
