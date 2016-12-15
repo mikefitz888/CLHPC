@@ -188,6 +188,7 @@ int main(int argc, char* argv[])
   double tic, toc;              /* floating point numbers to calculate elapsed wallclock time */
   double usrtim;                /* floating point number to record elapsed user CPU time */
   double systim;                /* floating point number to record elapsed system CPU time */
+  
   int available_cells = 0;
 
   /* parse the command line */
@@ -237,21 +238,21 @@ int main(int argc, char* argv[])
 
   gettimeofday(&timstr, NULL);
   toc = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
-  /*getrusage(RUSAGE_SELF, &ru);
+  getrusage(RUSAGE_SELF, &ru);
   timstr = ru.ru_utime;
   usrtim = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
   timstr = ru.ru_stime;
-  systim = timstr.tv_sec + (timstr.tv_usec / 1000000.0);*/
+  systim = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
 
   t_speed reynold_sum = calc_reynolds(params, cells+offset, obstacles);
 
   /* write final values and free memory */
-    printf("==done==\n");
-    printf("Reynolds number:\t\t%.12E\n", reynold_sum); //TODO: make calc_reynolds MPI
-    printf("Elapsed time:\t\t\t%.6lf (s)\n", toc - tic);
-    printf("Elapsed user CPU time:\t\t%.6lf (s)\n", usrtim);
-    printf("Elapsed system CPU time:\t%.6lf (s)\n", systim);
-    write_values(params, cells+offset, obstacles, av_vels);
+  printf("==done==\n");
+  printf("Reynolds number:\t\t%.12E\n", reynold_sum); //TODO: make calc_reynolds MPI
+  printf("Elapsed time:\t\t\t%.6lf (s)\n", toc - tic);
+  printf("Elapsed user CPU time:\t\t%.6lf (s)\n", usrtim);
+  printf("Elapsed system CPU time:\t%.6lf (s)\n", systim);
+  write_values(params, cells+offset, obstacles, av_vels);
 
   finalise(params, &cells, &tmp_cells, &obstacles, &av_vels, ocl);
   return EXIT_SUCCESS;
