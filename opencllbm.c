@@ -239,7 +239,7 @@ int main(int argc, char* argv[])
   gettimeofday(&timstr, NULL);
   toc = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
   getrusage(RUSAGE_SELF, &ru);
-  timstr = ru.ru_utime;
+  //timstr = ru.ru_utime;
   /*usrtim = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
   timstr = ru.ru_stime;
   systim = timstr.tv_sec + (timstr.tv_usec / 1000000.0);*/
