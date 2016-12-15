@@ -167,6 +167,7 @@ t_speed av_velocity(const t_param* params, t_speed* cells, t_obstacle* obstacles
 t_speed calc_reynolds(const t_param* params, t_speed* cells, t_obstacle* obstacles);
 
 /* utility functions */
+void checkError(cl_int err, const char *op, const int line);
 void die(const char* message, const int line, const char* file);
 void usage(const char* exe);
 
@@ -177,7 +178,6 @@ cl_device_id selectOpenCLDevice();
 */
 int main(int argc, char* argv[])
 {
-  int provided, flag;
   t_param* params = (t_param*) malloc(sizeof(t_param));  /* struct to hold parameter values */
 
   char*    paramfile = NULL;    /* name of the input parameter file */
@@ -251,7 +251,6 @@ int main(int argc, char* argv[])
     systim = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
   } 
 
-  t_speed reynold_value;
   t_speed reynold_sum = calc_reynolds(params, cells+offset, obstacles);
 
   /* write final values and free memory */
@@ -396,33 +395,6 @@ int timestep(const t_param* restrict params, t_speed* restrict cells, t_speed* r
 
 
   return EXIT_SUCCESS;
-  //const double c_sq = 1.0 / 3.0; /* square of speed of sound */
-  const t_speed w0 = 4.0 / 9.0;  /* weighting factor */
-  const t_speed w1 = 1.0 / 9.0;  /* weighting factor */
-  const t_speed w2 = 1.0 / 36.0; /* weighting factor */
-  
-  //t_speed u[4]; /* directional velocity components */
-  t_speed ux, uy;
-  /* equilibrium densities */
-  //t_speed d_equ[NSPEEDS];
-  t_speed local_density;
-
-  t_speed tot_u = 0.0;
-
-  /* loop over the cells in the grid
-  ** NB the collision step is called after
-  ** the propagate step and so values of interest
-  ** are in the scratch-space grid */
-
-  /* Efficient Paralisation Rough Work
-    Node Layout
-    C=CPU (2 cores each, Intel SandyBridge E5-2670, 2.6GHz)
-    [C][C]---[C][C]
-    [C][C]---[C][C]
-    [C][C]RAM[C][C]
-    [C][C]---[C][C]
-    Main speedups will come from fewer cache-misses and false-sharing
-  */
 
   
 }
@@ -922,6 +894,16 @@ void usage(const char* exe)
 {
   fprintf(stderr, "Usage: %s <paramfile> <obstaclefile>\n", exe);
   exit(EXIT_FAILURE);
+}
+
+void checkError(cl_int err, const char *op, const int line)
+{
+  if (err != CL_SUCCESS)
+  {
+    fprintf(stderr, "OpenCL error during '%s' on line %d: %d\n", op, line, err);
+    fflush(stderr);
+    exit(EXIT_FAILURE);
+  }
 }
 
 #define MAX_DEVICES 32
