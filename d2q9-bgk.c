@@ -67,6 +67,7 @@
 #define FINALSTATEFILE  "final_state.dat"
 #define AVVELSFILE      "av_vels.dat"
 #define OCLFILE         "kernels.cl"
+#define L(X, Y, V, NX) ((X) + ((V)+(Y)*9)*(NX))
 
 /* struct to hold the parameter values */
 typedef struct
@@ -98,10 +99,8 @@ typedef struct
 } t_ocl;
 
 /* struct to hold the 'speed' values */
-typedef struct
-{
-  double speeds[NSPEEDS];
-} t_speed;
+//typedef struct { double speeds[NSPEEDS]; } t_speed;
+typedef float t_speed;
 
 /*
 ** function prototypes
@@ -110,7 +109,7 @@ typedef struct
 /* load params, allocate memory, load obstacles & initialise fluid particle densities */
 int initialise(const char* paramfile, const char* obstaclefile,
                t_param* params, t_speed** cells_ptr, t_speed** tmp_cells_ptr,
-               int** obstacles_ptr, double** av_vels_ptr, t_ocl* ocl);
+               int** obstacles_ptr, double** av_vels_ptr, t_ocl* ocl, int* available_cells);
 
 /*
 ** The main calculation methods.
@@ -158,6 +157,7 @@ int main(int argc, char* argv[])
   t_speed* cells     = NULL;    /* grid containing fluid densities */
   t_speed* tmp_cells = NULL;    /* scratch space */
   int*     obstacles = NULL;    /* grid indicating which cells are blocked */
+  int available_cells;
   double* av_vels   = NULL;     /* a record of the av. velocity computed for each timestep */
   cl_int err;
   struct timeval timstr;        /* structure to hold elapsed time */
@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
   }
 
   /* initialise our data structures and load values from file */
-  initialise(paramfile, obstaclefile, &params, &cells, &tmp_cells, &obstacles, &av_vels, &ocl);
+  initialise(paramfile, obstaclefile, &params, &cells, &tmp_cells, &obstacles, &av_vels, &ocl, &available_cells);
 
   /* iterate for maxIters timesteps */
   gettimeofday(&timstr, NULL);
@@ -227,7 +227,7 @@ int main(int argc, char* argv[])
   return EXIT_SUCCESS;
 }
 
-int timestep(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obstacles, t_ocl ocl)
+int timestep(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obstacles, t_ocl ocl, int* available_cells)
 {
   cl_int err;
   //Have loop inside kernel
@@ -241,12 +241,14 @@ int timestep(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obst
   checkError(err, "setting lbm arg 3", __LINE__);
   err = clSetKernelArg(ocl.lbm, 4, sizeof(cl_int), &params.ny);
   checkError(err, "setting lbm arg 4", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 5, sizeof(cl_float), &params.density);
+  err = clSetKernelArg(ocl.lbm, 5, sizeof(cl_int), available_cells);
   checkError(err, "setting lbm arg 5", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 6, sizeof(cl_float), &params.accel);
+  err = clSetKernelArg(ocl.lbm, 6, sizeof(cl_float), &params.density);
   checkError(err, "setting lbm arg 6", __LINE__);
+  err = clSetKernelArg(ocl.lbm, 7, sizeof(cl_float), &params.accel);
+  checkError(err, "setting lbm arg 7", __LINE__);
 
-  size_t global[2] = {params.nx, params.ny};
+  size_t global[2] = {params.nx, params.ny};//maybe divide nx by vectorsize
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, NULL, 0, NULL, NULL);
   checkError(err, "enqueuing lbm kernel", __LINE__);
 
@@ -525,7 +527,7 @@ double av_velocity(const t_param params, t_speed* cells, int* obstacles, t_ocl o
 
 int initialise(const char* paramfile, const char* obstaclefile,
                t_param* params, t_speed** cells_ptr, t_speed** tmp_cells_ptr,
-               int** obstacles_ptr, double** av_vels_ptr, t_ocl *ocl)
+               int** obstacles_ptr, double** av_vels_ptr, t_ocl *ocl, int* available_cells)
 {
   char   message[1024];  /* message buffer */
   FILE*   fp;            /* file pointer */
@@ -596,12 +598,12 @@ int initialise(const char* paramfile, const char* obstaclefile,
   */
 
   /* main grid */
-  *cells_ptr = (t_speed*)malloc(sizeof(t_speed) * (params->ny * params->nx));
+  *cells_ptr = (t_speed*)malloc(sizeof(t_speed) * (params->ny * params->nx * 9));
 
   if (*cells_ptr == NULL) die("cannot allocate memory for cells", __LINE__, __FILE__);
 
   /* 'helper' grid, used as scratch space */
-  *tmp_cells_ptr = (t_speed*)malloc(sizeof(t_speed) * (params->ny * params->nx));
+  *tmp_cells_ptr = (t_speed*)malloc(sizeof(t_speed) * (params->ny * params->nx * 9));
 
   if (*tmp_cells_ptr == NULL) die("cannot allocate memory for tmp_cells", __LINE__, __FILE__);
 
@@ -620,17 +622,27 @@ int initialise(const char* paramfile, const char* obstaclefile,
     for (int jj = 0; jj < params->nx; jj++)
     {
       /* centre */
-      (*cells_ptr)[ii * params->nx + jj].speeds[0] = w0;
+      (*cells_ptr)[L(jj, ii, 0, params->nx_pad)] = w0;
       /* axis directions */
-      (*cells_ptr)[ii * params->nx + jj].speeds[1] = w1;
-      (*cells_ptr)[ii * params->nx + jj].speeds[2] = w1;
-      (*cells_ptr)[ii * params->nx + jj].speeds[3] = w1;
-      (*cells_ptr)[ii * params->nx + jj].speeds[4] = w1;
+      (*cells_ptr)[L(jj, ii, 1, params->nx_pad)] = w1;
+      (*cells_ptr)[L(jj, ii, 2, params->nx_pad)] = w1;
+      (*cells_ptr)[L(jj, ii, 4, params->nx_pad)] = w1;
+      (*cells_ptr)[L(jj, ii, 7, params->nx_pad)] = w1;
       /* diagonals */
-      (*cells_ptr)[ii * params->nx + jj].speeds[5] = w2;
-      (*cells_ptr)[ii * params->nx + jj].speeds[6] = w2;
-      (*cells_ptr)[ii * params->nx + jj].speeds[7] = w2;
-      (*cells_ptr)[ii * params->nx + jj].speeds[8] = w2;
+      (*cells_ptr)[L(jj, ii, 3, params->nx_pad)] = w2;
+      (*cells_ptr)[L(jj, ii, 5, params->nx_pad)] = w2;
+      (*cells_ptr)[L(jj, ii, 6, params->nx_pad)] = w2;
+      (*cells_ptr)[L(jj, ii, 8, params->nx_pad)] = w2;
+
+      (*tmp_cells_ptr)[L(jj, ii, 0, params->nx_pad)] = 0;
+      (*tmp_cells_ptr)[L(jj, ii, 1, params->nx_pad)] = 0;
+      (*tmp_cells_ptr)[L(jj, ii, 2, params->nx_pad)] = 0;
+      (*tmp_cells_ptr)[L(jj, ii, 3, params->nx_pad)] = 0;
+      (*tmp_cells_ptr)[L(jj, ii, 4, params->nx_pad)] = 0;
+      (*tmp_cells_ptr)[L(jj, ii, 5, params->nx_pad)] = 0;
+      (*tmp_cells_ptr)[L(jj, ii, 6, params->nx_pad)] = 0;
+      (*tmp_cells_ptr)[L(jj, ii, 7, params->nx_pad)] = 0;
+      (*tmp_cells_ptr)[L(jj, ii, 8, params->nx_pad)] = 0;
     }
   }
 
@@ -666,6 +678,15 @@ int initialise(const char* paramfile, const char* obstaclefile,
 
     /* assign to array */
     (*obstacles_ptr)[yy * params->nx + xx] = blocked;
+  }
+
+  (*available_cells) = params->nx * params->ny;
+  for(int x = 0; x < params->nx; ++x){
+    for(int y = 0; y < params->ny; ++y){
+      if((*obstacles_ptr)[y * params->nx +x] == 0.0){
+        (*available_cells)--;
+      }
+    }
   }
 
   /* and close the file */

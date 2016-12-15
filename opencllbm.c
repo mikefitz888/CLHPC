@@ -182,6 +182,7 @@ int main(int argc, char* argv[])
 
   char*    paramfile = NULL;    /* name of the input parameter file */
   char*    obstaclefile = NULL; /* name of a the input obstacle file */
+  t_ocl ocl;
   t_speed* cells     = NULL;    /* grid containing fluid densities */
   t_speed* tmp_cells = NULL;    /* scratch space */
   t_obstacle* obstacles = NULL;    /* grid indicating which cells are blocked */
@@ -207,7 +208,7 @@ int main(int argc, char* argv[])
   /* initialise our data structures and load values from file */
   
   // DOESN'T NEED MPI SPECIALISATION AS OUTSIDE TIMED REGION, WOULD BE BENEFICIAL OTHERWISE
-  initialise(paramfile, obstaclefile, params, &cells, &tmp_cells, &obstacles, &av_vels, &available_cells);
+  initialise(paramfile, obstaclefile, params, &cells, &tmp_cells, &obstacles, &av_vels, &available_cells, &ocl);
   params->available_cells = available_cells;
   t_speed *av_vels_recv = malloc(sizeof *av_vels_recv * (params->maxIters+1));
   //printf("available cells = %d\n", available_cells);
@@ -263,7 +264,7 @@ int main(int argc, char* argv[])
     write_values(params, cells+offset, obstacles, av_vels);
   }
 
-  finalise(params, &cells, &tmp_cells, &obstacles, &av_vels);
+  finalise(params, &cells, &tmp_cells, &obstacles, &av_vels, ocl);
   return EXIT_SUCCESS;
 }
 

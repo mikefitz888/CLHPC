@@ -16,7 +16,7 @@ device=${device#*gpu}
 export OCL_DEVICE=$device
 
 #! application name
-application="./d2q9-bgk"
+application="./opencllbm"
 
 #! Run options for the application
 options="input_128x128.params obstacles_128x128.dat"
