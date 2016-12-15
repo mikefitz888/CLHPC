@@ -52,8 +52,8 @@ kernel void lbm(global float* cells,
 
   floatv sum =  sqrt(x_sq + y_sq) * o_mask2; //Ignore obstacles in the summation
 
-  float tot_u;
-  tot_u = sum.s0 + sum.s1 + sum.s2 + sum.s3 + sum.s4 + sum.s5 + sum.s6 + sum.s7 + sum.s8 + sum.s9 + sum.s10 + sum.s11 + sum.s12 + sum.s13 + sum.s14 + sum.s15;
+  //float tot_u = sum.s0 + sum.s1 + sum.s2 + sum.s3 + sum.s4 + sum.s5 + sum.s6 + sum.s7 + sum.s8 + sum.s9 + sum.s10 + sum.s11 + sum.s12 + sum.s13 + sum.s14 + sum.s15;
+  floatv = dot(sum, (floatv)(1));
 
   floatv u0 = (u0_o * Vnomega);
   floatv u1 = (u1_o * Vnomega);
