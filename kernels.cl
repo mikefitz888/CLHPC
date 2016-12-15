@@ -20,7 +20,7 @@ kernel void lbm(global float* cells,
   int x = get_global_id(0)*16;
   int y = get_global_id(1);
   int offset = 4 + (9 * nx_pad);
-  global t_speed* tmp_cells = cells + offset;
+  global float* tmp_cells = cells + offset;
 
   floatv u0_o = VEC_LOAD(&cells[L(x, y, 0, nx_pad)]);
   floatv u1_o = VEC_LOAD(&cells[L(x, y, 1, nx_pad)]);
@@ -49,7 +49,7 @@ kernel void lbm(global float* cells,
 
   floatv sum =  sqrt(x_sq + y_sq) & o_mask2; //Ignore obstacles in the summation
 
-  tot_u += dot(sum, (float16)(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f));
+  floatv tot_u = dot(sum, (float16)(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f));
 
 
 
