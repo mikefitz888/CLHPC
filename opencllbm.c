@@ -105,6 +105,11 @@ typedef struct
   int available_cells;
 } t_param;
 
+typedef struct _cl_buffer_region {
+  size_t origin;
+  size_t size;
+} cl_buffer_region;
+
 /* struct to hold the 'speed' values */
 typedef struct
 {
@@ -122,8 +127,9 @@ typedef struct
   cl_kernel  propagate;
   cl_kernel  lbm;
 
-  cl_mem cells;
-  cl_mem tmp_cells;
+  cl_mem grid;
+  cl_mem cells; //subbuffer of grid
+  cl_mem tmp_cells; //subbuffer of grid
   cl_mem obstacles;
 } t_ocl;
 
@@ -360,27 +366,18 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   //2496 GPU cores available
   cl_int err;
   //sizeof(t_speed) * (NSPEEDS * ((params->ny_pad) * (params->nx_pad)) * 2 + 4)
+
+  //Write cells to kernel
   err = clEnqueueWriteBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(t_speed) * (9 * ((params->ny_pad) * (params->nx_pad)) * 2 + 4), cells, 0, NULL, NULL);
+
   checkError(err, "writing cells data", __LINE__);
   err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.cells);
   checkError(err, "setting lbm arg 0", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.obstacles);
+  err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.tmp_cells);
   checkError(err, "setting lbm arg 1", __LINE__);
-  /*err = clSetKernelArg(ocl.lbm, 2, sizeof(cl_int), &(params->nx));
+  err = clSetKernelArg(ocl.lbm, 2, sizeof(cl_mem), &ocl.obstacles);
   checkError(err, "setting lbm arg 2", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 3, sizeof(cl_int), &(params->ny));
-  checkError(err, "setting lbm arg 3", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 4, sizeof(cl_int), &(params->nx_pad));
-  checkError(err, "setting lbm arg 4", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 5, sizeof(cl_float), &inverse_available_cells);
-  checkError(err, "setting lbm arg 5", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 6, sizeof(cl_float), &(params->density) );
-  checkError(err, "setting lbm arg 6", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 7, sizeof(cl_float), &(params->accel) );
-  checkError(err, "setting lbm arg 7", __LINE__);
 
-  //Set Constant Vector args
-  err = clSetKernelArg(ocl.lbm, 8, sizeof(cl_float)*16, );*/
 
   size_t global[2] = {params->nx/16, params->ny};//maybe divide nx by vectorsize
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, NULL, 0, NULL, NULL);
@@ -710,6 +707,9 @@ int initialise(const char* paramfile, const char* obstaclefile,
   }
   checkError(err, "building program", __LINE__);
 
+  _cl_buffer_region     cells_sub_buffer = { 4*sizeof(t_speed), sizeof(t_speed)*(9*params->nx_pad)*params->ny_pad*2};
+  _cl_buffer_region tmp_cells_sub_buffer = { ((9*params->nx_pad)+4)*sizeof(t_speed), sizeof(t_speed)*(9*params->nx_pad)*(params->ny_pad*2 - 1)};
+
   // Create OpenCL kernels
   ocl->accelerate_flow = clCreateKernel(ocl->program, "accelerate_flow", &err);
   checkError(err, "creating accelerate_flow kernel", __LINE__);
@@ -718,11 +718,18 @@ int initialise(const char* paramfile, const char* obstaclefile,
   ocl->lbm = clCreateKernel(ocl->program, "lbm", &err);
   checkError(err, "creating lbm kernel", __LINE__);
 
+
   // Allocate OpenCL buffers
-  ocl->cells = clCreateBuffer(
+  ocl->grid = clCreateBuffer(
     ocl->context, CL_MEM_READ_WRITE,
     sizeof(t_speed) * (NSPEEDS * ((params->ny_pad) * (params->nx_pad)) * 2 + 4), NULL, &err);
+  checkError(err, "creating grid buffer", __LINE__);
+
+  ocl->cells     = clCreateSubBuffer(ocl->grid, CL_MEM_READ_WRITE, CL_BUFFER_CREATE_TYPE_REGION, cells_sub_buffer, &err);
   checkError(err, "creating cells buffer", __LINE__);
+  ocl->tmp_cells = clCreateSubBuffer(ocl->grid, CL_MEM_READ_WRITE, CL_BUFFER_CREATE_TYPE_REGION, tmp_cells_sub_buffer, &err);
+  checkError(err, "creating tmp_cells buffer", __LINE__);
+
   /*ocl->tmp_cells = clCreateBuffer(
     ocl->context, CL_MEM_READ_WRITE,
     sizeof(t_speed) * params->nx * params->ny, NULL, &err);

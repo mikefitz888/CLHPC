@@ -38,12 +38,11 @@ typedef struct
 } t_speed;
 
 
-kernel void lbm(global float* cells, global float* obstacles)
+kernel void lbm(global float* cells, global float* tmp_cells, global float* obstacles)
 {
   int x = get_global_id(0)*16;
   int y = get_global_id(1);
   int offset = 4 + (9 * nx_pad);
-  global float* tmp_cells = cells + offset;
 
   floatv u0_o = VEC_LOAD(&cells[L(x, y, 0, nx_pad)]);
   floatv u1_o = VEC_LOAD(&cells[L(x, y, 1, nx_pad)]);
