@@ -18,7 +18,8 @@ kernel void lbm(global float* cells,
                 global float* obstacles,
                 int nx, int ny, int nx_pad,
                 float inverse_available_cells, float pdensity, float accel,
-                float16 Vnomega, float16 V3, float16 Vo25, float16 V1o5, float16 V4o5)
+                floatv Vnomega, floatv Vo25, floatv V1o5, floatv V2, floatv V3, floatv V4o5,
+                floatv start_weight)
 {
   int x = get_global_id(0)*16;
   int y = get_global_id(1);
@@ -133,15 +134,15 @@ kernel void lbm(global float* cells,
 
   /* Begin: Propogate */
   /* None of these swap nodes as y != end && y != start */
-  VEC_STORE(&cells[L(x  , y  , 0, params->nx_pad)], u0); // Does not propogate
-  VEC_STORE(&cells[L(x+1, y  , 1, params->nx_pad)], u1);
-  VEC_STORE(&cells[L(x-1, y  , 2, params->nx_pad)], u2);
-  VEC_STORE(&cells[L(x+1, y+1, 3, params->nx_pad)], u3);
-  VEC_STORE(&cells[L(x  , y+1, 4, params->nx_pad)], u4);
-  VEC_STORE(&cells[L(x-1, y+1, 5, params->nx_pad)], u5);
-  VEC_STORE(&cells[L(x-1, y-1, 6, params->nx_pad)], u6);
-  VEC_STORE(&cells[L(x  , y-1, 7, params->nx_pad)], u7);
-  VEC_STORE(&cells[L(x+1, y-1, 8, params->nx_pad)], u8);        
+  VEC_STORE(&cells[L(x  , y  , 0, nx_pad)], u0); // Does not propogate
+  VEC_STORE(&cells[L(x+1, y  , 1, nx_pad)], u1);
+  VEC_STORE(&cells[L(x-1, y  , 2, nx_pad)], u2);
+  VEC_STORE(&cells[L(x+1, y+1, 3, nx_pad)], u3);
+  VEC_STORE(&cells[L(x  , y+1, 4, nx_pad)], u4);
+  VEC_STORE(&cells[L(x-1, y+1, 5, nx_pad)], u5);
+  VEC_STORE(&cells[L(x-1, y-1, 6, nx_pad)], u6);
+  VEC_STORE(&cells[L(x  , y-1, 7, nx_pad)], u7);
+  VEC_STORE(&cells[L(x+1, y-1, 8, nx_pad)], u8);        
   /* End: Propogate */
 
 }
