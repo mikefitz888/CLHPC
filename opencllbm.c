@@ -228,7 +228,7 @@ int main(int argc, char* argv[])
 */
  
   //Lattice-Bolzmann Iterations (this function contains the loop, no need to loop this call)
-  timestep(params, cells, tmp_cells+offset, obstacles, av_vels, 1.0/available_cells, ocl);
+  //timestep(params, cells, tmp_cells+offset, obstacles, av_vels, 1.0/available_cells, ocl);
 
   //TODO: Pass chunks back to master from other nodes
 
@@ -238,7 +238,7 @@ int main(int argc, char* argv[])
 
   gettimeofday(&timstr, NULL);
   toc = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
-  //getrusage(RUSAGE_SELF, &ru);
+  getrusage(RUSAGE_SELF, &ru);
   timstr = ru.ru_utime;
   usrtim = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
   timstr = ru.ru_stime;
