@@ -105,11 +105,6 @@ typedef struct
   int available_cells;
 } t_param;
 
-typedef struct _cl_buffer_region {
-  size_t origin;
-  size_t size;
-} cl_buffer_region;
-
 /* struct to hold the 'speed' values */
 typedef struct
 {
