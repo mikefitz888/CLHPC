@@ -362,8 +362,10 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   cl_int err;
   //sizeof(t_speed) * (NSPEEDS * ((params->ny_pad) * (params->nx_pad)) * 2 + 4)
 
+  //TODO: reposition "ghost" cells
+
   //Write cells to kernel
-  err = clEnqueueWriteBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(t_speed) * (9 * ((params->ny_pad) * (params->nx_pad)) * 2 + 4), cells, 0, NULL, NULL);
+  err = clEnqueueWriteBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(t_speed) * (9 * ((params->ny_pad) * (params->nx_pad)) * 2), cells, 0, NULL, NULL);
 
   checkError(err, "writing cells data", __LINE__);
   err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.cells);
@@ -381,7 +383,9 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   err = clFinish(ocl.queue);
   checkError(err, "waiting for lbm kernel", __LINE__);
 
-
+  // Read tmp_cells from device
+  err = clEnqueueReadBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(t_speed) * (9 * ((params->ny_pad) * (params->nx_pad)) * 2), tmp_cells, 0, NULL, NULL);
+  checkError(err, "reading tmp_cells data", __LINE__);
 
 
   return EXIT_SUCCESS;
