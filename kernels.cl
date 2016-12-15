@@ -35,7 +35,7 @@ kernel void lbm(global float* cells,
 
 }
 
-kernel void accelerate_flow(global t_speed* cells,
+kernel void accelerate_flow(global t_speed* othercells,
                             global int* obstacles,
                             int nx, int ny,
                             double density, double accel)
@@ -53,23 +53,23 @@ kernel void accelerate_flow(global t_speed* cells,
   /* if the cell is not occupied and
   ** we don't send a negative density */
   if (!obstacles[ii * nx + jj]
-      && (cells[ii * nx + jj].speeds[3] - w1) > 0.0
-      && (cells[ii * nx + jj].speeds[6] - w2) > 0.0
-      && (cells[ii * nx + jj].speeds[7] - w2) > 0.0)
+      && (othercells[ii * nx + jj].speeds[3] - w1) > 0.0
+      && (othercells[ii * nx + jj].speeds[6] - w2) > 0.0
+      && (othercells[ii * nx + jj].speeds[7] - w2) > 0.0)
   {
     /* increase 'east-side' densities */
-    cells[ii * nx + jj].speeds[1] += w1;
-    cells[ii * nx + jj].speeds[5] += w2;
-    cells[ii * nx + jj].speeds[8] += w2;
+    othercells[ii * nx + jj].speeds[1] += w1;
+    othercells[ii * nx + jj].speeds[5] += w2;
+    othercells[ii * nx + jj].speeds[8] += w2;
     /* decrease 'west-side' densities */
-    cells[ii * nx + jj].speeds[3] -= w1;
-    cells[ii * nx + jj].speeds[6] -= w2;
-    cells[ii * nx + jj].speeds[7] -= w2;
+    othercells[ii * nx + jj].speeds[3] -= w1;
+    othercells[ii * nx + jj].speeds[6] -= w2;
+    othercells[ii * nx + jj].speeds[7] -= w2;
   }
 }
 
-kernel void propagate(global t_speed* cells,
-                      global t_speed* tmp_cells,
+kernel void propagate(global t_speed* othercells,
+                      global t_speed* tmp_othercells,
                       global int* obstacles,
                       int nx, int ny)
 {
@@ -83,16 +83,16 @@ kernel void propagate(global t_speed* cells,
   int x_e = (jj + 1) % nx;
   int y_s = (ii == 0) ? (ii + ny - 1) : (ii - 1);
   int x_w = (jj == 0) ? (jj + nx - 1) : (jj - 1);
-  /* propagate densities to neighbouring cells, following
+  /* propagate densities to neighbouring othercells, following
   ** appropriate directions of travel and writing into
   ** scratch space grid */
-  tmp_cells[ii  * nx + jj ].speeds[0] = cells[ii * nx + jj].speeds[0]; /* central cell, no movement */
-  tmp_cells[ii  * nx + x_e].speeds[1] = cells[ii * nx + jj].speeds[1]; /* east */
-  tmp_cells[y_n * nx + jj ].speeds[2] = cells[ii * nx + jj].speeds[2]; /* north */
-  tmp_cells[ii  * nx + x_w].speeds[3] = cells[ii * nx + jj].speeds[3]; /* west */
-  tmp_cells[y_s * nx + jj ].speeds[4] = cells[ii * nx + jj].speeds[4]; /* south */
-  tmp_cells[y_n * nx + x_e].speeds[5] = cells[ii * nx + jj].speeds[5]; /* north-east */
-  tmp_cells[y_n * nx + x_w].speeds[6] = cells[ii * nx + jj].speeds[6]; /* north-west */
-  tmp_cells[y_s * nx + x_w].speeds[7] = cells[ii * nx + jj].speeds[7]; /* south-west */
-  tmp_cells[y_s * nx + x_e].speeds[8] = cells[ii * nx + jj].speeds[8]; /* south-east */
+  tmp_othercells[ii  * nx + jj ].speeds[0] = othercells[ii * nx + jj].speeds[0]; /* central cell, no movement */
+  tmp_othercells[ii  * nx + x_e].speeds[1] = othercells[ii * nx + jj].speeds[1]; /* east */
+  tmp_othercells[y_n * nx + jj ].speeds[2] = othercells[ii * nx + jj].speeds[2]; /* north */
+  tmp_othercells[ii  * nx + x_w].speeds[3] = othercells[ii * nx + jj].speeds[3]; /* west */
+  tmp_othercells[y_s * nx + jj ].speeds[4] = othercells[ii * nx + jj].speeds[4]; /* south */
+  tmp_othercells[y_n * nx + x_e].speeds[5] = othercells[ii * nx + jj].speeds[5]; /* north-east */
+  tmp_othercells[y_n * nx + x_w].speeds[6] = othercells[ii * nx + jj].speeds[6]; /* north-west */
+  tmp_othercells[y_s * nx + x_w].speeds[7] = othercells[ii * nx + jj].speeds[7]; /* south-west */
+  tmp_othercells[y_s * nx + x_e].speeds[8] = othercells[ii * nx + jj].speeds[8]; /* south-east */
 }
