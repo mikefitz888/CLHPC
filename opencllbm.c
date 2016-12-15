@@ -102,11 +102,7 @@ typedef struct
   t_speed omega;         /* relaxation parameter */
   int nx_pad;
   int ny_pad;
-  int rank;   /* Proc # */
-  int size;   /* # of Procs */
   int available_cells;
-  int north;
-  int south;
 } t_param;
 
 /* struct to hold the 'speed' values */
@@ -394,8 +390,6 @@ t_speed av_velocity(const t_param* params, t_speed* cells, t_obstacle* obstacles
 
   /* initialise */
   tot_u = 0.0;
-  const int start = START(params->rank, params->size, params->ny);
-  const int end = END(params->rank, params->size, params->ny);
 
   /* loop over all non-blocked cells */
   for (int ii = start; ii <= end; ii++)
