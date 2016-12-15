@@ -230,7 +230,8 @@ int main(int argc, char* argv[])
 int timestep(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obstacles, t_ocl ocl, int* available_cells)
 {
   cl_int err;
-  //Have loop inside kernel
+  err = clEnqueueWriteBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(t_speed) * params.nx * params.ny, cells, 0, NULL, NULL);
+  checkError(err, "writing cells data", __LINE__);
   err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.cells);
   checkError(err, "setting lbm arg 0", __LINE__);
   err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.tmp_cells);

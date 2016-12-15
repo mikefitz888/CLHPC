@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
 */
  
   //Lattice-Bolzmann Iterations (this function contains the loop, no need to loop this call)
-  timestep(params, cells+offset, tmp_cells+offset, obstacles, av_vels, 1.0/available_cells, ocl);
+  timestep(params, cells, tmp_cells+offset, obstacles, av_vels, 1.0/available_cells, ocl);
 
   //TODO: Pass chunks back to master from other nodes
 
@@ -363,28 +363,29 @@ int rebound(const t_param* params, t_speed* tmp_cells, t_obstacle* obstacles)
   return EXIT_SUCCESS;
 }
 
-int timestep(const t_param* restrict params, t_speed* restrict cells, t_speed* restrict tmp_cells, t_obstacle* restrict obstacles, t_speed* restrict av_vels, t_speed inverse_available_cells, t_ocl ocl)
+int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells, t_obstacle* restrict obstacles, t_speed* restrict av_vels, t_speed inverse_available_cells, t_ocl ocl)
 {
+  //2496 GPU cores available
   cl_int err;
-  //Have loop inside kernel
+  //sizeof(t_speed) * (NSPEEDS * ((params->ny_pad) * (params->nx_pad)) * 2 + 4)
+  err = clEnqueueWriteBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(t_speed) * (9 * ((params->ny_pad) * (params->nx_pad)) * 2 + 4), cells, 0, NULL, NULL);
+  checkError(err, "writing cells data", __LINE__);
   err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.cells);
   checkError(err, "setting lbm arg 0", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.tmp_cells);
+  err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.obstacles);
   checkError(err, "setting lbm arg 1", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 2, sizeof(cl_mem), &ocl.obstacles);
+  err = clSetKernelArg(ocl.lbm, 2, sizeof(cl_int), &(params->nx));
   checkError(err, "setting lbm arg 2", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 3, sizeof(cl_int), &(params->nx));
+  err = clSetKernelArg(ocl.lbm, 3, sizeof(cl_int), &(params->ny));
   checkError(err, "setting lbm arg 3", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 4, sizeof(cl_int), &(params->ny));
+  err = clSetKernelArg(ocl.lbm, 4, sizeof(cl_int), &(params->nx_pad));
   checkError(err, "setting lbm arg 4", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 5, sizeof(cl_int), &(params->nx_pad));
+  err = clSetKernelArg(ocl.lbm, 5, sizeof(cl_float), &inverse_available_cells);
   checkError(err, "setting lbm arg 5", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 6, sizeof(cl_float), &inverse_available_cells);
+  err = clSetKernelArg(ocl.lbm, 6, sizeof(cl_float), &(params->density) );
   checkError(err, "setting lbm arg 6", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 7, sizeof(cl_float), &(params->density) );
+  err = clSetKernelArg(ocl.lbm, 7, sizeof(cl_float), &(params->accel) );
   checkError(err, "setting lbm arg 7", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 8, sizeof(cl_float), &(params->accel) );
-  checkError(err, "setting lbm arg 8", __LINE__);
 
   size_t global[2] = {params->nx/16, params->ny};//maybe divide nx by vectorsize
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, NULL, 0, NULL, NULL);
