@@ -231,7 +231,7 @@ int timestep(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obst
 {
   cl_int err;
   err = clEnqueueWriteBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(t_speed) * params.nx * params.ny, cells, 0, NULL, NULL);
-  checkError(err, "writing cells data", __LINE__);
+  /*checkError(err, "writing cells data", __LINE__);
   err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.cells);
   checkError(err, "setting lbm arg 0", __LINE__);
   err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.tmp_cells);
@@ -254,7 +254,7 @@ int timestep(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obst
   checkError(err, "enqueuing lbm kernel", __LINE__);
 
   err = clFinish(ocl.queue);
-  checkError(err, "waiting for lbm kernel", __LINE__);
+  checkError(err, "waiting for lbm kernel", __LINE__);*/
 
   //Write all data back to memory
 
