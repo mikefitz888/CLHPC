@@ -924,6 +924,9 @@ void usage(const char* exe)
   exit(EXIT_FAILURE);
 }
 
+#define MAX_DEVICES 32
+#define MAX_DEVICE_NAME 1024
+
 cl_device_id selectOpenCLDevice()
 {
   cl_int err;
