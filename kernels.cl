@@ -1,6 +1,11 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
-#define NSPEEDS         9
+#define NSPEEDS 9
+#define L(X, Y, V, NX) ((X) + ((V)+(Y)*18)*(NX))
+#define VEC_SIZE 16
+#define floatv float16
+#define VEC_LOAD(ADDR) vload16(0, (ADDR))
+
 
 typedef struct
 {
@@ -8,11 +13,22 @@ typedef struct
 } t_speed;
 
 kernel void lbm(global t_speed* cells,
-                global t_speed* tmp_cells,
                 global int* obstacles,
-                int nx, int ny, int available_cells, float density, float accel)
+                int nx, int ny, int nx_pad,
+                float inverse_available_cells, float density, float accel)
 {
-  /* First deal with alignment */
+  int x = get_global_id(0)*16;
+  int y = get_global_id(1);
+
+  floatv u0_o = VEC_LOAD(&tmp_cells[L(x, y, 0, params->nx_pad)]);
+  floatv u1_o = VEC_LOAD(&tmp_cells[L(x, y, 1, params->nx_pad)]);
+  floatv u2_o = VEC_LOAD(&tmp_cells[L(x, y, 2, params->nx_pad)]);
+  floatv u3_o = VEC_LOAD(&tmp_cells[L(x, y, 3, params->nx_pad)]);
+  floatv u4_o = VEC_LOAD(&tmp_cells[L(x, y, 4, params->nx_pad)]);
+  floatv u5_o = VEC_LOAD(&tmp_cells[L(x, y, 5, params->nx_pad)]);
+  floatv u6_o = VEC_LOAD(&tmp_cells[L(x, y, 6, params->nx_pad)]);
+  floatv u7_o = VEC_LOAD(&tmp_cells[L(x, y, 7, params->nx_pad)]);
+  floatv u8_o = VEC_LOAD(&tmp_cells[L(x, y, 8, params->nx_pad)]);
 }
 
 kernel void accelerate_flow(global t_speed* cells,

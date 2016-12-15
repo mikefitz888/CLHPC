@@ -377,14 +377,16 @@ int timestep(const t_param* restrict params, t_speed* restrict cells, t_speed* r
   checkError(err, "setting lbm arg 3", __LINE__);
   err = clSetKernelArg(ocl.lbm, 4, sizeof(cl_int), &(params->ny));
   checkError(err, "setting lbm arg 4", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 5, sizeof(cl_float), &inverse_available_cells);
+  err = clSetKernelArg(ocl.lbm, 5, sizeof(cl_int), &(params->nx_pad));
   checkError(err, "setting lbm arg 5", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 6, sizeof(cl_float), &(params->density) );
+  err = clSetKernelArg(ocl.lbm, 6, sizeof(cl_float), &inverse_available_cells);
   checkError(err, "setting lbm arg 6", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 7, sizeof(cl_float), &(params->accel) );
+  err = clSetKernelArg(ocl.lbm, 7, sizeof(cl_float), &(params->density) );
   checkError(err, "setting lbm arg 7", __LINE__);
+  err = clSetKernelArg(ocl.lbm, 8, sizeof(cl_float), &(params->accel) );
+  checkError(err, "setting lbm arg 8", __LINE__);
 
-  size_t global[2] = {params->nx, params->ny};//maybe divide nx by vectorsize
+  size_t global[2] = {params->nx/16, params->ny};//maybe divide nx by vectorsize
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, NULL, 0, NULL, NULL);
   checkError(err, "enqueuing lbm kernel", __LINE__);
 
