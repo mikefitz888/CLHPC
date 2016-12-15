@@ -12,7 +12,7 @@ typedef struct
   double speeds[NSPEEDS];
 } t_speed;
 
-kernel void lbm(global t_speed* cells,
+kernel void lbm(global float* cells,
                 global int* obstacles,
                 int nx, int ny, int nx_pad,
                 float inverse_available_cells, float density, float accel)
