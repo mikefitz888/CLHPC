@@ -29,7 +29,7 @@ constant int nx_pad = NXPAD;
 
 //Pre-calculated vector constants
 constant floatv Vnomega = (floatv)(1-OMEGA);
-constant floatv start_weight = (floatv)(OMEGA*w0);
+constant floatv start_weight = (floatv)(STARTW);
 
 
 typedef struct

@@ -693,7 +693,7 @@ int initialise(const char* paramfile, const char* obstaclefile,
 
   // Build OpenCL program
   char* build_options = malloc(sizeof *build_options * 500);
-  sprintf(build_options, "-D NX=%d -D NY=%d -D NXPAD=%d -D INV_CELL_COUNT=%f -D ACCEL=%f -D DENSITY=%f -D OMEGA=%f", params->nx, params->ny, params->nx_pad, 1.0f/(*available_cells), params->accel, params->density, params->omega);
+  sprintf(build_options, "-D NX=%d -D NY=%d -D NXPAD=%d -D INV_CELL_COUNT=%f -D ACCEL=%f -D DENSITY=%f -D OMEGA=%f, STARTW=%f", params->nx, params->ny, params->nx_pad, 1.0f/(*available_cells), params->accel, params->density, params->omega, (4.0f/9.0f) * params->omega);
   err = clBuildProgram(ocl->program, 1, &ocl->device, build_options, NULL, NULL);
   if (err == CL_BUILD_PROGRAM_FAILURE)
   {
