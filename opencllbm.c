@@ -587,14 +587,14 @@ int initialise(const char* paramfile, const char* obstaclefile,
   }
 
   /* first set all cells in obstacle array to zero */
-  int clear_mask = -1;
+  int clear_mask = 1;
   #pragma omp parallel
   for (int ii = 0; ii < params->ny; ii++)
   {
     #pragma omp for simd _SCHEDULE_
     for (int jj = 0; jj < params->nx; jj++)
     {
-      *(int*)&(*obstacles_ptr)[ii * params->nx + jj] = clear_mask; //Sets all bits to 1, looks messy but should work
+      (*obstacles_ptr)[ii * params->nx + jj] = 1; //Sets all bits to 1, looks messy but should work
     }
   }
   (*available_cells) = params->nx * params->ny;

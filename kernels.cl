@@ -47,9 +47,9 @@ kernel void lbm(global float* cells,
   floatv x_sq = xpos*xpos;
   floatv y_sq = ypos*ypos;
 
-  floatv sum =  sqrt(x_sq + y_sq) & o_mask2; //Ignore obstacles in the summation
+  floatv sum =  sqrt(x_sq + y_sq) * o_mask2; //Ignore obstacles in the summation
 
-  float tot_u = sum.0 + sum.1;
+  float tot_u = sum.s0 + sum.s1;
 
 
 
