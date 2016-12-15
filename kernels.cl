@@ -31,6 +31,9 @@ constant int nx_pad = NXPAD;
 constant floatv Vnomega = (floatv)(1-OMEGA);
 constant floatv start_weight = (floatv)(STARTW);
 
+//Global variables
+float partial_sums[(NX/16)*NY];
+
 
 typedef struct
 {
@@ -44,15 +47,15 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
   int y = get_global_id(1);
   int offset = 4 + (9 * nx_pad);
 
-  floatv u0_o = VEC_LOAD(&cells[L(x, y, 0, nx_pad)]);
-  floatv u1_o = VEC_LOAD(&cells[L(x, y, 1, nx_pad)]);
-  floatv u2_o = VEC_LOAD(&cells[L(x, y, 2, nx_pad)]);
-  floatv u3_o = VEC_LOAD(&cells[L(x, y, 3, nx_pad)]);
-  floatv u4_o = VEC_LOAD(&cells[L(x, y, 4, nx_pad)]);
-  floatv u5_o = VEC_LOAD(&cells[L(x, y, 5, nx_pad)]);
-  floatv u6_o = VEC_LOAD(&cells[L(x, y, 6, nx_pad)]);
-  floatv u7_o = VEC_LOAD(&cells[L(x, y, 7, nx_pad)]);
-  floatv u8_o = VEC_LOAD(&cells[L(x, y, 8, nx_pad)]);
+  floatv u0_o = VEC_LOAD(&tmp_cells[L(x, y, 0, nx_pad)]);
+  floatv u1_o = VEC_LOAD(&tmp_cells[L(x, y, 1, nx_pad)]);
+  floatv u2_o = VEC_LOAD(&tmp_cells[L(x, y, 2, nx_pad)]);
+  floatv u3_o = VEC_LOAD(&tmp_cells[L(x, y, 3, nx_pad)]);
+  floatv u4_o = VEC_LOAD(&tmp_cells[L(x, y, 4, nx_pad)]);
+  floatv u5_o = VEC_LOAD(&tmp_cells[L(x, y, 5, nx_pad)]);
+  floatv u6_o = VEC_LOAD(&tmp_cells[L(x, y, 6, nx_pad)]);
+  floatv u7_o = VEC_LOAD(&tmp_cells[L(x, y, 7, nx_pad)]);
+  floatv u8_o = VEC_LOAD(&tmp_cells[L(x, y, 8, nx_pad)]);
 
   floatv o_mask2 = VEC_LOAD(&obstacles[y*nx+x]);
 
@@ -73,6 +76,9 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
 
   //float tot_u = sum.s0 + sum.s1 + sum.s2 + sum.s3 + sum.s4 + sum.s5 + sum.s6 + sum.s7 + sum.s8 + sum.s9 + sum.s10 + sum.s11 + sum.s12 + sum.s13 + sum.s14 + sum.s15;
   float tot_u = dot(sum.s0123, (float4)(1));
+  tot_u += dot(sum.s4567, (float4)(1));
+  tot_u += dot(sum.s89ab, (float4)(1));
+  tot_u += dot(sum.scdef, (float4)(1));
 
   floatv u0 = (u0_o * Vnomega);
   floatv u1 = (u1_o * Vnomega);
