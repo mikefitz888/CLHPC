@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
   /* initialise our data structures and load values from file */
   
   // DOESN'T NEED MPI SPECIALISATION AS OUTSIDE TIMED REGION, WOULD BE BENEFICIAL OTHERWISE
- /*initialise(paramfile, obstaclefile, params, &cells, &tmp_cells, &obstacles, &av_vels, &available_cells, &ocl);
+  initialise(paramfile, obstaclefile, params, &cells, &tmp_cells, &obstacles, &av_vels, &available_cells, &ocl);
   params->available_cells = available_cells;
   t_speed *av_vels_recv = malloc(sizeof *av_vels_recv * (params->maxIters+1));
   //printf("available cells = %d\n", available_cells);
@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
   // DOESN'T NEED MPI SPECIALISATION AS OUTSIDE TIMED REGION, WOULD BE BENEFICIAL OTHERWISE
   accelerate_flow(params, cells+offset, obstacles);
   // DOESN'T NEED MPI SPECIALISATION AS OUTSIDE TIMED REGION, WOULD BE BENEFICIAL OTHERWISE
-  propagate(params, cells+offset, tmp_cells+offset); */
+  propagate(params, cells+offset, tmp_cells+offset);
 
 
   /* iterate for maxIters timesteps */
@@ -249,7 +249,7 @@ int main(int argc, char* argv[])
     printf("Elapsed system CPU time:\t%.6lf (s)\n", systim);
     write_values(params, cells+offset, obstacles, av_vels);
 
-  //finalise(params, &cells, &tmp_cells, &obstacles, &av_vels, ocl);
+  finalise(params, &cells, &tmp_cells, &obstacles, &av_vels, ocl);
   return EXIT_SUCCESS;
 }
 
