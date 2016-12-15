@@ -15,7 +15,7 @@ typedef struct
 kernel void lbm(global float* cells,
                 global float* obstacles,
                 int nx, int ny, int nx_pad,
-                float inverse_available_cells, float density, float accel)
+                float inverse_available_cells, float pdensity, float accel)
 {
   int x = get_global_id(0)*16;
   int y = get_global_id(1);
@@ -32,7 +32,7 @@ kernel void lbm(global float* cells,
   floatv u7_o = VEC_LOAD(&cells[L(x, y, 7, nx_pad)]);
   floatv u8_o = VEC_LOAD(&cells[L(x, y, 8, nx_pad)]);
 
-  float o_mask2 = VEC_LOAD(&obstacles[y*nx+x]);
+  floatv o_mask2 = VEC_LOAD(&obstacles[y*nx+x]);
 
   floatv xneg = u3_o + u6_o + u7_o;
   floatv xpos = u1_o + u5_o + u8_o;
