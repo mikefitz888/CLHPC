@@ -7,6 +7,30 @@
 #define VEC_LOAD(ADDR) vload16(0, (ADDR))
 #define VEC_STORE(ADDR, DATA) vstore16((DATA), 0, ADDR)
 
+//Utility constants
+constant floatv Vo25 = (floatv)(0.25f);
+constant floatv V1o5 = (floatv)(1.5f);
+constant floatv V2   = (floatv)(2.0f);
+constant floatv V3   = (floatv)(3.0f);
+constant floatv V4o5 = (floatv)(4.5f;);
+
+constant float w0 = 4.0f / 9.0f;  /* weighting factor */
+constant float w1 = 1.0f / 9.0f;  /* weighting factor */
+constant float w2 = 1.0f / 36.0f; /* weighting factor */
+
+//Command line constants
+constant float inverse_available_cells = INV_CELL_COUNT;
+constant float acceleration = ACCEL;
+constant float density = DENSITY;
+constant float omega = OMEGA;
+constant int nx = NX;
+constant int ny = NY;
+constant int nx_pad = NXPAD;
+
+//Pre-calculated vector constants
+constant floatv Vnomega = (floatv)(1-omega);
+constant floatv start_weight = (floatv)(omega*w0);
+
 
 typedef struct
 {
@@ -14,12 +38,7 @@ typedef struct
 } t_speed;
 
 
-kernel void lbm(global float* cells,
-                global float* obstacles,
-                int nx, int ny, int nx_pad,
-                float inverse_available_cells, float pdensity, float accel,
-                floatv Vnomega, floatv Vo25, floatv V1o5, floatv V2, floatv V3, floatv V4o5,
-                floatv start_weight)
+kernel void lbm(global float* cells, global float* obstacles)
 {
   int x = get_global_id(0)*16;
   int y = get_global_id(1);

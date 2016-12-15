@@ -366,7 +366,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   checkError(err, "setting lbm arg 0", __LINE__);
   err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.obstacles);
   checkError(err, "setting lbm arg 1", __LINE__);
-  err = clSetKernelArg(ocl.lbm, 2, sizeof(cl_int), &(params->nx));
+  /*err = clSetKernelArg(ocl.lbm, 2, sizeof(cl_int), &(params->nx));
   checkError(err, "setting lbm arg 2", __LINE__);
   err = clSetKernelArg(ocl.lbm, 3, sizeof(cl_int), &(params->ny));
   checkError(err, "setting lbm arg 3", __LINE__);
@@ -378,6 +378,9 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   checkError(err, "setting lbm arg 6", __LINE__);
   err = clSetKernelArg(ocl.lbm, 7, sizeof(cl_float), &(params->accel) );
   checkError(err, "setting lbm arg 7", __LINE__);
+
+  //Set Constant Vector args
+  err = clSetKernelArg(ocl.lbm, 8, sizeof(cl_float)*16, );*/
 
   size_t global[2] = {params->nx/16, params->ny};//maybe divide nx by vectorsize
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, NULL, 0, NULL, NULL);
@@ -689,7 +692,9 @@ int initialise(const char* paramfile, const char* obstaclefile,
   checkError(err, "creating program", __LINE__);
 
   // Build OpenCL program
-  err = clBuildProgram(ocl->program, 1, &ocl->device, "", NULL, NULL);
+  char* build_options = malloc(sizeof *build_options * 500);
+  sprintf(build_options, "-D NX=%d NY=%d NXPAD=%d INV_CELL_COUNT=%.*f ACCEL=%.*f DENSITY=%.*f OMEGA=%.*f", params->nx, params->ny, params->nx_pad, 1.0f/(*available_cells), params->accel, params->density, params->omega);
+  err = clBuildProgram(ocl->program, 1, &ocl->device, build_options, NULL, NULL);
   if (err == CL_BUILD_PROGRAM_FAILURE)
   {
     size_t sz;
