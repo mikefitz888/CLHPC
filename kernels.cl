@@ -13,7 +13,7 @@ typedef struct
 } t_speed;
 
 kernel void lbm(global float* cells,
-                global int* obstacles,
+                global float* obstacles,
                 int nx, int ny, int nx_pad,
                 float inverse_available_cells, float density, float accel)
 {
@@ -31,6 +31,26 @@ kernel void lbm(global float* cells,
   floatv u6_o = VEC_LOAD(&cells[L(x, y, 6, nx_pad)]);
   floatv u7_o = VEC_LOAD(&cells[L(x, y, 7, nx_pad)]);
   floatv u8_o = VEC_LOAD(&cells[L(x, y, 8, nx_pad)]);
+
+  float o_mask2 = VEC_LOAD(&obstacles[y*nx+x]);
+
+  floatv xneg = u3_o + u6_o + u7_o;
+  floatv xpos = u1_o + u5_o + u8_o;
+  floatv yneg = u4_o + u7_o + u8_o;
+  floatv ypos = u2_o + u5_o + u6_o;
+
+  floatv density = u0_o + u1_o + u3_o + yneg + ypos;
+
+  xpos = (xpos - xneg)/density;
+  ypos = (ypos - yneg)/density;
+  
+  floatv x_sq = xpos*xpos;
+  floatv y_sq = ypos*ypos;
+
+  floatv sum =  sqrt(x_sq + y_sq) & o_mask2; //Ignore obstacles in the summation
+
+  tot_u += dot(sum, (float16)(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f));
+
 
 
 }
