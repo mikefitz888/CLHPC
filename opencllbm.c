@@ -392,7 +392,7 @@ t_speed av_velocity(const t_param* params, t_speed* cells, t_obstacle* obstacles
   tot_u = 0.0;
 
   /* loop over all non-blocked cells */
-  for (int ii = start; ii <= end; ii++)
+  for (int ii = 0; ii <= params->ny; ii++)
   {
     cells[L(4, ii, 1, params->nx_pad)] = cells[L(params->nx+4, ii, 1, params->nx_pad)];
     cells[L(4, ii, 3, params->nx_pad)] = cells[L(params->nx+4, ii, 3, params->nx_pad)];
