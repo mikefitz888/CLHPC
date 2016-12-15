@@ -31,9 +31,6 @@ constant int nx_pad = NXPAD;
 constant floatv Vnomega = (floatv)(1-OMEGA);
 constant floatv start_weight = (floatv)(STARTW);
 
-//Global variables
-float partial_sums[(NX/16)*NY];
-
 
 typedef struct
 {
@@ -41,7 +38,7 @@ typedef struct
 } t_speed;
 
 
-kernel void lbm(global float* cells, global float* tmp_cells, global float* obstacles)
+kernel void lbm(global float* cells, global float* tmp_cells, global float* obstacles, global float* partial_sums)
 {
   int x = get_global_id(0)*16;
   int y = get_global_id(1);
@@ -79,6 +76,8 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
   tot_u += dot(sum.s4567, (float4)(1));
   tot_u += dot(sum.s89ab, (float4)(1));
   tot_u += dot(sum.scdef, (float4)(1));
+  //TODO: division
+  partial_sums[y*NX+get_global_id(0)] = tot_u;
 
   floatv u0 = (u0_o * Vnomega);
   floatv u1 = (u1_o * Vnomega);

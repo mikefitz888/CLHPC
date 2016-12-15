@@ -126,6 +126,7 @@ typedef struct
   cl_mem cells; //subbuffer of grid
   cl_mem tmp_cells; //subbuffer of grid
   cl_mem obstacles;
+  cl_mem partial_sums;
 } t_ocl;
 
 /*
@@ -374,6 +375,8 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   checkError(err, "setting lbm arg 1", __LINE__);
   err = clSetKernelArg(ocl.lbm, 2, sizeof(cl_mem), &ocl.obstacles);
   checkError(err, "setting lbm arg 2", __LINE__);
+  err = clSetKernelArg(ocl.lbm, 3, sizeof(cl_mem), &ocl.partial_sums);
+  checkError(err, "setting lbm arg 3", __LINE__);
 
 
   size_t global[2] = {params->nx/16, params->ny};//maybe divide nx by vectorsize
@@ -737,6 +740,8 @@ int initialise(const char* paramfile, const char* obstaclefile,
     ocl->context, CL_MEM_READ_WRITE,
     sizeof(cl_int) * params->nx * params->ny, NULL, &err);
   checkError(err, "creating obstacles buffer", __LINE__);
+
+  ocl->partial_sums = clCreateBuffer(ocl->context, CL_MEM_WRITE_ONLY, sizeof(cl_float) * (params->nx/16) * params->ny, NULL, &err);
 
   return EXIT_SUCCESS;
 }
