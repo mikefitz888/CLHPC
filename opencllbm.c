@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
   double tic, toc;              /* floating point numbers to calculate elapsed wallclock time */
   double usrtim;                /* floating point number to record elapsed user CPU time */
   double systim;                /* floating point number to record elapsed system CPU time */
-  
+
   int available_cells = 0;
 
   /* parse the command line */
@@ -236,13 +236,13 @@ int main(int argc, char* argv[])
 **  END TIMING STEP
 */
 
-  gettimeofday(&timstr, NULL);
+  /*gettimeofday(&timstr, NULL);
   toc = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
   getrusage(RUSAGE_SELF, &ru);
   timstr = ru.ru_utime;
   usrtim = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
   timstr = ru.ru_stime;
-  systim = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
+  systim = timstr.tv_sec + (timstr.tv_usec / 1000000.0);*/
 
   t_speed reynold_sum = calc_reynolds(params, cells+offset, obstacles);
 
