@@ -69,8 +69,8 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
 
   //if(x == 4 && y == 86){
     printf("==========================\n");
-    printf("cells[1153]=%f\n", cells[1153]);
-    cells[1153] = 81;
+    printf("cells[1157]=%f\n", cells[1157]);
+    cells[1157] = 81;
     printf("tmp_cells[2861]=%f\n", tmp_cells[2861]);
     tmp_cells[2861] = 82;
     printf("Test value: %f %p\n", cells[L(x+1, y+1, 3, nx_pad)], &cells[L(x+1, y+1, 3, nx_pad)]);
