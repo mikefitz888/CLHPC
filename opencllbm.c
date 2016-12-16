@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
   params->available_cells = available_cells;
   t_speed *av_vels_recv = malloc(sizeof *av_vels_recv * (params->maxIters+1));
   //printf("available cells = %d\n", available_cells);
-  int offset = 4 + (2 * 9 * (params->nx_pad));
+  int offset = 0;//4 + (2 * 9 * (params->nx_pad));
   //printf("P%d sample cell value: %f\n", params->rank, cells[0 * params->ny * params->nx_pad + 5   * params->nx_pad + 5]);
 
   //Ensure same start state ()
