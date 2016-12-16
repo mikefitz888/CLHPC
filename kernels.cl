@@ -129,9 +129,9 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
     u8_o = VEC_LOAD(&grid[L2(x, y, 8, nx_pad)]);
   }
 
-  /*floatv o_mask2 = VEC_LOAD(&obstacles[y*nx+x-4]);
+  floatv o_mask2 = VEC_LOAD(&obstacles[y*nx+x-4]);
 
-  floatv xneg = u2_o + u5_o + u6_o;
+  /*floatv xneg = u2_o + u5_o + u6_o;
   floatv xpos = u1_o + u3_o + u8_o;
   floatv yneg = u6_o + u7_o + u8_o;
   floatv ypos = u3_o + u4_o + u5_o;
