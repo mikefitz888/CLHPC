@@ -673,7 +673,7 @@ int initialise(const char* paramfile, const char* obstaclefile,
     #pragma omp for simd _SCHEDULE_
     for (int jj = 0; jj < params->nx; jj++)
     {
-      (*obstacles_ptr)[ii * params->nx + jj] = 1; //Sets all bits to 1, looks messy but should work
+      (*obstacles_ptr)[ii * params->nx + jj] = 1;
     }
   }
   (*available_cells) = params->nx * params->ny;
@@ -913,11 +913,8 @@ int write_values(const t_param* params, t_speed* cells, t_obstacle* obstacles, t
 
         for (int kk = 0; kk < NSPEEDS; kk++)
         {
-          /*if( (ii == 1 || ii == 34) && (jj == 5 || jj == 72) ){
+          if( (ii == 1 || ii == 34) && (jj == 5 || jj == 72) ){
             printf("cell(%d, %d)[%d] = %f\n", jj-4, ii, kk, cells[L(jj, ii, kk, params->nx_pad)]);
-          }*/
-          if(cells[L(jj, ii, kk, params->nx_pad)] != 8.0){
-            printf("NOT EIGHT!\n");
           }
           local_density += cells[L(jj, ii, kk, params->nx_pad)];
         }
