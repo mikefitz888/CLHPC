@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
 */
  
   //Lattice-Bolzmann Iterations (this function contains the loop, no need to loop this call)
-  timestep(params, cells, tmp_cells+offset, obstacles, av_vels, 1.0/available_cells, ocl);
+  //timestep(params, cells, tmp_cells+offset, obstacles, av_vels, 1.0/available_cells, ocl);
 
   //TODO: Pass chunks back to master from other nodes
 
