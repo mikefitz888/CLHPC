@@ -89,7 +89,7 @@
 #define END(RANK, SIZE, NY) (START((RANK), (SIZE), (NY)) + ((NY)/(SIZE)) - ( (RANK)<(NY)%(SIZE)?0:1 ))
 #define CHUNK(RANK, SIZE, NY) ( (END(RANK, SIZE, NY)) - (START(RANK, SIZE, NY)) + 1 )
 
-typedef float t_speed;
+typedef double t_speed;
 typedef float t_obstacle;
 /* struct to hold the parameter values */
 typedef struct
@@ -232,9 +232,9 @@ int main(int argc, char* argv[])
 */
     cl_int err;
   //Write cells to kernel
-  err = clEnqueueWriteBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(cl_float) * (9 * params->ny * params->nx), tmp_cells, 0, NULL, NULL);
+  err = clEnqueueWriteBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(cl_double) * (9 * params->ny * params->nx), tmp_cells, 0, NULL, NULL);
   checkError(err, "writing cells data", __LINE__);
-  err = clEnqueueWriteBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(cl_float) * (9 * params->ny * params->nx), cells, 0, NULL, NULL);
+  err = clEnqueueWriteBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(cl_double) * (9 * params->ny * params->nx), cells, 0, NULL, NULL);
   checkError(err, "writing cells data", __LINE__);
   err = clEnqueueWriteBuffer(ocl.queue, ocl.obstacles, CL_TRUE, 0, sizeof(cl_float) * params->nx * params->ny, obstacles, 0, NULL, NULL);
   checkError(err, "writing obstacles data", __LINE__);
@@ -244,9 +244,9 @@ int main(int argc, char* argv[])
 
   //TODO: Pass chunks back to master from other nodes
   // Read tmp_cells from device                                   
-  err = clEnqueueReadBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(cl_float) * (9 * params->ny * params->nx), cells, 0, NULL, NULL);
+  err = clEnqueueReadBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(cl_double) * (9 * params->ny * params->nx), cells, 0, NULL, NULL);
   checkError(err, "reading tmp_cells data", __LINE__);
-  err = clEnqueueReadBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(cl_float) * (9 * params->ny * params->nx), tmp_cells, 0, NULL, NULL);
+  err = clEnqueueReadBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(cl_double) * (9 * params->ny * params->nx), tmp_cells, 0, NULL, NULL);
   checkError(err, "reading tmp_cells data", __LINE__);
 
 
@@ -752,12 +752,12 @@ int initialise(const char* paramfile, const char* obstaclefile,
   // Allocate OpenCL buffers
   ocl->cells = clCreateBuffer(
     ocl->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
-    sizeof(cl_float) * (NSPEEDS * params->ny * params->nx), *cells_ptr, &err);
+    sizeof(cl_double) * (NSPEEDS * params->ny * params->nx), *cells_ptr, &err);
   checkError(err, "creating grid buffer", __LINE__);
 
   ocl->tmp_cells = clCreateBuffer(
     ocl->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
-    sizeof(cl_float) * (NSPEEDS * params->ny * params->nx), *tmp_cells_ptr, &err);
+    sizeof(cl_double) * (NSPEEDS * params->ny * params->nx), *tmp_cells_ptr, &err);
   checkError(err, "creating grid buffer", __LINE__);
 
 

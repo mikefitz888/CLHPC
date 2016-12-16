@@ -18,15 +18,15 @@ constant floatv V2   = (floatv)(2.0f);
 constant floatv V3   = (floatv)(3.0f);
 constant floatv V4o5 = (floatv)(4.5f);
 
-constant float w0 = 4.0f / 9.0f;  /* weighting factor */
-constant float w1 = 1.0f / 9.0f;  /* weighting factor */
-constant float w2 = 1.0f / 36.0f; /* weighting factor */
+constant floatv w0 = 4.0f / 9.0f;  /* weighting factor */
+constant floatv w1 = 1.0f / 9.0f;  /* weighting factor */
+constant floatv w2 = 1.0f / 36.0f; /* weighting factor */
 
 //Command line constants
-constant float inverse_available_cells = INV_CELL_COUNT;
-constant float acceleration = ACCEL;
-constant float density = DENSITY;
-constant float omega = OMEGA;
+constant floatv inverse_available_cells = INV_CELL_COUNT;
+constant floatv acceleration = ACCEL;
+constant floatv density = DENSITY;
+constant floatv omega = OMEGA;
 constant int nx = NX;
 constant int ny = NY;
 constant int nx_pad = NXPAD;
@@ -84,7 +84,7 @@ kernel void swapGhostCellsTB(global float* grid, int temp){
 }
 
 
-kernel void lbm(global float* input_grid, global float* output_grid, global float* obstacles, global float* partial_sums, int it)
+kernel void lbm(global double* input_grid, global double* output_grid, global float* obstacles, global float* partial_sums, int it)
 {
   int x = get_global_id(0);
   int y = get_global_id(1);
@@ -98,15 +98,15 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   //int offset = 4 + (2 * 9 * (params->nx_pad));
   //int offset = 4 + (9 * nx_pad);
 
-   floatv u0_o = (floatv)input_grid[L(x, y, 0, NX)];
-   floatv u1_o = (floatv)input_grid[L(x, y, 1, NX)];
-   floatv u2_o = (floatv)input_grid[L(x, y, 2, NX)];
-   floatv u3_o = (floatv)input_grid[L(x, y, 3, NX)];
-   floatv u4_o = (floatv)input_grid[L(x, y, 4, NX)];
-   floatv u5_o = (floatv)input_grid[L(x, y, 5, NX)];
-   floatv u6_o = (floatv)input_grid[L(x, y, 6, NX)];
-   floatv u7_o = (floatv)input_grid[L(x, y, 7, NX)];
-   floatv u8_o = (floatv)input_grid[L(x, y, 8, NX)];
+   floatv u0_o = input_grid[L(x, y, 0, NX)];
+   floatv u1_o = input_grid[L(x, y, 1, NX)];
+   floatv u2_o = input_grid[L(x, y, 2, NX)];
+   floatv u3_o = input_grid[L(x, y, 3, NX)];
+   floatv u4_o = input_grid[L(x, y, 4, NX)];
+   floatv u5_o = input_grid[L(x, y, 5, NX)];
+   floatv u6_o = input_grid[L(x, y, 6, NX)];
+   floatv u7_o = input_grid[L(x, y, 7, NX)];
+   floatv u8_o = input_grid[L(x, y, 8, NX)];
 
    /*if(it == 1){
     if(u0_o < 0){printf("(%d, %d)[0] < 0\n", x, y);}
@@ -204,7 +204,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   /* End: Collision */
 
    /* Begin: Accelerate */
-  float wt1, wt2;
+  double wt1, wt2;
   if(y == NY - 2){
     wt1 = ACCEL * DENSITY / 9.0f;
     wt2 = ACCEL * DENSITY / 36.0f;
