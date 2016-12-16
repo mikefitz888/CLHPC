@@ -116,10 +116,10 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   floatv ypos = u3_o + u4_o + u5_o;
 
   floatv density = u0_o + u1_o + u2_o + yneg + ypos;
-  if(density <= 0){
+  /*if(density <= 0){
     printf("Density is negative: %d, x = %d, y = %d\n", it, x-4, y);
     printf("%f %f %f %f %f %f %f %f %f", u0_o, u1_o, u2_o, u3_o, u4_o, u5_o, u6_o, u7_o, u8_o);
-  }
+  }*/
   xpos = (xpos - xneg)/density;
   ypos = (ypos - yneg)/density;
   
