@@ -150,8 +150,8 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
 
     intv wmask = (msk2 & msk5) & (msk6 & omsk); //Set mask to 0 for inappropriate cells
 
-    floatv w1_masked = (w1 * (floatv)wmask)*(floatv)(-1);
-    floatv w2_masked = (w2 * (floatv)wmask)*(floatv)(-1);
+    floatv w1_masked = (w1 * convert_float16(wmask) )*(floatv)(-1);
+    floatv w2_masked = (w2 * convert_float16(wmask) )*(floatv)(-1);
 
     u1 = (u1 + w1_masked);
     u3 = (u3 + w2_masked);
