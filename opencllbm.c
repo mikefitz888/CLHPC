@@ -125,8 +125,6 @@ typedef struct
   cl_kernel  swapGhostCellsTB;
 
   cl_mem grid;
-  cl_mem cells; //subbuffer of grid
-  cl_mem tmp_cells; //subbuffer of grid
   cl_mem obstacles;
   cl_mem partial_sums;
 } t_ocl;
@@ -784,10 +782,10 @@ int initialise(const char* paramfile, const char* obstaclefile,
     sizeof(t_speed) * (NSPEEDS * ((params->ny_pad) * (params->nx_pad)) * 2 + 4), *cells_ptr, &err);
   checkError(err, "creating grid buffer", __LINE__);
 
-  ocl->cells     = clCreateSubBuffer(ocl->grid, CL_MEM_READ_WRITE, CL_BUFFER_CREATE_TYPE_REGION, &cells_sub_buffer, &err);
+  /*ocl->cells     = clCreateSubBuffer(ocl->grid, CL_MEM_READ_WRITE, CL_BUFFER_CREATE_TYPE_REGION, &cells_sub_buffer, &err);
   checkError(err, "creating cells buffer", __LINE__);
   ocl->tmp_cells = clCreateSubBuffer(ocl->grid, CL_MEM_READ_WRITE, CL_BUFFER_CREATE_TYPE_REGION, &tmp_cells_sub_buffer, &err);
-  checkError(err, "creating tmp_cells buffer", __LINE__);
+  checkError(err, "creating tmp_cells buffer", __LINE__);*/
 
   /*ocl->tmp_cells = clCreateBuffer(
     ocl->context, CL_MEM_READ_WRITE,

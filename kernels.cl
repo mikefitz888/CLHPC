@@ -38,30 +38,30 @@ typedef struct
   double speeds[NSPEEDS];
 } t_speed;
 
-kernel void swapGhostCellsLR(global float* cells){
+kernel void swapGhostCellsLR(global float* grid, int temp){
   int y = get_global_id(0);
-  cells[L(4, y, 1, NXPAD)] = cells[L(NX+4, y, 1, NXPAD)];
-  cells[L(4, y, 3, NXPAD)] = cells[L(NX+4, y, 3, NXPAD)];
-  cells[L(4, y, 8, NXPAD)] = cells[L(NX+4, y, 8, NXPAD)];
+  grid[L(4, y, 1, NXPAD)] = grid[L(NX+4, y, 1, NXPAD)];
+  grid[L(4, y, 3, NXPAD)] = grid[L(NX+4, y, 3, NXPAD)];
+  grid[L(4, y, 8, NXPAD)] = grid[L(NX+4, y, 8, NXPAD)];
   
-  cells[L(NX+3, y, 2, NXPAD)] = cells[L(3, y, 2, NXPAD)];
-  cells[L(NX+3, y, 5, NXPAD)] = cells[L(3, y, 5, NXPAD)];
-  cells[L(NX+3, y, 6, NXPAD)] = cells[L(3, y, 6, NXPAD)];
+  grid[L(NX+3, y, 2, NXPAD)] = grid[L(3, y, 2, NXPAD)];
+  grid[L(NX+3, y, 5, NXPAD)] = grid[L(3, y, 5, NXPAD)];
+  grid[L(NX+3, y, 6, NXPAD)] = grid[L(3, y, 6, NXPAD)];
 }
 
-kernel void swapGhostCellsTB(global float* cells){
+kernel void swapGhostCellsTB(global float* grid, int temp){
   int x = get_global_id(0);
-  cells[L(x, 0, 3, NXPAD)] = cells[L(x, NY, 3, NXPAD)];
-  cells[L(x, 0, 4, NXPAD)] = cells[L(x, NY, 4, NXPAD)];
-  cells[L(x, 0, 5, NXPAD)] = cells[L(x, NY, 5, NXPAD)];
+  grid[L(x, 0, 3, NXPAD)] = grid[L(x, NY, 3, NXPAD)];
+  grid[L(x, 0, 4, NXPAD)] = grid[L(x, NY, 4, NXPAD)];
+  grid[L(x, 0, 5, NXPAD)] = grid[L(x, NY, 5, NXPAD)];
   
-  cells[L(x, NY-1, 6, NXPAD)] = cells[L(x, -1, 6, NXPAD)];
-  cells[L(x, NY-1, 7, NXPAD)] = cells[L(x, -1, 7, NXPAD)];
-  cells[L(x, NY-1, 8, NXPAD)] = cells[L(x, -1, 8, NXPAD)];
+  grid[L(x, NY-1, 6, NXPAD)] = grid[L(x, -1, 6, NXPAD)];
+  grid[L(x, NY-1, 7, NXPAD)] = grid[L(x, -1, 7, NXPAD)];
+  grid[L(x, NY-1, 8, NXPAD)] = grid[L(x, -1, 8, NXPAD)];
 }
 
 
-kernel void lbm(global float* cells, global float* tmp_cells, global float* obstacles, global float* partial_sums)
+kernel void lbm(global float* grid, int temp, global float* obstacles, global float* partial_sums)
 {
   int x = get_global_id(0)*16 + 4;
   int y = get_global_id(1);
@@ -70,13 +70,13 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
   //if(x == 4 && y == 86){
     printf("==========================\n");
     //2681
-    printf("cells[1223]=%f\n", cells[1223]);
-    cells[1223] = 81;
-    printf("tmp_cells[2861]=%f\n", tmp_cells[2861]);
-    tmp_cells[2861] = 82;
-    printf("Test value: %f %p\n", cells[L(x+1, y+1, 3, nx_pad)], &cells[L(x+1, y+1, 3, nx_pad)]);
-    printf("Test value: %f %d %p\n", tmp_cells[L(x+1, y+1, 3, nx_pad)], L(x+1, y+1, 3, nx_pad), &tmp_cells[L(x+1, y+1, 3, nx_pad)]);
-    printf("%p %p\n", cells, tmp_cells);
+    printf("cells[1223]=%f\n", grid[1223]);
+    grid[1223] = 81;
+    printf("tmp_cells[2861]=%f\n", grid[2861]);
+    grid[2861] = 82;
+    printf("Test value: %f %p\n", grid[L(x+1, y+1, 3, nx_pad)], &grid[L(x+1, y+1, 3, nx_pad)]);
+    printf("Test value: %f %d %p\n", grid[L(x+1, y+1, 3, nx_pad)], L(x+1, y+1, 3, nx_pad), &grid[L(x+1, y+1, 3, nx_pad)]);
+    printf("%p\n", grid);
  // }
 
 
