@@ -77,7 +77,7 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
   floatv u7_o = VEC_LOAD(&tmp_cells[L(x, y, 7, nx_pad)]);
   floatv u8_o = VEC_LOAD(&tmp_cells[L(x, y, 8, nx_pad)]);
 
-  floatv o_mask2 = VEC_LOAD(&obstacles[y*nx+x]);
+  floatv o_mask2 = VEC_LOAD(&obstacles[y*nx+x-4]);
 
   floatv xneg = u3_o + u6_o + u7_o;
   floatv xpos = u1_o + u5_o + u8_o;

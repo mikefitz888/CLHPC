@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
 */
  
   //Lattice-Bolzmann Iterations (this function contains the loop, no need to loop this call)
-  //timestep(params, cells, tmp_cells+offset, obstacles, av_vels, 1.0/available_cells, ocl);
+  timestep(params, cells, tmp_cells+offset, obstacles, av_vels, 1.0/available_cells, ocl);
 
   //TODO: Pass chunks back to master from other nodes
 
@@ -368,6 +368,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
 
   //Write cells to kernel
   err = clEnqueueWriteBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(t_speed) * (9 * ((params->ny_pad) * (params->nx_pad)) * 2), cells, 0, NULL, NULL);
+  checkError(err, "writing cells data", __LINE__);
 
   err = clSetKernelArg(ocl.lbm, 2, sizeof(cl_mem), &ocl.obstacles);
   checkError(err, "setting lbm arg 2", __LINE__);
@@ -386,7 +387,6 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.swapGhostCellsLR, 1, NULL, global_LR, NULL, 0, NULL, NULL);
     checkError(err, "enqueuing lbm kernel", __LINE__);
 
-    checkError(err, "writing cells data", __LINE__);
     err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.cells);
     checkError(err, "setting lbm arg 0", __LINE__);
     err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.tmp_cells);
@@ -413,7 +413,6 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.swapGhostCellsLR, 1, NULL, global_LR, NULL, 0, NULL, NULL);
     checkError(err, "enqueuing lbm kernel", __LINE__);
 
-    checkError(err, "writing cells data", __LINE__);
     err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.tmp_cells);
     checkError(err, "setting lbm arg 0", __LINE__);
     err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.cells);
