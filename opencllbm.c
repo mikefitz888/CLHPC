@@ -218,9 +218,7 @@ int main(int argc, char* argv[])
 
   //Ensure same start state ()
   // DOESN'T NEED MPI SPECIALISATION AS OUTSIDE TIMED REGION, WOULD BE BENEFICIAL OTHERWISE
-  accelerate_flow(params, cells+offset, obstacles);
-  // DOESN'T NEED MPI SPECIALISATION AS OUTSIDE TIMED REGION, WOULD BE BENEFICIAL OTHERWISE
-  propagate(params, cells+offset, tmp_cells+offset);
+  
 
   /* iterate for maxIters timesteps */
     gettimeofday(&timstr, NULL);
@@ -232,7 +230,22 @@ int main(int argc, char* argv[])
 */
     cl_int err;
   //Write cells to kernel
-  
+  err = clEnqueueWriteBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(cl_double) * (9 * params->ny * params->nx), tmp_cells, 0, NULL, NULL);
+  checkError(err, "writing cells data", __LINE__);
+  err = clEnqueueWriteBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(cl_double) * (9 * params->ny * params->nx), cells, 0, NULL, NULL);
+  checkError(err, "writing cells data", __LINE__);
+  err = clEnqueueWriteBuffer(ocl.queue, ocl.obstacles, CL_TRUE, 0, sizeof(cl_float) * params->nx * params->ny, obstacles, 0, NULL, NULL);
+  checkError(err, "writing obstacles data", __LINE__);
+ 
+  //Lattice-Bolzmann Iterations (this function contains the loop, no need to loop this call)
+  timestep(params, cells+offset, tmp_cells+offset, obstacles, av_vels, 1.0/available_cells, ocl);
+
+  //TODO: Pass chunks back to master from other nodes
+  // Read tmp_cells from device                                   
+  err = clEnqueueReadBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(cl_double) * (9 * params->ny * params->nx), cells, 0, NULL, NULL);
+  checkError(err, "reading tmp_cells data", __LINE__);
+  err = clEnqueueReadBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(cl_double) * (9 * params->ny * params->nx), tmp_cells, 0, NULL, NULL);
+  checkError(err, "reading tmp_cells data", __LINE__);
 
 
 /*
