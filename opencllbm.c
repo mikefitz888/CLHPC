@@ -865,7 +865,7 @@ int write_values(const t_param* params, t_speed* cells, t_obstacle* obstacles, t
     for (int jj = 0; jj < params->nx; jj++)
     {
       /* an occupied cell */
-      if ( ((int*)obstacles)[ii * params->nx + jj] == 0 )
+      if ( (obstacles)[ii * params->nx + jj] == 0 )
       {
         u_x = u_y = u = 0.0;
         pressure = params->density * c_sq;
