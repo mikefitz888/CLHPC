@@ -229,11 +229,20 @@ int main(int argc, char* argv[])
 /*
 **  BEGIN TIMING STEP
 */
+  //Write cells to kernel
+  err = clEnqueueWriteBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(t_speed) * (4 + 9 * ((params->ny_pad) * (params->nx_pad)) * 2), cells, 0, NULL, NULL);
+  checkError(err, "writing cells data", __LINE__);
+  err = clEnqueueWriteBuffer(ocl.queue, ocl.obstacles, CL_TRUE, 0, sizeof(cl_float) * params->nx * params->ny, obstacles, 0, NULL, NULL);
+  checkError(err, "writing obstacles data", __LINE__);
  
   //Lattice-Bolzmann Iterations (this function contains the loop, no need to loop this call)
   timestep(params, cells+offset, tmp_cells+offset, obstacles, av_vels, 1.0/available_cells, ocl);
 
   //TODO: Pass chunks back to master from other nodes
+  // Read tmp_cells from device                                   
+  err = clEnqueueReadBuffer(ocl.queue, ocl.grid, CL_TRUE, 0, sizeof(t_speed) * ((params->ny * 2) * (params->nx_pad)+4), cells, 0, NULL, NULL);
+  checkError(err, "reading tmp_cells data", __LINE__);
+
 
 /*
 **  END TIMING STEP
@@ -364,12 +373,6 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   cl_int err;
   //sizeof(t_speed) * (NSPEEDS * ((params->ny_pad) * (params->nx_pad)) * 2 + 4)
 
-  //Write cells to kernel
-  err = clEnqueueWriteBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(t_speed) * (9 * ((params->ny_pad) * (params->nx_pad)) * 2), cells, 0, NULL, NULL);
-  checkError(err, "writing cells data", __LINE__);
-  err = clEnqueueWriteBuffer(ocl.queue, ocl.obstacles, CL_TRUE, 0, sizeof(cl_float) * params->nx * params->ny, obstacles, 0, NULL, NULL);
-  checkError(err, "writing obstacles data", __LINE__);
-
   err = clSetKernelArg(ocl.lbm, 2, sizeof(cl_mem), &ocl.obstacles);
   checkError(err, "setting lbm arg 2", __LINE__);
   err = clSetKernelArg(ocl.lbm, 3, sizeof(cl_mem), &ocl.partial_sums);
@@ -437,10 +440,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
 
   }
 
-  // Read tmp_cells from device                                   
-  err = clEnqueueReadBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(t_speed) * (params->ny * 2 - 1) * (params->nx_pad), tmp_cells, 0, NULL, NULL);
-  checkError(err, "reading tmp_cells data", __LINE__);
-
+  
 
   return EXIT_SUCCESS;
 
