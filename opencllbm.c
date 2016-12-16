@@ -394,7 +394,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   int zero = 0;
   int one = 1;
 
-  for(int iteration = 0; iteration < params->maxIters/2; iteration++){
+  for(int iteration = 0; iteration < 1; iteration++){
     // Reposition left/right "ghost" cells
     /*err = clSetKernelArg(ocl.swapGhostCellsLR, 0, sizeof(cl_mem), &ocl.grid);
     checkError(err, "swapping Left/Right ghost cells", __LINE__);
@@ -953,7 +953,8 @@ int write_values(const t_param* params, t_speed* cells, t_obstacle* obstacles, t
       }
 
       /* write to file */
-      fprintf(fp, "%d %d %.12E %.12E %.12E %.12E %d\n", jj-4, ii, u_x, u_y, u, pressure, -(int)((obstacles)[ii * params->nx + jj - 4]) );
+      fprintf(fp, "%f %f %f %f %f %f %f %f %f\n", cells[L(jj, ii, 0, params->nx)], cells[L(jj, ii, 1, params->nx)], cells[L(jj, ii, 2, params->nx)], cells[L(jj, ii, 3, params->nx)], cells[L(jj, ii, 4, params->nx)], cells[L(jj, ii, 5, params->nx)], cells[L(jj, ii, 6, params->nx)], cells[L(jj, ii, 7, params->nx)], cells[L(jj, ii, 8, params->nx)]);
+      //fprintf(fp, "%d %d %.12E %.12E %.12E %.12E %d\n", jj-4, ii, u_x, u_y, u, pressure, -(int)((obstacles)[ii * params->nx + jj - 4]) );
     }
   }
 
