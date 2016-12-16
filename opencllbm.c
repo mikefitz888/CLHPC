@@ -917,13 +917,13 @@ int write_values(const t_param* params, t_speed* cells, t_obstacle* obstacles, t
         u_x *= inverse_local_density;
         u_y *= inverse_local_density;
         /* accumulate the norm of x- and y- velocity components */
-        u = sqrt((u_x * u_x) + (u_y * u_y)); //TODO: Expensive line
+        u = ((u_x * u_x) + (u_y * u_y)); //TODO: Expensive line
         pressure = local_density * c_sq;
         /* increase counter of inspected cells */
       }
 
       /* write to file */
-      fprintf(fp, "%d %d %.12E %.12E %.12E %.12E %d\n", jj-4, ii, u_x, u_y, u, pressure, -((int*)obstacles)[ii * params->nx + jj - 4]);
+      fprintf(fp, "%d %d %.12E %.12E %.12E %.12E %d\n", jj-4, ii, u_x, u_y, u, pressure, -(int)((obstacles)[ii * params->nx + jj - 4]) );
     }
   }
 
