@@ -229,6 +229,7 @@ int main(int argc, char* argv[])
 /*
 **  BEGIN TIMING STEP
 */
+    cl_int err;
   //Write cells to kernel
   err = clEnqueueWriteBuffer(ocl.queue, ocl.grid, CL_TRUE, 0, sizeof(t_speed) * (4 + 9 * ((params->ny_pad) * (params->nx_pad)) * 2), cells, 0, NULL, NULL);
   checkError(err, "writing cells data", __LINE__);
