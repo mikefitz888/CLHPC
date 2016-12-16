@@ -210,7 +210,7 @@ int main(int argc, char* argv[])
   
   // DOESN'T NEED MPI SPECIALISATION AS OUTSIDE TIMED REGION, WOULD BE BENEFICIAL OTHERWISE
   initialise(paramfile, obstaclefile, params, &cells, &tmp_cells, &obstacles, &av_vels, &available_cells, &ocl);
-  /*params->available_cells = available_cells;
+  params->available_cells = available_cells;
   t_speed *av_vels_recv = malloc(sizeof *av_vels_recv * (params->maxIters+1));
   //printf("available cells = %d\n", available_cells);
   int offset = 0;//4 + (2 * 9 * (params->nx_pad));
@@ -225,7 +225,7 @@ int main(int argc, char* argv[])
   cells[offset+L(12, 72, 5, params->nx_pad)] = 86;
   printf("Test cell host addr: %p\n", &cells[offset+L(12, 72, 5, params->nx_pad)]);
   tmp_cells[offset+L(12, 72, 5, params->nx_pad)] = 87; 
-  printf("Test tmp_cell host addr: %p\n", &tmp_cells[offset+L(12, 72, 5, params->nx_pad)]);*/
+  printf("Test tmp_cell host addr: %p\n", &tmp_cells[offset+L(12, 72, 5, params->nx_pad)]);
 
   /* iterate for maxIters timesteps */
     gettimeofday(&timstr, NULL);
@@ -235,7 +235,7 @@ int main(int argc, char* argv[])
 /*
 **  BEGIN TIMING STEP
 */
-    /*cl_int err;
+    cl_int err;
   //Write cells to kernel
   err = clEnqueueWriteBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(cl_float) * (9 * params->ny * params->nx), tmp_cells, 0, NULL, NULL);
   checkError(err, "writing cells data", __LINE__);
@@ -248,33 +248,33 @@ int main(int argc, char* argv[])
   //TODO: Pass chunks back to master from other nodes
   // Read tmp_cells from device                                   
   err = clEnqueueReadBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(cl_float) * (9 * params->ny * params->nx), tmp_cells, 0, NULL, NULL);
-  checkError(err, "reading tmp_cells data", __LINE__);*/
+  checkError(err, "reading tmp_cells data", __LINE__);
 
 
 /*
 **  END TIMING STEP
 */
 
-  //gettimeofday(&timstr, NULL);
-  //toc = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
+  gettimeofday(&timstr, NULL);
+  toc = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
   /*getrusage(RUSAGE_SELF, &ru);
   timstr = ru.ru_utime;
   usrtim = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
   timstr = ru.ru_stime;
   systim = timstr.tv_sec + (timstr.tv_usec / 1000000.0);*/
 
- // t_speed reynold_sum = calc_reynolds(params, tmp_cells+offset, obstacles);
+  t_speed reynold_sum = calc_reynolds(params, tmp_cells+offset, obstacles);
 
   /* write final values and free memory */
-  //printf("==done==\n");
-  //printf("Reynolds number:\t\t%.12E\n", reynold_sum); //TODO: make calc_reynolds MPI
-  //printf("Elapsed time:\t\t\t%.6lf (s)\n", toc - tic);
+  printf("==done==\n");
+  printf("Reynolds number:\t\t%.12E\n", reynold_sum); //TODO: make calc_reynolds MPI
+  printf("Elapsed time:\t\t\t%.6lf (s)\n", toc - tic);
   //printf("Elapsed user CPU time:\t\t%.6lf (s)\n", usrtim);
   //printf("Elapsed system CPU time:\t%.6lf (s)\n", systim);
   
- // write_values(params, tmp_cells+offset, obstacles, av_vels);
+  write_values(params, tmp_cells+offset, obstacles, av_vels);
 
- // finalise(params, &cells, &tmp_cells, &obstacles, &av_vels, ocl);
+  finalise(params, &cells, &tmp_cells, &obstacles, &av_vels, ocl);
   return EXIT_SUCCESS;
 }
 
