@@ -6,7 +6,7 @@
 #define L(X, Y, V, NW) ((X) + ((V)+(Y)*9)*(NW))
 #define L2(X, Y, V, NX) (4+(X) + ((V)+(Y)*18+27)*(NX))
 #define VEC_SIZE 8
-#define floatv float
+#define floatv double
 #define int int
 //#define VEC_LOAD(ADDR) (*(ADDR))//vload8(0, (ADDR))
 //#define VEC_STORE(ADDR, DATA) *(ADDR)=DATA//vstore8((DATA), 0, ADDR)
@@ -98,15 +98,15 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   //int offset = 4 + (2 * 9 * (params->nx_pad));
   //int offset = 4 + (9 * nx_pad);
 
-   floatv u0_o = input_grid[L(x, y, 0, NX)];
-   floatv u1_o = input_grid[L(x, y, 1, NX)];
-   floatv u2_o = input_grid[L(x, y, 2, NX)];
-   floatv u3_o = input_grid[L(x, y, 3, NX)];
-   floatv u4_o = input_grid[L(x, y, 4, NX)];
-   floatv u5_o = input_grid[L(x, y, 5, NX)];
-   floatv u6_o = input_grid[L(x, y, 6, NX)];
-   floatv u7_o = input_grid[L(x, y, 7, NX)];
-   floatv u8_o = input_grid[L(x, y, 8, NX)];
+   floatv u0_o = (floatv)input_grid[L(x, y, 0, NX)];
+   floatv u1_o = (floatv)input_grid[L(x, y, 1, NX)];
+   floatv u2_o = (floatv)input_grid[L(x, y, 2, NX)];
+   floatv u3_o = (floatv)input_grid[L(x, y, 3, NX)];
+   floatv u4_o = (floatv)input_grid[L(x, y, 4, NX)];
+   floatv u5_o = (floatv)input_grid[L(x, y, 5, NX)];
+   floatv u6_o = (floatv)input_grid[L(x, y, 6, NX)];
+   floatv u7_o = (floatv)input_grid[L(x, y, 7, NX)];
+   floatv u8_o = (floatv)input_grid[L(x, y, 8, NX)];
 
    /*if(it == 1){
     if(u0_o < 0){printf("(%d, %d)[0] < 0\n", x, y);}
