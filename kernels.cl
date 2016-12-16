@@ -196,11 +196,11 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   /* End: Collision */
 
   /* Add Acceleration */
-  if(y == NY - 2){
+  /*if(y == NY - 2){
     u1 = u1 + (floatv)(1);
     u3 = u3 + (floatv)(1);
     u8 = u8 + (floatv)(1);
-  }
+  }*/
 
   /* Begin: Rebound: openCL mix */
   u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
@@ -222,14 +222,14 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   int s = (y==0)?NY-1:x-1;
 
     VEC_STORE(&output_grid[L(x  , y  , 0, nx)], u0); // Does not propogate
-    VEC_STORE(&output_grid[L(e  , y  , 0, nx)], u0); // Does not propogate
-    VEC_STORE(&output_grid[L(w  , y  , 0, nx)], u0); // Does not propogate
-    VEC_STORE(&output_grid[L(e  , n  , 0, nx)], u0); // Does not propogate
-    VEC_STORE(&output_grid[L(x  , n  , 0, nx)], u0); // Does not propogate
-    VEC_STORE(&output_grid[L(w  , n  , 0, nx)], u0); // Does not propogate
-    VEC_STORE(&output_grid[L(w  , s  , 0, nx)], u0); // Does not propogate
-    VEC_STORE(&output_grid[L(x  , s  , 0, nx)], u0); // Does not propogate
-    VEC_STORE(&output_grid[L(e  , s  , 0, nx)], u0); // Does not propogate
+    VEC_STORE(&output_grid[L(e  , y  , 0, nx)], u1); // Does not propogate
+    VEC_STORE(&output_grid[L(w  , y  , 0, nx)], u2); // Does not propogate
+    VEC_STORE(&output_grid[L(e  , n  , 0, nx)], u3); // Does not propogate
+    VEC_STORE(&output_grid[L(x  , n  , 0, nx)], u4); // Does not propogate
+    VEC_STORE(&output_grid[L(w  , n  , 0, nx)], u5); // Does not propogate
+    VEC_STORE(&output_grid[L(w  , s  , 0, nx)], u6); // Does not propogate
+    VEC_STORE(&output_grid[L(x  , s  , 0, nx)], u7); // Does not propogate
+    VEC_STORE(&output_grid[L(e  , s  , 0, nx)], u8); // Does not propogate
     
 
     /*VEC_STORE(&output_grid[L(x  , y  , 0, nx)], u0); // Does not propogate
