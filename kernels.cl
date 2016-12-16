@@ -66,8 +66,8 @@ kernel void lbm(global float* grid, global float* tmp_cells, global float* obsta
   int x = get_global_id(0)*16 + 4;
   int y = get_global_id(1);
   printf("%f %f\n", grid[x], tmp_cells[x]);
-  grid[0] = 12.0f;
-  tmp_cells[0] = 13.0f;
+  grid[x] = 12.0f;
+  tmp_cells[x] = 13.0f;
   printf("%f %f\n", grid[x], tmp_cells[x]);
   return;
   /*int x = get_global_id(0)*16 + 4;
