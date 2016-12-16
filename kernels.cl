@@ -70,6 +70,7 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
   if(x == 4 && y == 86){
     printf("==========================\n");
     printf("Test value: %f %f %f\n", tmp_cells[L(x+1, y+1, 3, nx_pad)], tmp_cells[L(x+2, y+1, 3, nx_pad)], tmp_cells[L(x+3, y+1, 3, nx_pad)]);
+    printf("Test value: %f %f %f\n", cells[L(x+1, y+1, 3, nx_pad)], cells[L(x+2, y+1, 3, nx_pad)], cells[L(x+3, y+1, 3, nx_pad)]);
     printf("%p %p\n", cells, tmp_cells);
   }
 
