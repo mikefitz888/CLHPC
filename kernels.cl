@@ -87,6 +87,12 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
 {
   int x = get_global_id(0)*8 + 4;
   int y = get_global_id(1);
+
+  if(x == 12 & y == 72){
+    printf("=======================");
+    printf("cells test: %f\n", grid[L(x, y, 5, nx_pad)]);
+    printf("tmp_cells test: %f\n", grid[L(x, y, 5, nx_pad)]);
+  }
   int offset = 4 + (9 * nx_pad);
 
   floatv u0_o;

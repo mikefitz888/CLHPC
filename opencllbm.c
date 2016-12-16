@@ -220,6 +220,9 @@ int main(int argc, char* argv[])
   // DOESN'T NEED MPI SPECIALISATION AS OUTSIDE TIMED REGION, WOULD BE BENEFICIAL OTHERWISE
   propagate(params, cells+offset, tmp_cells+offset);
 
+  cells[offset+L(12, 72, 5, params->nx_pad)] = 86;
+  tmp_cells[offset+L(12, 72, 5, params->nx_pad)] = 87; 
+
 
   /* iterate for maxIters timesteps */
     gettimeofday(&timstr, NULL);
