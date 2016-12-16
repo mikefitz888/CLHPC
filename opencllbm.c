@@ -263,7 +263,7 @@ int main(int argc, char* argv[])
   timstr = ru.ru_stime;
   systim = timstr.tv_sec + (timstr.tv_usec / 1000000.0);*/
 
-  t_speed reynold_sum = calc_reynolds(params, tmp_cells+offset, obstacles);
+  t_speed reynold_sum = calc_reynolds(params, cells+offset, obstacles);
 
   /* write final values and free memory */
   printf("==done==\n");
@@ -272,7 +272,7 @@ int main(int argc, char* argv[])
   //printf("Elapsed user CPU time:\t\t%.6lf (s)\n", usrtim);
   //printf("Elapsed system CPU time:\t%.6lf (s)\n", systim);
   
-  write_values(params, tmp_cells+offset, obstacles, av_vels);
+  write_values(params, cells+offset, obstacles, av_vels);
 
   finalise(params, &cells, &tmp_cells, &obstacles, &av_vels, ocl);
   return EXIT_SUCCESS;
@@ -438,14 +438,14 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     err = clFinish(ocl.queue);
     checkError(err, "waiting for lbm kernel", __LINE__);*/
 
-    err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.cells);
+    /*err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.cells);
     checkError(err, "setting lbm arg 0", __LINE__);
     err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.tmp_cells);
     checkError(err, "setting lbm arg 1", __LINE__);
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, NULL, 0, NULL, NULL);
     checkError(err, "enqueuing lbm kernel", __LINE__);
     err = clFinish(ocl.queue);
-    checkError(err, "waiting for lbm kernel", __LINE__);
+    checkError(err, "waiting for lbm kernel", __LINE__);*/
 
     // Reposition top/bottom "ghost" rows
     /*err = clSetKernelArg(ocl.swapGhostCellsTB, 0, sizeof(cl_mem), &ocl.grid);
