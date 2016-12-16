@@ -3,7 +3,7 @@
 #define NSPEEDS 9
 //int offset = 4 + (9 * (params->nx_pad));
 //#define L(X, Y, V, NX) (4+(X) + ((V)+(Y)*18+18)*(NX)) //Offsets built in
-#define L(X, Y, V, NX) ((X) + ((V)+(Y)*9)*(NX))
+#define L(X, Y, V, NW) ((X) + ((V)+(Y)*9)*(NW))
 #define L2(X, Y, V, NX) (4+(X) + ((V)+(Y)*18+27)*(NX))
 #define VEC_SIZE 8
 #define floatv float
