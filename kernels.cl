@@ -137,7 +137,9 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   floatv ypos = u3_o + u4_o + u5_o;
 
   floatv density = u0_o + u1_o + u2_o + yneg + ypos;
-
+  if(density.s0 <= 0){
+    printf("Density is negative");
+  }
   xpos = (xpos - xneg)/density;
   ypos = (ypos - yneg)/density;
   
