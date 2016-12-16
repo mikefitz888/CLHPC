@@ -814,11 +814,11 @@ int finalise(const t_param* params, t_speed** cells_ptr, t_speed** tmp_cells_ptr
 
   
 
-  /*free(*obstacles_ptr);
+  free(*obstacles_ptr);
   *obstacles_ptr = NULL;
 
   free(*av_vels_ptr);
-  *av_vels_ptr = NULL;*/
+  *av_vels_ptr = NULL;
 
   //clReleaseMemObject(ocl.cells);
   //clReleaseMemObject(ocl.tmp_cells);
