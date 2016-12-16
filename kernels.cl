@@ -44,9 +44,9 @@ kernel void swapGhostCellsLR(global float* cells){
   cells[L(4, y, 3, NXPAD)] = cells[L(NX+4, y, 3, NXPAD)];
   cells[L(4, y, 8, NXPAD)] = cells[L(NX+4, y, 8, NXPAD)];
   
-  cells[L(NX+3, y, 2, NXPAD)] = cells[L(3, y, 2, NX_PAD)];
-  cells[L(NX+3, y, 5, NXPAD)] = cells[L(3, y, 5, NX_PAD)];
-  cells[L(NX+3, y, 6, NXPAD)] = cells[L(3, y, 6, NX_PAD)];
+  cells[L(NX+3, y, 2, NXPAD)] = cells[L(3, y, 2, NXPAD)];
+  cells[L(NX+3, y, 5, NXPAD)] = cells[L(3, y, 5, NXPAD)];
+  cells[L(NX+3, y, 6, NXPAD)] = cells[L(3, y, 6, NXPAD)];
 }
 
 kernel void swapGhostCellsTB(global float* cells){
@@ -55,9 +55,9 @@ kernel void swapGhostCellsTB(global float* cells){
   cells[L(x, 0, 4, NXPAD)] = cells[L(x, NY, 4, NXPAD)];
   cells[L(x, 0, 5, NXPAD)] = cells[L(x, NY, 5, NXPAD)];
   
-  cells[L(x, NY-1, 6, NXPAD)] = cells[L(x, -1, 6, NX_PAD)];
-  cells[L(x, NY-1, 7, NXPAD)] = cells[L(x, -1, 7, NX_PAD)];
-  cells[L(x, NY-1, 8, NXPAD)] = cells[L(x, -1, 8, NX_PAD)];
+  cells[L(x, NY-1, 6, NXPAD)] = cells[L(x, -1, 6, NXPAD)];
+  cells[L(x, NY-1, 7, NXPAD)] = cells[L(x, -1, 7, NXPAD)];
+  cells[L(x, NY-1, 8, NXPAD)] = cells[L(x, -1, 8, NXPAD)];
 }
 
 
