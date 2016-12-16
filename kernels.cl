@@ -207,7 +207,7 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
   
   /* Begin: Propogate */
   /* None of these swap nodes as y != end && y != start */
-  VEC_STORE(&cells[L(x  , y  , 0, nx_pad)], u0); // Does not propogate
+  /*VEC_STORE(&cells[L(x  , y  , 0, nx_pad)], u0); // Does not propogate
   VEC_STORE(&cells[L(x+1, y  , 1, nx_pad)], u1);
   VEC_STORE(&cells[L(x-1, y  , 2, nx_pad)], u2);
   VEC_STORE(&cells[L(x+1, y+1, 3, nx_pad)], (floatv)(8));
@@ -215,7 +215,7 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
   VEC_STORE(&cells[L(x-1, y+1, 5, nx_pad)], u5);
   VEC_STORE(&cells[L(x-1, y-1, 6, nx_pad)], u6);
   VEC_STORE(&cells[L(x  , y-1, 7, nx_pad)], u7);
-  VEC_STORE(&cells[L(x+1, y-1, 8, nx_pad)], u8);
+  VEC_STORE(&cells[L(x+1, y-1, 8, nx_pad)], u8);*/
 
   //if(x == 4 && y == 86){
     printf("Running kernel on (%d, %d); Sample = [%f, %f, %f, %f, %f, %f, %f, %f, %f] => [%f, %f, %f, %f, %f, %f, %f, %f, %f]\n", x, y, u0_o.s1, u1_o.s1, u2_o.s1, u3_o.s1, u4_o.s1, u5_o.s1, u6_o.s1, u7_o.s1, u8_o.s1, u0.s1, u1.s1, u2.s1, u3.s1, u4.s1, u5.s1, u6.s1, u7.s1, u8.s1);
