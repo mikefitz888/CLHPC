@@ -390,7 +390,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   int zero = 0;
   int one = 1;
 
-  for(int iteration = 0; iteration < params->maxIters/2; iteration++){
+  for(int iteration = 0; iteration < 100; iteration++){
     // Reposition left/right "ghost" cells
     err = clSetKernelArg(ocl.swapGhostCellsLR, 0, sizeof(cl_mem), &ocl.grid);
     checkError(err, "swapping Left/Right ghost cells", __LINE__);
@@ -913,7 +913,7 @@ int write_values(const t_param* params, t_speed* cells, t_obstacle* obstacles, t
 
         for (int kk = 0; kk < NSPEEDS; kk++)
         {
-          if( (ii == 1 || i == 34) && (jj == 5 || jj == 72) ){
+          if( (ii == 1 || ii == 34) && (jj == 5 || jj == 72) ){
             printf("cell(%d, %d)[%d] = %f\n", jj-4, ii, kk, cells[L(jj, ii, kk, params->nx_pad)]);
           }
           local_density += cells[L(jj, ii, kk, params->nx_pad)];
