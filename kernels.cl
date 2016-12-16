@@ -69,16 +69,27 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   int y = get_global_id(1);
   int offset = 4 + (9 * nx_pad);
 
-
-  floatv u0_o = VEC_LOAD(&grid[L2(x, y, 0, nx_pad)]);
-  floatv u1_o = VEC_LOAD(&grid[L2(x, y, 1, nx_pad)]);
-  floatv u2_o = VEC_LOAD(&grid[L2(x, y, 2, nx_pad)]);
-  floatv u3_o = VEC_LOAD(&grid[L2(x, y, 3, nx_pad)]);
-  floatv u4_o = VEC_LOAD(&grid[L2(x, y, 4, nx_pad)]);
-  floatv u5_o = VEC_LOAD(&grid[L2(x, y, 5, nx_pad)]);
-  floatv u6_o = VEC_LOAD(&grid[L2(x, y, 6, nx_pad)]);
-  floatv u7_o = VEC_LOAD(&grid[L2(x, y, 7, nx_pad)]);
-  floatv u8_o = VEC_LOAD(&grid[L2(x, y, 8, nx_pad)]);
+  if(temp){
+    floatv u0_o = VEC_LOAD(&grid[L(x, y, 0, nx_pad)]);
+    floatv u1_o = VEC_LOAD(&grid[L(x, y, 1, nx_pad)]);
+    floatv u2_o = VEC_LOAD(&grid[L(x, y, 2, nx_pad)]);
+    floatv u3_o = VEC_LOAD(&grid[L(x, y, 3, nx_pad)]);
+    floatv u4_o = VEC_LOAD(&grid[L(x, y, 4, nx_pad)]);
+    floatv u5_o = VEC_LOAD(&grid[L(x, y, 5, nx_pad)]);
+    floatv u6_o = VEC_LOAD(&grid[L(x, y, 6, nx_pad)]);
+    floatv u7_o = VEC_LOAD(&grid[L(x, y, 7, nx_pad)]);
+    floatv u8_o = VEC_LOAD(&grid[L(x, y, 8, nx_pad)]);
+  }else{
+    floatv u0_o = VEC_LOAD(&grid[L2(x, y, 0, nx_pad)]);
+    floatv u1_o = VEC_LOAD(&grid[L2(x, y, 1, nx_pad)]);
+    floatv u2_o = VEC_LOAD(&grid[L2(x, y, 2, nx_pad)]);
+    floatv u3_o = VEC_LOAD(&grid[L2(x, y, 3, nx_pad)]);
+    floatv u4_o = VEC_LOAD(&grid[L2(x, y, 4, nx_pad)]);
+    floatv u5_o = VEC_LOAD(&grid[L2(x, y, 5, nx_pad)]);
+    floatv u6_o = VEC_LOAD(&grid[L2(x, y, 6, nx_pad)]);
+    floatv u7_o = VEC_LOAD(&grid[L2(x, y, 7, nx_pad)]);
+    floatv u8_o = VEC_LOAD(&grid[L2(x, y, 8, nx_pad)]);
+  }
 
   floatv o_mask2 = VEC_LOAD(&obstacles[y*nx+x-4]);
 
@@ -198,15 +209,27 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   
   /* Begin: Propogate */
   /* None of these swap nodes as y != end && y != start */
-  VEC_STORE(&grid[L(x  , y  , 0, nx_pad)], u0); // Does not propogate
-  VEC_STORE(&grid[L(x+1, y  , 1, nx_pad)], u1);
-  VEC_STORE(&grid[L(x-1, y  , 2, nx_pad)], u2);
-  VEC_STORE(&grid[L(x+1, y+1, 3, nx_pad)], u3);
-  VEC_STORE(&grid[L(x  , y+1, 4, nx_pad)], u4);
-  VEC_STORE(&grid[L(x-1, y+1, 5, nx_pad)], u5);
-  VEC_STORE(&grid[L(x-1, y-1, 6, nx_pad)], u6);
-  VEC_STORE(&grid[L(x  , y-1, 7, nx_pad)], u7);
-  VEC_STORE(&grid[L(x+1, y-1, 8, nx_pad)], u8);
+  if(temp){
+    VEC_STORE(&grid[L2(x  , y  , 0, nx_pad)], u0); // Does not propogate
+    VEC_STORE(&grid[L2(x+1, y  , 1, nx_pad)], u1);
+    VEC_STORE(&grid[L2(x-1, y  , 2, nx_pad)], u2);
+    VEC_STORE(&grid[L2(x+1, y+1, 3, nx_pad)], u3);
+    VEC_STORE(&grid[L2(x  , y+1, 4, nx_pad)], u4);
+    VEC_STORE(&grid[L2(x-1, y+1, 5, nx_pad)], u5);
+    VEC_STORE(&grid[L2(x-1, y-1, 6, nx_pad)], u6);
+    VEC_STORE(&grid[L2(x  , y-1, 7, nx_pad)], u7);
+    VEC_STORE(&grid[L2(x+1, y-1, 8, nx_pad)], u8);
+  }else{
+    VEC_STORE(&grid[L(x  , y  , 0, nx_pad)], u0); // Does not propogate
+    VEC_STORE(&grid[L(x+1, y  , 1, nx_pad)], u1);
+    VEC_STORE(&grid[L(x-1, y  , 2, nx_pad)], u2);
+    VEC_STORE(&grid[L(x+1, y+1, 3, nx_pad)], u3);
+    VEC_STORE(&grid[L(x  , y+1, 4, nx_pad)], u4);
+    VEC_STORE(&grid[L(x-1, y+1, 5, nx_pad)], u5);
+    VEC_STORE(&grid[L(x-1, y-1, 6, nx_pad)], u6);
+    VEC_STORE(&grid[L(x  , y-1, 7, nx_pad)], u7);
+    VEC_STORE(&grid[L(x+1, y-1, 8, nx_pad)], u8);
+  }
   /* End: Propogate */
 
 }
