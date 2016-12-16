@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
 */
  
   //Lattice-Bolzmann Iterations (this function contains the loop, no need to loop this call)
-  //timestep(params, cells, tmp_cells+offset, obstacles, av_vels, 1.0/available_cells, ocl);
+  timestep(params, cells, tmp_cells+offset, obstacles, av_vels, 1.0/available_cells, ocl);
 
   //TODO: Pass chunks back to master from other nodes
 
@@ -249,7 +249,7 @@ int main(int argc, char* argv[])
   timstr = ru.ru_stime;
   systim = timstr.tv_sec + (timstr.tv_usec / 1000000.0);*/
 
-  t_speed reynold_sum = calc_reynolds(params, cells+offset, obstacles);
+  t_speed reynold_sum = calc_reynolds(params, tmp_cells+offset, obstacles);
 
   /* write final values and free memory */
   printf("==done==\n");
@@ -257,7 +257,7 @@ int main(int argc, char* argv[])
   printf("Elapsed time:\t\t\t%.6lf (s)\n", toc - tic);
   //printf("Elapsed user CPU time:\t\t%.6lf (s)\n", usrtim);
   //printf("Elapsed system CPU time:\t%.6lf (s)\n", systim);
-  write_values(params, cells+offset, obstacles, av_vels);
+  write_values(params, tmp_cells+offset, obstacles, av_vels);
 
   finalise(params, &cells, &tmp_cells, &obstacles, &av_vels, ocl);
   return EXIT_SUCCESS;
