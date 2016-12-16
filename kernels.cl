@@ -223,6 +223,9 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
 
   /* Begin: Rebound */
   if(o_mask2 == 0.0f){
+    if(x != 0 && x != 127 && y != 0 && y != 127){
+      printf("Wow, stray obstacle!\n");
+    }
     u0 = u0_o;
     u1 = u2_o;
     u2 = u1_o;
