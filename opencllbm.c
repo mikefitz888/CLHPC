@@ -383,7 +383,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   size_t global_LR[1] = {params->ny};
   size_t global_TB[1] = {params->nx_pad};
 
-  for(int iteration = 0; iteration < 1; i++){
+  for(int iteration = 0; iteration < 1; iteration++){
     // Reposition left/right "ghost" cells
     for(int y = 0; y < params->ny; y++){
       tmp_cells[L(4, y, 1, params->nx_pad)] = tmp_cells[L(params->nx+4, y, 1, params->nx_pad)];
