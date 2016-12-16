@@ -227,11 +227,11 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   
   /* Begin: Propogate */
   /* None of these swap nodes as y != end && y != start */
-  int e = (x+1)%NX;
-  int w = (x==0)?NX-1:x-1;
+  int e = x;//(x+1)%NX;
+  int w = x;//(x==0)?NX-1:x-1;
 
-  int n = (y+1)%NY;
-  int s = (y==0)?NY-1:y-1;
+  int n = y;//(y+1)%NY;
+  int s = y;//(y==0)?NY-1:y-1;
 
   output_grid[L(x  , y  , 0, NX)] = u0; // Does not propogate
   output_grid[L(e  , y  , 1, NX)] = u1; // Does not propogate
