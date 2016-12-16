@@ -222,11 +222,6 @@ int main(int argc, char* argv[])
   // DOESN'T NEED MPI SPECIALISATION AS OUTSIDE TIMED REGION, WOULD BE BENEFICIAL OTHERWISE
   propagate(params, cells+offset, tmp_cells+offset);
 
-  cells[offset+L(12, 72, 5, params->nx_pad)] = 86;
-  printf("Test cell host addr: %p\n", &cells[offset+L(12, 72, 5, params->nx_pad)]);
-  tmp_cells[offset+L(12, 72, 5, params->nx_pad)] = 87; 
-  printf("Test tmp_cell host addr: %p\n", &tmp_cells[offset+L(12, 72, 5, params->nx_pad)]);
-
   /* iterate for maxIters timesteps */
     gettimeofday(&timstr, NULL);
     tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
@@ -396,7 +391,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   int zero = 0;
   int one = 1;
 
-  for(int iteration = 0; iteration < 1; iteration++){
+  for(int iteration = 0; iteration < 100; iteration++){
     // Reposition left/right "ghost" cells
     /*err = clSetKernelArg(ocl.swapGhostCellsLR, 0, sizeof(cl_mem), &ocl.grid);
     checkError(err, "swapping Left/Right ghost cells", __LINE__);
@@ -440,17 +435,15 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     err = clFinish(ocl.queue);
     checkError(err, "waiting for lbm kernel", __LINE__);*/
 
-    /*err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.cells);
+    err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.cells);
     checkError(err, "setting lbm arg 0", __LINE__);
     err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.tmp_cells);
     checkError(err, "setting lbm arg 1", __LINE__);
-    iteration++;
-    err = clSetKernelArg(ocl.lbm, 4, sizeof(cl_int), &iteration);
     checkError(err, "setting lbm arg 4", __LINE__);
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, NULL, 0, NULL, NULL);
     checkError(err, "enqueuing lbm kernel", __LINE__);
     err = clFinish(ocl.queue);
-    checkError(err, "waiting for lbm kernel", __LINE__);*/
+    checkError(err, "waiting for lbm kernel", __LINE__);
 
     // Reposition top/bottom "ghost" rows
     /*err = clSetKernelArg(ocl.swapGhostCellsTB, 0, sizeof(cl_mem), &ocl.grid);
