@@ -108,6 +108,18 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
    floatv u7_o = input_grid[L(x, y, 7, NX)];
    floatv u8_o = input_grid[L(x, y, 8, NX)];
 
+   if(it = 4){
+    if(u0_o < 0){printf("(%d, %d)[0] < 0", x, y);}
+    if(u1_o < 0){printf("(%d, %d)[1] < 0", x, y);}
+    if(u2_o < 0){printf("(%d, %d)[2] < 0", x, y);}
+    if(u3_o < 0){printf("(%d, %d)[3] < 0", x, y);}
+    if(u4_o < 0){printf("(%d, %d)[4] < 0", x, y);}
+    if(u5_o < 0){printf("(%d, %d)[5] < 0", x, y);}
+    if(u6_o < 0){printf("(%d, %d)[6] < 0", x, y);}
+    if(u7_o < 0){printf("(%d, %d)[7] < 0", x, y);}
+    if(u8_o < 0){printf("(%d, %d)[8] < 0", x, y);}
+   }
+
   floatv o_mask2 = obstacles[y*NX+x];
 
   floatv xneg = u2_o + u5_o + u6_o;
