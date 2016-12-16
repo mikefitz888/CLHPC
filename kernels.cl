@@ -2,7 +2,8 @@
 
 #define NSPEEDS 9
 //int offset = 4 + (9 * (params->nx_pad));
-#define L(X, Y, V, NX) (4+(X) + ((V)+(Y)*18+18)*(NX)) //Offsets built in
+//#define L(X, Y, V, NX) (4+(X) + ((V)+(Y)*18+18)*(NX)) //Offsets built in
+#define L(X, Y, V, NX) ((X) + ((V)+(Y)*9)*(NX))
 #define L2(X, Y, V, NX) (4+(X) + ((V)+(Y)*18+27)*(NX))
 #define VEC_SIZE 8
 #define floatv float
@@ -83,9 +84,9 @@ kernel void swapGhostCellsTB(global float* grid, int temp){
 }
 
 
-kernel void lbm(global float* grid, int temp, global float* obstacles, global float* partial_sums, int it)
+kernel void lbm(global float* input_grid, global float* output_grid, global float* obstacles, global float* partial_sums, int it)
 {
-  int x = get_global_id(0)*8 + 4;
+  int x = get_global_id(0);
   int y = get_global_id(1);
 
   /*if(x == 12 & y == 72){
@@ -97,37 +98,15 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   //int offset = 4 + (2 * 9 * (params->nx_pad));
   //int offset = 4 + (9 * nx_pad);
 
-  floatv u0_o;
-  floatv u1_o;
-  floatv u2_o;
-  floatv u3_o;
-  floatv u4_o;
-  floatv u5_o;
-  floatv u6_o;
-  floatv u7_o;
-  floatv u8_o;
-
-  if(temp){
-    u0_o = VEC_LOAD(&grid[L(x, y, 0, nx_pad)]);
-    u1_o = VEC_LOAD(&grid[L(x, y, 1, nx_pad)]);
-    u2_o = VEC_LOAD(&grid[L(x, y, 2, nx_pad)]);
-    u3_o = VEC_LOAD(&grid[L(x, y, 3, nx_pad)]);
-    u4_o = VEC_LOAD(&grid[L(x, y, 4, nx_pad)]);
-    u5_o = VEC_LOAD(&grid[L(x, y, 5, nx_pad)]);
-    u6_o = VEC_LOAD(&grid[L(x, y, 6, nx_pad)]);
-    u7_o = VEC_LOAD(&grid[L(x, y, 7, nx_pad)]);
-    u8_o = VEC_LOAD(&grid[L(x, y, 8, nx_pad)]);
-  }else{
-    u0_o = VEC_LOAD(&grid[L2(x, y, 0, nx_pad)]);
-    u1_o = VEC_LOAD(&grid[L2(x, y, 1, nx_pad)]);
-    u2_o = VEC_LOAD(&grid[L2(x, y, 2, nx_pad)]);
-    u3_o = VEC_LOAD(&grid[L2(x, y, 3, nx_pad)]);
-    u4_o = VEC_LOAD(&grid[L2(x, y, 4, nx_pad)]);
-    u5_o = VEC_LOAD(&grid[L2(x, y, 5, nx_pad)]);
-    u6_o = VEC_LOAD(&grid[L2(x, y, 6, nx_pad)]);
-    u7_o = VEC_LOAD(&grid[L2(x, y, 7, nx_pad)]);
-    u8_o = VEC_LOAD(&grid[L2(x, y, 8, nx_pad)]);
-  }
+   floatv u0_o = VEC_LOAD(&input_grid[L(x, y, 0, NX)]);
+   floatv u1_o = VEC_LOAD(&input_grid[L(x, y, 1, NX)]);
+   floatv u2_o = VEC_LOAD(&input_grid[L(x, y, 2, NX)]);
+   floatv u3_o = VEC_LOAD(&input_grid[L(x, y, 3, NX)]);
+   floatv u4_o = VEC_LOAD(&input_grid[L(x, y, 4, NX)]);
+   floatv u5_o = VEC_LOAD(&input_grid[L(x, y, 5, NX)]);
+   floatv u6_o = VEC_LOAD(&input_grid[L(x, y, 6, NX)]);
+   floatv u7_o = VEC_LOAD(&input_grid[L(x, y, 7, NX)]);
+   floatv u8_o = VEC_LOAD(&input_grid[L(x, y, 8, NX)]);
 
   floatv o_mask2 = VEC_LOAD(&obstacles[y*nx+x-4]);
 
@@ -237,27 +216,31 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   
   /* Begin: Propogate */
   /* None of these swap nodes as y != end && y != start */
-  if(temp){
-    VEC_STORE(&grid[L2(x  , y  , 0, nx_pad)], u0); // Does not propogate
-    VEC_STORE(&grid[L2((x+1)%(NX+4), y  , 1, nx_pad)], u1);
-    VEC_STORE(&grid[L2((x==4)?NX+3:x-1, y  , 2, nx_pad)], u2);
-    VEC_STORE(&grid[L2((x+1)%(NX+4), y+1, 3, nx_pad)], u3);
-    VEC_STORE(&grid[L2(x  , y+1, 4, nx_pad)], u4);
-    VEC_STORE(&grid[L2((x==4)?NX+3:x-1, y+1, 5, nx_pad)], u5);
-    VEC_STORE(&grid[L2((x==4)?NX+3:x-1, (y==0)?NY-1:y-1, 6, nx_pad)], u6);
-    VEC_STORE(&grid[L2(x  , (y==0)?NY-1:y-1, 7, nx_pad)], u7);
-    VEC_STORE(&grid[L2((x+1)%(NX+4), (y==0)?NY-1:y-1, 8, nx_pad)], u8);
-  }else{
-    VEC_STORE(&grid[L(x  , y  , 0, nx_pad)], u0); // Does not propogate
-    VEC_STORE(&grid[L((x+1)%(NX+4), y  , 1, nx_pad)], u1);
-    VEC_STORE(&grid[L((x==4)?NX+3:x-1, y  , 2, nx_pad)], u2);
-    VEC_STORE(&grid[L((x+1)%(NX+4), y+1, 3, nx_pad)], u3);
-    VEC_STORE(&grid[L(x  , y+1, 4, nx_pad)], u4);
-    VEC_STORE(&grid[L((x==4)?NX+3:x-1, y+1, 5, nx_pad)], u5);
-    VEC_STORE(&grid[L((x==4)?NX+3:x-1, (y==0)?NY-1:y-1, 6, nx_pad)], u6);
-    VEC_STORE(&grid[L(x  , (y==0)?NY-1:y-1, 7, nx_pad)], u7);
-    VEC_STORE(&grid[L((x+1)%(NX+4), (y==0)?NY-1:y-1, 8, nx_pad)], u8);
-  }
+  int e = (x+1)%NX;
+  int w = (x==0)?NX-1:x-1;
+  int n = (y+1)%NY;
+  int s = (y==0)?NY-1:x-1;
+
+    VEC_STORE(&output_grid[L(x  , y  , 0, nx)], u0); // Does not propogate
+    VEC_STORE(&output_grid[L(e  , y  , 0, nx)], u0); // Does not propogate
+    VEC_STORE(&output_grid[L(w  , y  , 0, nx)], u0); // Does not propogate
+    VEC_STORE(&output_grid[L(e  , n  , 0, nx)], u0); // Does not propogate
+    VEC_STORE(&output_grid[L(x  , n  , 0, nx)], u0); // Does not propogate
+    VEC_STORE(&output_grid[L(w  , n  , 0, nx)], u0); // Does not propogate
+    VEC_STORE(&output_grid[L(w  , s  , 0, nx)], u0); // Does not propogate
+    VEC_STORE(&output_grid[L(x  , s  , 0, nx)], u0); // Does not propogate
+    VEC_STORE(&output_grid[L(e  , s  , 0, nx)], u0); // Does not propogate
+    
+
+    /*VEC_STORE(&output_grid[L(x  , y  , 0, nx)], u0); // Does not propogate
+    VEC_STORE(&output_grid[L((x+1)%(NX+4), y  , 1, nx)], u1);
+    VEC_STORE(&output_grid[L((x==4)?NX+3:x-1, y  , 2, nx)], u2);
+    VEC_STORE(&output_grid[L((x+1)%(NX+4), y+1, 3, nx)], u3);
+    VEC_STORE(&output_grid[L(x  , y+1, 4, nx)], u4);
+    VEC_STORE(&output_grid[L((x==4)?NX+3:x-1, y+1, 5, nx)], u5);
+    VEC_STORE(&output_grid[L((x==4)?NX+3:x-1, (y==0)?NY-1:y-1, 6, nx)], u6);
+    VEC_STORE(&output_grid[L(x  , (y==0)?NY-1:y-1, 7, nx)], u7);
+    VEC_STORE(&output_grid[L((x+1)%(NX+4), (y==0)?NY-1:y-1, 8, nx)], u8);*/
   /* End: Propogate */
 
 }

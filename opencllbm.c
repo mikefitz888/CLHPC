@@ -81,7 +81,8 @@
 #define OCLFILE         "kernels.cl"
 
 #define VECTOR_SIZE 8
-#define L(X, Y, V, NX) ((X) + ((V)+(Y)*18)*(NX)) //Requires array to be offset correctly, and X to be x+4, this ensures 32byte alignment for vector intrinics
+//#define L(X, Y, V, NX) ((X) + ((V)+(Y)*18)*(NX)) //Requires array to be offset correctly, and X to be x+4, this ensures 32byte alignment for vector intrinics
+#define L(X, Y, V, NX) ((X) + ((V)+(Y)*9)*(NX))
 #define _SCHEDULE_ schedule(static, 4)
 
 #define START(RANK, SIZE, NY) ((RANK)*(NY)/(SIZE)+( (RANK)<((NY)%(SIZE))?(RANK):((NY)%(SIZE)) ))
@@ -124,7 +125,8 @@ typedef struct
   cl_kernel  swapGhostCellsLR;
   cl_kernel  swapGhostCellsTB;
 
-  cl_mem grid;
+  cl_mem cells;
+  cl_mem tmp_cells;
   cl_mem obstacles;
   cl_mem partial_sums;
 } t_ocl;
@@ -235,7 +237,7 @@ int main(int argc, char* argv[])
 */
     cl_int err;
   //Write cells to kernel
-  err = clEnqueueWriteBuffer(ocl.queue, ocl.grid, CL_TRUE, 0, sizeof(cl_float) * (4 + 9 * ((params->ny_pad) * (params->nx_pad)) * 2), cells, 0, NULL, NULL);
+  err = clEnqueueWriteBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(cl_float) * (9 * params->ny * params->nx), cells, 0, NULL, NULL);
   checkError(err, "writing cells data", __LINE__);
   err = clEnqueueWriteBuffer(ocl.queue, ocl.obstacles, CL_TRUE, 0, sizeof(cl_float) * params->nx * params->ny, obstacles, 0, NULL, NULL);
   checkError(err, "writing obstacles data", __LINE__);
@@ -293,23 +295,23 @@ int accelerate_flow(const t_param* params, t_speed* cells, t_obstacle* obstacles
   /* modify the 2nd row of the grid */
   int ii = params->ny - 2;
 
-  for (int jj = 4; jj < params->nx + 4; jj++)
+  for (int jj = 0; jj < params->nx; jj++)
   {
     /* if the cell is not occupied and
     ** we don't send a negative density */
-    if ( ((int*)obstacles)[ii * params->nx + jj - 4] == -1
-        && (cells[L(jj, ii, 2, params->nx_pad)] - w1) > 0.0
-        && (cells[L(jj, ii, 5, params->nx_pad)] - w2) > 0.0
-        && (cells[L(jj, ii, 6, params->nx_pad)] - w2) > 0.0)
+    if ( ((int*)obstacles)[ii * params->nx + jj] == -1
+        && (cells[L(jj, ii, 2, params->nx)] - w1) > 0.0
+        && (cells[L(jj, ii, 5, params->nx)] - w2) > 0.0
+        && (cells[L(jj, ii, 6, params->nx)] - w2) > 0.0)
     {
       /* decrease 'west-side' densities */
-      cells[L(jj, ii, 2, params->nx_pad)] -= w1;
-      cells[L(jj, ii, 5, params->nx_pad)] -= w2;
-      cells[L(jj, ii, 6, params->nx_pad)] -= w2;
+      cells[L(jj, ii, 2, params->nx)] -= w1;
+      cells[L(jj, ii, 5, params->nx)] -= w2;
+      cells[L(jj, ii, 6, params->nx)] -= w2;
       /* increase 'east-side' densities */
-      cells[L(jj, ii, 1, params->nx_pad)] += w1;
-      cells[L(jj, ii, 3, params->nx_pad)] += w2;
-      cells[L(jj, ii, 8, params->nx_pad)] += w2;
+      cells[L(jj, ii, 1, params->nx)] += w1;
+      cells[L(jj, ii, 3, params->nx)] += w2;
+      cells[L(jj, ii, 8, params->nx)] += w2;
       
     }
   }
@@ -322,18 +324,19 @@ int propagate(const t_param* params, t_speed* cells, t_speed* tmp_cells)
   for (int y = 0; y < params->ny; y++)
   {
     int s = y == 0 ? params->ny-1 : y-1;
+    int w = x == 0 ? params->nx-1 : x-1;
     #pragma ivdep
-    for (int x = 4; x < params->nx+4; x++)
+    for (int x = 0; x < params->nx; x++)
     {
-      tmp_cells[L(x  , y               , 0, params->nx_pad)] = cells[L(x  , y  , 0, params->nx_pad)];
-      tmp_cells[L(x+1, y               , 1, params->nx_pad)] = cells[L(x  , y  , 1, params->nx_pad)];
-      tmp_cells[L(x-1, y               , 2, params->nx_pad)] = cells[L(x  , y  , 2, params->nx_pad)];
-      tmp_cells[L(x+1, (y+1)%params->ny, 3, params->nx_pad)] = cells[L(x  , y  , 3, params->nx_pad)];
-      tmp_cells[L(x  , (y+1)%params->ny, 4, params->nx_pad)] = cells[L(x  , y  , 4, params->nx_pad)];
-      tmp_cells[L(x-1, (y+1)%params->ny, 5, params->nx_pad)] = cells[L(x  , y  , 5, params->nx_pad)];
-      tmp_cells[L(x-1, (s), 6, params->nx_pad)] = cells[L(x  , y  , 6, params->nx_pad)];
-      tmp_cells[L(x  , (s), 7, params->nx_pad)] = cells[L(x  , y  , 7, params->nx_pad)];
-      tmp_cells[L(x+1, (s), 8, params->nx_pad)] = cells[L(x  , y  , 8, params->nx_pad)];
+      tmp_cells[L(x  , y               , 0, params->nx)] = cells[L(x  , y  , 0, params->nx)];
+      tmp_cells[L((x+1)%params->nx, y               , 1, params->nx)] = cells[L(x  , y  , 1, params->nx)];
+      tmp_cells[L(w, y               , 2, params->nx)] = cells[L(x  , y  , 2, params->nx)];
+      tmp_cells[L((x+1)%params->nx, (y+1)%params->ny, 3, params->nx)] = cells[L(x  , y  , 3, params->nx)];
+      tmp_cells[L(x  , (y+1)%params->ny, 4, params->nx)] = cells[L(x  , y  , 4, params->nx)];
+      tmp_cells[L(w, (y+1)%params->ny, 5, params->nx)] = cells[L(x  , y  , 5, params->nx)];
+      tmp_cells[L(w, (s), 6, params->nx)] = cells[L(x  , y  , 6, params->nx)];
+      tmp_cells[L(x  , (s), 7, params->nx)] = cells[L(x  , y  , 7, params->nx)];
+      tmp_cells[L((x+1)%params->nx, (s), 8, params->nx)] = cells[L(x  , y  , 8, params->nx)];
     }
   }
   return EXIT_SUCCESS;
@@ -401,9 +404,9 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     err = clFinish(ocl.queue);
     checkError(err, "waiting for lbm kernel", __LINE__);*/
 
-    err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.grid);
+    err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.tmp_cells);
     checkError(err, "setting lbm arg 0", __LINE__);
-    err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_int), &zero);
+    err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.cells);
     checkError(err, "setting lbm arg 1", __LINE__);
     err = clSetKernelArg(ocl.lbm, 4, sizeof(cl_int), &iteration);
     checkError(err, "setting lbm arg 4", __LINE__);
@@ -474,25 +477,18 @@ t_speed av_velocity(const t_param* params, t_speed* cells, t_obstacle* obstacles
   /* loop over all non-blocked cells */
   for (int ii = 0; ii <= params->ny; ii++)
   {
-    cells[L(4, ii, 1, params->nx_pad)] = cells[L(params->nx+4, ii, 1, params->nx_pad)];
-    cells[L(4, ii, 3, params->nx_pad)] = cells[L(params->nx+4, ii, 3, params->nx_pad)];
-    cells[L(4, ii, 8, params->nx_pad)] = cells[L(params->nx+4, ii, 8, params->nx_pad)];
-    
-    cells[L(params->nx+3, ii, 2, params->nx_pad)] = cells[L(3, ii, 2, params->nx_pad)];
-    cells[L(params->nx+3, ii, 5, params->nx_pad)] = cells[L(3, ii, 5, params->nx_pad)];
-    cells[L(params->nx+3, ii, 6, params->nx_pad)] = cells[L(3, ii, 6, params->nx_pad)];
 
-    for (int jj = 4; jj < params->nx + 4; jj++)
+    for (int jj = 0; jj < params->nx; jj++)
     {
       /* ignore occupied cells */
-      if (((int*)obstacles)[ii * params->nx + jj - 4] == -1)
+      if (((int*)obstacles)[ii * params->nx + jj] == -1)
       {
         /* local density total */
         t_speed local_density = 0.0;
 
         for (int kk = 0; kk < NSPEEDS; kk++)
         {
-          local_density += cells[L(jj, ii, kk, params->nx_pad)];
+          local_density += cells[L(jj, ii, kk, params->nx)];
         }
         if(local_density == 0){
           printf("Local density = 0\n");
@@ -500,20 +496,20 @@ t_speed av_velocity(const t_param* params, t_speed* cells, t_obstacle* obstacles
         t_speed inverse_local_density = 1/local_density;
 
         /* x-component of velocity */
-        t_speed u_x = cells[L(jj, ii, 1, params->nx_pad)]
-                      + cells[L(jj, ii, 3, params->nx_pad)]
-                      + cells[L(jj, ii, 8, params->nx_pad)]
-                      - (cells[L(jj, ii, 2, params->nx_pad)]
-                         + cells[L(jj, ii, 5, params->nx_pad)]
-                         + cells[L(jj, ii, 6, params->nx_pad)]);
+        t_speed u_x = cells[L(jj, ii, 1, params->nx)]
+                      + cells[L(jj, ii, 3, params->nx)]
+                      + cells[L(jj, ii, 8, params->nx)]
+                      - (cells[L(jj, ii, 2, params->nx)]
+                         + cells[L(jj, ii, 5, params->nx)]
+                         + cells[L(jj, ii, 6, params->nx)]);
 
         /* compute y velocity component */
-        t_speed u_y = cells[L(jj, ii, 3, params->nx_pad)]
-                      + cells[L(jj, ii, 4, params->nx_pad)]
-                      + cells[L(jj, ii, 5, params->nx_pad)]
-                      - (cells[L(jj, ii, 6, params->nx_pad)]
-                         + cells[L(jj, ii, 7, params->nx_pad)]
-                         + cells[L(jj, ii, 8, params->nx_pad)]);
+        t_speed u_y = cells[L(jj, ii, 3, params->nx)]
+                      + cells[L(jj, ii, 4, params->nx)]
+                      + cells[L(jj, ii, 5, params->nx)]
+                      - (cells[L(jj, ii, 6, params->nx)]
+                         + cells[L(jj, ii, 7, params->nx)]
+                         + cells[L(jj, ii, 8, params->nx)]);
         u_x *= inverse_local_density;
         u_y *= inverse_local_density;
         /* accumulate the norm of x- and y- velocity components */
@@ -611,14 +607,15 @@ int initialise(const char* paramfile, const char* obstaclefile,
   params->ny_pad = params->ny + 2; //for ghost rows
 
   //MUST START 16 bytes before boundary
-  posix_memalign((void**) cells_ptr, 32, sizeof(t_speed) * (NSPEEDS * ((params->ny_pad) * (params->nx_pad)) * 2 + 4) );
+  posix_memalign((void**) cells_ptr, 32, sizeof(t_speed) * (NSPEEDS * params->ny * params->nx) );
 
   if (*cells_ptr == NULL) die("cannot allocate memory for cells", __LINE__, __FILE__);
 
   /* 'helper' grid, used as scratch space */
   //*tmp_cells_ptr = (t_cell*)malloc(sizeof(t_cell) * (params->ny * params->nx));
   //posix_memalign((void**) tmp_cells_ptr, 32, sizeof(t_speed) * (NSPEEDS * ((params->ny_pad) * params->nx_pad) + 4) );
-  *tmp_cells_ptr = *cells_ptr + (9*params->nx_pad);
+  posix_memalign((void**) tmp_cells_ptr, 32, sizeof(t_speed) * (NSPEEDS * params->ny * params->nx) );
+  //*tmp_cells_ptr = *cells_ptr + (9*params->nx_pad);
 
   if (*tmp_cells_ptr == NULL) die("cannot allocate memory for tmp_cells", __LINE__, __FILE__);
 
@@ -634,7 +631,8 @@ int initialise(const char* paramfile, const char* obstaclefile,
   t_speed w2 = params->density      / 36.0;
 
   //int offset = 4 + (9 * (params->nx_pad));
-  int offset = 4 + (2 * 9 * (params->nx_pad));
+  //int offset = 4 + (2 * 9 * (params->nx_pad));
+  int offset = 0;
 
   #pragma omp parallel
   for (int ii = 0; ii < params->ny; ii++)
@@ -643,27 +641,27 @@ int initialise(const char* paramfile, const char* obstaclefile,
     for (int jj = 0; jj < params->nx; jj++)
     {
       /* centre */
-      (*cells_ptr)[L(jj+4, ii, 0, params->nx_pad) + offset] = w0;
+      (*cells_ptr)[L(jj, ii, 0, params->nx_pad) + offset] = w0;
       /* axis directions */
-      (*cells_ptr)[L(jj+4, ii, 1, params->nx_pad) + offset] = w1;
-      (*cells_ptr)[L(jj+4, ii, 2, params->nx_pad) + offset] = w1;
-      (*cells_ptr)[L(jj+4, ii, 4, params->nx_pad) + offset] = w1;
-      (*cells_ptr)[L(jj+4, ii, 7, params->nx_pad) + offset] = w1;
+      (*cells_ptr)[L(jj, ii, 1, params->nx_pad) + offset] = w1;
+      (*cells_ptr)[L(jj, ii, 2, params->nx_pad) + offset] = w1;
+      (*cells_ptr)[L(jj, ii, 4, params->nx_pad) + offset] = w1;
+      (*cells_ptr)[L(jj, ii, 7, params->nx_pad) + offset] = w1;
       /* diagonals */
-      (*cells_ptr)[L(jj+4, ii, 3, params->nx_pad) + offset] = w2;
-      (*cells_ptr)[L(jj+4, ii, 5, params->nx_pad) + offset] = w2;
-      (*cells_ptr)[L(jj+4, ii, 6, params->nx_pad) + offset] = w2;
-      (*cells_ptr)[L(jj+4, ii, 8, params->nx_pad) + offset] = w2;
+      (*cells_ptr)[L(jj, ii, 3, params->nx_pad) + offset] = w2;
+      (*cells_ptr)[L(jj, ii, 5, params->nx_pad) + offset] = w2;
+      (*cells_ptr)[L(jj, ii, 6, params->nx_pad) + offset] = w2;
+      (*cells_ptr)[L(jj, ii, 8, params->nx_pad) + offset] = w2;
 
-      (*tmp_cells_ptr)[L(jj+4, ii, 0, params->nx_pad) + offset] = w0;
-      (*tmp_cells_ptr)[L(jj+4, ii, 1, params->nx_pad) + offset] = w1;
-      (*tmp_cells_ptr)[L(jj+4, ii, 2, params->nx_pad) + offset] = w1;
-      (*tmp_cells_ptr)[L(jj+4, ii, 3, params->nx_pad) + offset] = w2;
-      (*tmp_cells_ptr)[L(jj+4, ii, 4, params->nx_pad) + offset] = w1;
-      (*tmp_cells_ptr)[L(jj+4, ii, 5, params->nx_pad) + offset] = w2;
-      (*tmp_cells_ptr)[L(jj+4, ii, 6, params->nx_pad) + offset] = w2;
-      (*tmp_cells_ptr)[L(jj+4, ii, 7, params->nx_pad) + offset] = w1;
-      (*tmp_cells_ptr)[L(jj+4, ii, 8, params->nx_pad) + offset] = w2;
+      (*tmp_cells_ptr)[L(jj, ii, 0, params->nx_pad) + offset] = w0;
+      (*tmp_cells_ptr)[L(jj, ii, 1, params->nx_pad) + offset] = w1;
+      (*tmp_cells_ptr)[L(jj, ii, 2, params->nx_pad) + offset] = w1;
+      (*tmp_cells_ptr)[L(jj, ii, 3, params->nx_pad) + offset] = w2;
+      (*tmp_cells_ptr)[L(jj, ii, 4, params->nx_pad) + offset] = w1;
+      (*tmp_cells_ptr)[L(jj, ii, 5, params->nx_pad) + offset] = w2;
+      (*tmp_cells_ptr)[L(jj, ii, 6, params->nx_pad) + offset] = w2;
+      (*tmp_cells_ptr)[L(jj, ii, 7, params->nx_pad) + offset] = w1;
+      (*tmp_cells_ptr)[L(jj, ii, 8, params->nx_pad) + offset] = w2;
     }
   }
 
@@ -795,10 +793,18 @@ int initialise(const char* paramfile, const char* obstaclefile,
 
 
   // Allocate OpenCL buffers
-  ocl->grid = clCreateBuffer(
+  ocl->cells = clCreateBuffer(
     ocl->context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
-    sizeof(t_speed) * (NSPEEDS * ((params->ny_pad) * (params->nx_pad)) * 2 + 4), *cells_ptr, &err);
+    sizeof(cl_float) * (NSPEEDS * params->ny * params->nx), *cells_ptr, &err);
   checkError(err, "creating grid buffer", __LINE__);
+
+  ocl->tmp_cells = clCreateBuffer(
+    ocl->context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
+    sizeof(cl_float) * (NSPEEDS * params->ny * params->nx), *tmp_cells_ptr, &err);
+  checkError(err, "creating grid buffer", __LINE__);
+
+
+  //sizeof(t_speed) * (NSPEEDS * params->ny * params->nx)
 
   /*ocl->cells     = clCreateSubBuffer(ocl->grid, CL_MEM_READ_WRITE, CL_BUFFER_CREATE_TYPE_REGION, &cells_sub_buffer, &err);
   checkError(err, "creating cells buffer", __LINE__);
@@ -899,10 +905,10 @@ int write_values(const t_param* params, t_speed* cells, t_obstacle* obstacles, t
 
   for (int ii = 0; ii < params->ny; ii++)
   {
-    for (int jj = 4; jj < params->nx + 4; jj++)
+    for (int jj = 0; jj < params->nx; jj++)
     {
       /* an occupied cell */
-      if ( ((int*)obstacles)[ii * params->nx + jj - 4] == 0 )
+      if ( ((int*)obstacles)[ii * params->nx + jj] == 0 )
       {
         u_x = u_y = u = 0.0;
         pressure = params->density * c_sq;
@@ -916,27 +922,27 @@ int write_values(const t_param* params, t_speed* cells, t_obstacle* obstacles, t
         for (int kk = 0; kk < NSPEEDS; kk++)
         {
           if( (ii == 1 || ii == 34) && (jj == 5 || jj == 72) ){
-            printf("cell(%d, %d)[%d] = %f\n", jj-4, ii, kk, cells[L(jj, ii, kk, params->nx_pad)]);
+            printf("cell(%d, %d)[%d] = %f\n", jj-4, ii, kk, cells[L(jj, ii, kk, params->nx)]);
           }
-          local_density += cells[L(jj, ii, kk, params->nx_pad)];
+          local_density += cells[L(jj, ii, kk, params->nx)];
         }
         t_speed inverse_local_density = 1/local_density;
 
         /* x-component of velocity */
-        t_speed u_x = cells[L(jj, ii, 1, params->nx_pad)]
-                      + cells[L(jj, ii, 3, params->nx_pad)]
-                      + cells[L(jj, ii, 8, params->nx_pad)]
-                      - (cells[L(jj, ii, 2, params->nx_pad)]
-                         + cells[L(jj, ii, 5, params->nx_pad)]
-                         + cells[L(jj, ii, 6, params->nx_pad)]);
+        t_speed u_x = cells[L(jj, ii, 1, params->nx)]
+                      + cells[L(jj, ii, 3, params->nx)]
+                      + cells[L(jj, ii, 8, params->nx)]
+                      - (cells[L(jj, ii, 2, params->nx)]
+                         + cells[L(jj, ii, 5, params->nx)]
+                         + cells[L(jj, ii, 6, params->nx)]);
 
         /* compute y velocity component */
-        t_speed u_y = cells[L(jj, ii, 3, params->nx_pad)]
-                      + cells[L(jj, ii, 4, params->nx_pad)]
-                      + cells[L(jj, ii, 5, params->nx_pad)]
-                      - (cells[L(jj, ii, 6, params->nx_pad)]
-                         + cells[L(jj, ii, 7, params->nx_pad)]
-                         + cells[L(jj, ii, 8, params->nx_pad)]);
+        t_speed u_y = cells[L(jj, ii, 3, params->nx)]
+                      + cells[L(jj, ii, 4, params->nx)]
+                      + cells[L(jj, ii, 5, params->nx)]
+                      - (cells[L(jj, ii, 6, params->nx)]
+                         + cells[L(jj, ii, 7, params->nx)]
+                         + cells[L(jj, ii, 8, params->nx)]);
         u_x *= inverse_local_density;
         u_y *= inverse_local_density;
         /* accumulate the norm of x- and y- velocity components */
