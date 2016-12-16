@@ -228,7 +228,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   int e = (x+1)%NX;
   int w = (x==0)?NX-1:x-1;
   int n = (y+1)%NY;
-  int s = (y==0)?NY-1:x-1;
+  int s = (y==0)?NY-1:y-1;
 
   output_grid[L(x  , y  , 0, nx)] = u0; // Does not propogate
   output_grid[L(e  , y  , 1, nx)] = u1; // Does not propogate
