@@ -98,8 +98,6 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
   //float tot_u = sum.s0 + sum.s1 + sum.s2 + sum.s3 + sum.s4 + sum.s5 + sum.s6 + sum.s7 + sum.s8 + sum.s9 + sum.s10 + sum.s11 + sum.s12 + sum.s13 + sum.s14 + sum.s15;
   float tot_u = dot(sum.s0123, (float4)(1));
   tot_u += dot(sum.s4567, (float4)(1));
-  tot_u += dot(sum.s89ab, (float4)(1));
-  tot_u += dot(sum.scdef, (float4)(1));
   //TODO: division
   partial_sums[y*NX+get_global_id(0)] = tot_u;
 
