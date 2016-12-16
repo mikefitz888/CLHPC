@@ -642,27 +642,27 @@ int initialise(const char* paramfile, const char* obstaclefile,
     for (int jj = 0; jj < params->nx; jj++)
     {
       /* centre */
-      (*cells_ptr)[L(jj, ii, 0, params->nx_pad) + offset] = w0;
+      (*cells_ptr)[L(jj, ii, 0, params->nx) + offset] = w0;
       /* axis directions */
-      (*cells_ptr)[L(jj, ii, 1, params->nx_pad) + offset] = w1;
-      (*cells_ptr)[L(jj, ii, 2, params->nx_pad) + offset] = w1;
-      (*cells_ptr)[L(jj, ii, 4, params->nx_pad) + offset] = w1;
-      (*cells_ptr)[L(jj, ii, 7, params->nx_pad) + offset] = w1;
+      (*cells_ptr)[L(jj, ii, 1, params->nx) + offset] = w1;
+      (*cells_ptr)[L(jj, ii, 2, params->nx) + offset] = w1;
+      (*cells_ptr)[L(jj, ii, 4, params->nx) + offset] = w1;
+      (*cells_ptr)[L(jj, ii, 7, params->nx) + offset] = w1;
       /* diagonals */
-      (*cells_ptr)[L(jj, ii, 3, params->nx_pad) + offset] = w2;
-      (*cells_ptr)[L(jj, ii, 5, params->nx_pad) + offset] = w2;
-      (*cells_ptr)[L(jj, ii, 6, params->nx_pad) + offset] = w2;
-      (*cells_ptr)[L(jj, ii, 8, params->nx_pad) + offset] = w2;
+      (*cells_ptr)[L(jj, ii, 3, params->nx) + offset] = w2;
+      (*cells_ptr)[L(jj, ii, 5, params->nx) + offset] = w2;
+      (*cells_ptr)[L(jj, ii, 6, params->nx) + offset] = w2;
+      (*cells_ptr)[L(jj, ii, 8, params->nx) + offset] = w2;
 
-      (*tmp_cells_ptr)[L(jj, ii, 0, params->nx_pad) + offset] = w0;
-      (*tmp_cells_ptr)[L(jj, ii, 1, params->nx_pad) + offset] = w1;
-      (*tmp_cells_ptr)[L(jj, ii, 2, params->nx_pad) + offset] = w1;
-      (*tmp_cells_ptr)[L(jj, ii, 3, params->nx_pad) + offset] = w2;
-      (*tmp_cells_ptr)[L(jj, ii, 4, params->nx_pad) + offset] = w1;
-      (*tmp_cells_ptr)[L(jj, ii, 5, params->nx_pad) + offset] = w2;
-      (*tmp_cells_ptr)[L(jj, ii, 6, params->nx_pad) + offset] = w2;
-      (*tmp_cells_ptr)[L(jj, ii, 7, params->nx_pad) + offset] = w1;
-      (*tmp_cells_ptr)[L(jj, ii, 8, params->nx_pad) + offset] = w2;
+      (*tmp_cells_ptr)[L(jj, ii, 0, params->nx) + offset] = w0;
+      (*tmp_cells_ptr)[L(jj, ii, 1, params->nx) + offset] = w1;
+      (*tmp_cells_ptr)[L(jj, ii, 2, params->nx) + offset] = w1;
+      (*tmp_cells_ptr)[L(jj, ii, 3, params->nx) + offset] = w2;
+      (*tmp_cells_ptr)[L(jj, ii, 4, params->nx) + offset] = w1;
+      (*tmp_cells_ptr)[L(jj, ii, 5, params->nx) + offset] = w2;
+      (*tmp_cells_ptr)[L(jj, ii, 6, params->nx) + offset] = w2;
+      (*tmp_cells_ptr)[L(jj, ii, 7, params->nx) + offset] = w1;
+      (*tmp_cells_ptr)[L(jj, ii, 8, params->nx) + offset] = w2;
     }
   }
 
