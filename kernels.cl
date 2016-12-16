@@ -108,7 +108,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
    floatv u7_o = input_grid[L(x, y, 7, NX)];
    floatv u8_o = input_grid[L(x, y, 8, NX)];
 
-  floatv o_mask2 = obstacles[y*nx+x];
+  floatv o_mask2 = obstacles[y*NX+x];
 
   floatv xneg = u2_o + u5_o + u6_o;
   floatv xpos = u1_o + u3_o + u8_o;
@@ -196,9 +196,11 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   /* End: Collision */
 
   /* Add Acceleration */
+  if(o_mask2 > 0){
     u1 = u1 + (floatv)(1);
     u3 = u3 + (floatv)(1);
     u8 = u8 + (floatv)(1);
+  }
 
   /* Begin: Rebound: openCL mix */
   /*u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
@@ -227,18 +229,19 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   /* None of these swap nodes as y != end && y != start */
   int e = (x+1)%NX;
   int w = (x==0)?NX-1:x-1;
+
   int n = (y+1)%NY;
   int s = (y==0)?NY-1:y-1;
 
-  output_grid[L(x  , y  , 0, nx)] = u0; // Does not propogate
-  output_grid[L(e  , y  , 1, nx)] = u1; // Does not propogate
-  output_grid[L(w  , y  , 2, nx)] = u2; // Does not propogate
-  output_grid[L(e  , n  , 3, nx)] = u3; // Does not propogate
-  output_grid[L(x  , n  , 4, nx)] = u4; // Does not propogate
-  output_grid[L(w  , n  , 5, nx)] = u5; // Does not propogate
-  output_grid[L(w  , s  , 6, nx)] = u6; // Does not propogate
-  output_grid[L(x  , s  , 7, nx)] = u7; // Does not propogate
-  output_grid[L(e  , s  , 8, nx)] = u8; // Does not propogate
+  output_grid[L(x  , y  , 0, NX)] = u0; // Does not propogate
+  output_grid[L(e  , y  , 1, NX)] = u1; // Does not propogate
+  output_grid[L(w  , y  , 2, NX)] = u2; // Does not propogate
+  output_grid[L(e  , n  , 3, NX)] = u3; // Does not propogate
+  output_grid[L(x  , n  , 4, NX)] = u4; // Does not propogate
+  output_grid[L(w  , n  , 5, NX)] = u5; // Does not propogate
+  output_grid[L(w  , s  , 6, NX)] = u6; // Does not propogate
+  output_grid[L(x  , s  , 7, NX)] = u7; // Does not propogate
+  output_grid[L(e  , s  , 8, NX)] = u8; // Does not propogate
     
 
     /*VEC_STORE(&output_grid[L(x  , y  , 0, nx)], u0); // Does not propogate
