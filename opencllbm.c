@@ -383,6 +383,8 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     // Reposition left/right "ghost" cells
     err = clSetKernelArg(ocl.swapGhostCellsLR, 0, sizeof(cl_mem), &ocl.tmp_cells);
     checkError(err, "swapping Left/Right ghost cells", __LINE__);
+    err = clEnqueueNDRangeKernel(ocl.queue, ocl.swapGhostCellsLR, 1, NULL, global_LR, NULL, 0, NULL, NULL);
+    checkError(err, "enqueuing lbm kernel", __LINE__);
 
     checkError(err, "writing cells data", __LINE__);
     err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.cells);
@@ -399,6 +401,8 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     // Reposition top/bottom "ghost" rows
     err = clSetKernelArg(ocl.swapGhostCellsTB, 0, sizeof(cl_mem), &ocl.cells);
     checkError(err, "swapping Left/Right ghost cells", __LINE__);
+    err = clEnqueueNDRangeKernel(ocl.queue, ocl.swapGhostCellsTB, 1, NULL, global_TB, NULL, 0, NULL, NULL);
+    checkError(err, "enqueuing lbm kernel", __LINE__);
 
 
 
@@ -406,6 +410,8 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     // Reposition left/right "ghost" cells
     err = clSetKernelArg(ocl.swapGhostCellsLR, 0, sizeof(cl_mem), &ocl.cells);
     checkError(err, "swapping Left/Right ghost cells", __LINE__);
+    err = clEnqueueNDRangeKernel(ocl.queue, ocl.swapGhostCellsLR, 1, NULL, global_LR, NULL, 0, NULL, NULL);
+    checkError(err, "enqueuing lbm kernel", __LINE__);
 
     checkError(err, "writing cells data", __LINE__);
     err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.tmp_cells);
@@ -422,6 +428,8 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     // Reposition top/bottom "ghost" rows
     err = clSetKernelArg(ocl.swapGhostCellsTB, 0, sizeof(cl_mem), &ocl.tmp_cells);
     checkError(err, "swapping Left/Right ghost cells", __LINE__);
+    err = clEnqueueNDRangeKernel(ocl.queue, ocl.swapGhostCellsTB, 1, NULL, global_TB, NULL, 0, NULL, NULL);
+    checkError(err, "enqueuing lbm kernel", __LINE__);
 
 
 
