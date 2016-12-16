@@ -733,8 +733,6 @@ int initialise(const char* paramfile, const char* obstaclefile,
   }
   checkError(err, "building program", __LINE__);
 
-  cl_buffer_region     cells_sub_buffer = { 4*sizeof(cl_float), sizeof(cl_float)*(9*params->nx_pad)*params->ny_pad*2};
-  cl_buffer_region tmp_cells_sub_buffer = { ((9*params->nx_pad)+4)*sizeof(cl_float), sizeof(cl_float)*(9*params->nx_pad)*(params->ny_pad*2 - 1)};
 
   // Create OpenCL kernels
   ocl->accelerate_flow = clCreateKernel(ocl->program, "accelerate_flow", &err);
