@@ -246,6 +246,8 @@ int main(int argc, char* argv[])
   // Read tmp_cells from device                                   
   err = clEnqueueReadBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(cl_float) * (9 * params->ny * params->nx), cells, 0, NULL, NULL);
   checkError(err, "reading tmp_cells data", __LINE__);
+  err = clEnqueueReadBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(cl_float) * (9 * params->ny * params->nx), tmp_cells, 0, NULL, NULL);
+  checkError(err, "reading tmp_cells data", __LINE__);
 
 
 /*
@@ -269,7 +271,7 @@ int main(int argc, char* argv[])
   //printf("Elapsed user CPU time:\t\t%.6lf (s)\n", usrtim);
   //printf("Elapsed system CPU time:\t%.6lf (s)\n", systim);
   
-  write_values(params, cells+offset, obstacles, av_vels);
+  write_values(params, tmp_cells+offset, obstacles, av_vels);
 
   finalise(params, &cells, &tmp_cells, &obstacles, &av_vels, ocl);
   return EXIT_SUCCESS;
