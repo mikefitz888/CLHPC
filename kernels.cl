@@ -61,7 +61,7 @@ kernel void swapGhostCellsTB(global float* cells){
 }
 
 
-kernel void lbm(global float* grid, global float* tmp_cells, global float* obstacles, global float* partial_sums)
+kernel void lbm(global float* cells, global float* tmp_cells, global float* obstacles, global float* partial_sums)
 {
   int x = get_global_id(0)*16 + 4;
   int y = get_global_id(1);
