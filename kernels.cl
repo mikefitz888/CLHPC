@@ -214,24 +214,7 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   /* End: Collision */
 
   /* Add Acceleration */
-  if(y == NY-2){
-    intv msk2 = (u2 > w1); // check that u2 > w1, 0 if false, all bits 1 if true
-    intv msk5 = (u5 > w2); 
-    intv msk6 = (u6 > w2);
-    intv omsk = (o_mask2 > 0);
-
-    intv wmask = (msk2 & msk5) & (msk6 & omsk); //Set mask to 0 for inappropriate cells
-
-    floatv w1_masked = (w1 * convert_float16(wmask) )*(floatv)(-1);
-    floatv w2_masked = (w2 * convert_float16(wmask) )*(floatv)(-1);
-
-    u1 = (u1 + w1_masked);
-    u3 = (u3 + w2_masked);
-    u8 = (u8 + w2_masked);
-    u2 = (u2 - w1_masked);
-    u5 = (u5 - w2_masked);
-    u6 = (u6 - w2_masked);
-  }
+  
 
   /* Begin: Rebound: openCL mix */
   u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
