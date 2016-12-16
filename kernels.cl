@@ -108,7 +108,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
    floatv u7_o = input_grid[L(x, y, 7, NX)];
    floatv u8_o = input_grid[L(x, y, 8, NX)];
 
-   if(it == 1){
+   /*if(it == 1){
     if(u0_o < 0){printf("(%d, %d)[0] < 0\n", x, y);}
     if(u1_o < 0){printf("(%d, %d)[1] < 0\n", x, y);}
     if(u2_o < 0){printf("(%d, %d)[2] < 0\n", x, y);}
@@ -118,7 +118,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
     if(u6_o < 0){printf("(%d, %d)[6] < 0\n", x, y);}
     if(u7_o < 0){printf("(%d, %d)[7] < 0\n", x, y);}
     if(u8_o < 0){printf("(%d, %d)[8] < 0\n", x, y);}
-   }
+   }*/
 
   floatv o_mask2 = obstacles[y*NX+x];
 
@@ -255,6 +255,10 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
 
   int n = (y+1)%NY;
   int s = (y==0)?NY-1:y-1;
+
+  if(it == 0 && x == 116 && y == 77){
+    printf("Outputting: %f\n", u0);
+  }
 
   output_grid[L(x  , y  , 0, NX)] = u0; // Does not propogate
   output_grid[L(e  , y  , 1, NX)] = u1; // Does not propogate
