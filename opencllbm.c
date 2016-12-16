@@ -428,7 +428,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   }
 
   // Read tmp_cells from device                                   
-  err = clEnqueueReadBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, 8, tmp_cells, 0, NULL, NULL);
+  err = clEnqueueReadBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(t_speed) * (params->ny * 2 - 1) * (params->nx_pad), tmp_cells, 0, NULL, NULL);
   checkError(err, "reading tmp_cells data", __LINE__);
 
 
