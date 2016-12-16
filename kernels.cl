@@ -1,7 +1,9 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
 #define NSPEEDS 9
-#define L(X, Y, V, NX) ((X) + ((V)+(Y)*18)*(NX))
+//int offset = 4 + (9 * (params->nx_pad));
+#define L(X, Y, V, NX) (4+(X) + ((V)+(Y)*18+9)*(NX)) //Offsets built in
+#define L2(X, Y, V, NX) (4+(X) + ((V)+(Y)*18+18)*(NX))
 #define VEC_SIZE 8
 #define floatv float8
 #define intv int8
@@ -67,28 +69,16 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   int y = get_global_id(1);
   int offset = 4 + (9 * nx_pad);
 
-  //if(x == 4 && y == 86){
-    printf("==========================\n");
-    //2681
-    printf("cells[1223]=%f\n", grid[1223]);
-    grid[1223] = 81;
-    printf("tmp_cells[2861]=%f\n", grid[2861]);
-    grid[2861] = 82;
-    printf("Test value: %f %p\n", grid[L(x+1, y+1, 3, nx_pad)], &grid[L(x+1, y+1, 3, nx_pad)]);
-    printf("Test value: %f %d %p\n", grid[L(x+1, y+1, 3, nx_pad)], L(x+1, y+1, 3, nx_pad), &grid[L(x+1, y+1, 3, nx_pad)]);
-    printf("%p\n", grid);
- // }
 
-
-  /*floatv u0_o = VEC_LOAD(&tmp_cells[L(x, y, 0, nx_pad)]);
-  floatv u1_o = VEC_LOAD(&tmp_cells[L(x, y, 1, nx_pad)]);
-  floatv u2_o = VEC_LOAD(&tmp_cells[L(x, y, 2, nx_pad)]);
-  floatv u3_o = VEC_LOAD(&tmp_cells[L(x, y, 3, nx_pad)]);
-  floatv u4_o = VEC_LOAD(&tmp_cells[L(x, y, 4, nx_pad)]);
-  floatv u5_o = VEC_LOAD(&tmp_cells[L(x, y, 5, nx_pad)]);
-  floatv u6_o = VEC_LOAD(&tmp_cells[L(x, y, 6, nx_pad)]);
-  floatv u7_o = VEC_LOAD(&tmp_cells[L(x, y, 7, nx_pad)]);
-  floatv u8_o = VEC_LOAD(&tmp_cells[L(x, y, 8, nx_pad)]);
+  floatv u0_o = VEC_LOAD(&grid[L2(x, y, 0, nx_pad)]);
+  floatv u1_o = VEC_LOAD(&grid[L2(x, y, 1, nx_pad)]);
+  floatv u2_o = VEC_LOAD(&grid[L2(x, y, 2, nx_pad)]);
+  floatv u3_o = VEC_LOAD(&grid[L2(x, y, 3, nx_pad)]);
+  floatv u4_o = VEC_LOAD(&grid[L2(x, y, 4, nx_pad)]);
+  floatv u5_o = VEC_LOAD(&grid[L2(x, y, 5, nx_pad)]);
+  floatv u6_o = VEC_LOAD(&grid[L2(x, y, 6, nx_pad)]);
+  floatv u7_o = VEC_LOAD(&grid[L2(x, y, 7, nx_pad)]);
+  floatv u8_o = VEC_LOAD(&grid[L2(x, y, 8, nx_pad)]);
 
   floatv o_mask2 = VEC_LOAD(&obstacles[y*nx+x-4]);
 
@@ -171,11 +161,11 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   u5 = (u5 + e5);
   u6 = (u6 + e6);
   u7 = (u7 + e7);
-  u8 = (u8 + e8);*/
+  u8 = (u8 + e8);
   /* End: Collision */
 
   /* Add Acceleration */
-  /*if(y == 2){
+  if(y == 2){
     intv msk2 = (u2 > w1); // check that u2 > w1, 0 if false, all bits 1 if true
     intv msk5 = (u5 > w2); 
     intv msk6 = (u6 > w2);
@@ -192,7 +182,7 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
     u2 = (u2 - w1_masked);
     u5 = (u5 - w2_masked);
     u6 = (u6 - w2_masked);
-  }*/
+  }
 
   /* Begin: Rebound: openCL mix */
   /*u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
@@ -208,21 +198,15 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   
   /* Begin: Propogate */
   /* None of these swap nodes as y != end && y != start */
-  /*VEC_STORE(&cells[L(x  , y  , 0, nx_pad)], u0); // Does not propogate
+  VEC_STORE(&cells[L(x  , y  , 0, nx_pad)], u0); // Does not propogate
   VEC_STORE(&cells[L(x+1, y  , 1, nx_pad)], u1);
   VEC_STORE(&cells[L(x-1, y  , 2, nx_pad)], u2);
-  VEC_STORE(&cells[L(x+1, y+1, 3, nx_pad)], (floatv)(8));
+  VEC_STORE(&cells[L(x+1, y+1, 3, nx_pad)], u3);
   VEC_STORE(&cells[L(x  , y+1, 4, nx_pad)], u4);
   VEC_STORE(&cells[L(x-1, y+1, 5, nx_pad)], u5);
   VEC_STORE(&cells[L(x-1, y-1, 6, nx_pad)], u6);
   VEC_STORE(&cells[L(x  , y-1, 7, nx_pad)], u7);
-  VEC_STORE(&cells[L(x+1, y-1, 8, nx_pad)], u8);*/
-
-  //if(x == 4 && y == 86){
-    //printf("Running kernel on (%d, %d); Sample = [%f, %f, %f, %f, %f, %f, %f, %f, %f] => [%f, %f, %f, %f, %f, %f, %f, %f, %f]\n", x, y, u0_o.s1, u1_o.s1, u2_o.s1, u3_o.s1, u4_o.s1, u5_o.s1, u6_o.s1, u7_o.s1, u8_o.s1, u0.s1, u1.s1, u2.s1, u3.s1, u4.s1, u5.s1, u6.s1, u7.s1, u8.s1);
-    //printf("Test value: %f %p\n", cells[L(x+1, y+1, 3, nx_pad)], &cells[L(x+1, y+1, 3, nx_pad)]);
-    //cells[2861] = 2861;
-  //}
+  VEC_STORE(&cells[L(x+1, y-1, 8, nx_pad)], u8);
   /* End: Propogate */
 
 }
