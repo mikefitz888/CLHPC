@@ -396,7 +396,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   int zero = 0;
   int one = 1;
 
-  for(int iteration = 0; iteration < 10; iteration++){
+  for(int iteration = 0; iteration < 5; iteration++){
     // Reposition left/right "ghost" cells
     /*err = clSetKernelArg(ocl.swapGhostCellsLR, 0, sizeof(cl_mem), &ocl.grid);
     checkError(err, "swapping Left/Right ghost cells", __LINE__);
@@ -444,14 +444,13 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     checkError(err, "setting lbm arg 0", __LINE__);
     err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.tmp_cells);
     checkError(err, "setting lbm arg 1", __LINE__);
-    iteration=4;
+    iteration++;
     err = clSetKernelArg(ocl.lbm, 4, sizeof(cl_int), &iteration);
     checkError(err, "setting lbm arg 4", __LINE__);
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, NULL, 0, NULL, NULL);
     checkError(err, "enqueuing lbm kernel", __LINE__);
     err = clFinish(ocl.queue);
     checkError(err, "waiting for lbm kernel", __LINE__);
-    break;
 
     // Reposition top/bottom "ghost" rows
     /*err = clSetKernelArg(ocl.swapGhostCellsTB, 0, sizeof(cl_mem), &ocl.grid);
