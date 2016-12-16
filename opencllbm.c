@@ -785,8 +785,8 @@ int initialise(const char* paramfile, const char* obstaclefile,
 
   // Allocate OpenCL buffers
   ocl->grid = clCreateBuffer(
-    ocl->context, CL_MEM_READ_WRITE,
-    sizeof(t_speed) * (NSPEEDS * ((params->ny_pad) * (params->nx_pad)) * 2 + 4), NULL, &err);
+    ocl->context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
+    sizeof(t_speed) * (NSPEEDS * ((params->ny_pad) * (params->nx_pad)) * 2 + 4), *cells_ptr, &err);
   checkError(err, "creating grid buffer", __LINE__);
 
   ocl->cells     = clCreateSubBuffer(ocl->grid, CL_MEM_READ_WRITE, CL_BUFFER_CREATE_TYPE_REGION, &cells_sub_buffer, &err);
