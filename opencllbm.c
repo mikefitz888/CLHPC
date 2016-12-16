@@ -913,7 +913,7 @@ int write_values(const t_param* params, t_speed* cells, t_obstacle* obstacles, t
 
         for (int kk = 0; kk < NSPEEDS; kk++)
         {
-          if(ii == 1 && jj == 5){
+          if( (ii == 1 || i == 34) && (jj == 5 || jj = 72) ){
             printf("cell(%d, %d)[%d] = %f\n", jj-4, ii, kk, cells[L(jj, ii, kk, params->nx_pad)]);
           }
           local_density += cells[L(jj, ii, kk, params->nx_pad)];
