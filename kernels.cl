@@ -90,8 +90,8 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
 
   if(x == 12 & y == 72){
     printf("=======================");
-    printf("cells test: %f\n", grid[L(x, y, 5, nx_pad)]);
-    printf("tmp_cells test: %f\n", grid[L(x, y, 5, nx_pad)]);
+    printf("cells test: %f %d\n", grid[L(x, y, 5, nx_pad)], L(x, y, 5, nx_pad));
+    printf("tmp_cells test: %f %d\n", grid[L2(x, y, 5, nx_pad)], L2(x, y, 5, nx_pad));
   }
   int offset = 4 + (9 * nx_pad);
 
