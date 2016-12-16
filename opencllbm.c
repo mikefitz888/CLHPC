@@ -298,7 +298,7 @@ int accelerate_flow(const t_param* params, t_speed* cells, t_obstacle* obstacles
   {
     /* if the cell is not occupied and
     ** we don't send a negative density */
-    if ( ((int*)obstacles)[ii * params->nx + jj] == -1
+    if ( (obstacles)[ii * params->nx + jj] != 0
         && (cells[L(jj, ii, 2, params->nx)] - w1) > 0.0
         && (cells[L(jj, ii, 5, params->nx)] - w2) > 0.0
         && (cells[L(jj, ii, 6, params->nx)] - w2) > 0.0)
@@ -322,12 +322,12 @@ int propagate(const t_param* params, t_speed* cells, t_speed* tmp_cells)
 {
   for (int y = 0; y < params->ny; y++)
   {
-    int s = y == 0 ? params->ny-1 : y-1;
+    int s = ((y == 0) ? params->ny-1 : y-1);
    
     #pragma ivdep
     for (int x = 0; x < params->nx; x++)
     {
-      int w = x == 0 ? params->nx-1 : x-1;
+      int w = ((x == 0) ? params->nx-1 : x-1);
       tmp_cells[L(x  , y               , 0, params->nx)] = cells[L(x  , y  , 0, params->nx)];
       tmp_cells[L((x+1)%params->nx, y               , 1, params->nx)] = cells[L(x  , y  , 1, params->nx)];
       tmp_cells[L(w, y               , 2, params->nx)] = cells[L(x  , y  , 2, params->nx)];

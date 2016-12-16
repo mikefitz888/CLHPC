@@ -128,10 +128,6 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   floatv ypos = u3_o + u4_o + u5_o;
 
   floatv density = u0_o + u1_o + u2_o + yneg + ypos;
-  /*if(density <= 0){
-    printf("Density is negative: %d, x = %d, y = %d\n", it, x-4, y);
-    printf("%f %f %f %f %f %f %f %f %f", u0_o, u1_o, u2_o, u3_o, u4_o, u5_o, u6_o, u7_o, u8_o);
-  }*/
   xpos = (xpos - xneg)/density;
   ypos = (ypos - yneg)/density;
   
@@ -255,11 +251,6 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
 
   int n = (y+1)%NY;
   int s = (y==0)?NY-1:y-1;
-
-  /*if(it == 0 && x == 116 && y == 77){
-    printf("Outputting: %f\n", u0);
-    printf("In-values: %f %f %f %f %f %f %f %f %f", u0_o, u1_o, u2_o, u3_o, u4_o, u5_o, u6_o, u7_o, u8_o);
-  }*/
 
   output_grid[L(x  , y  , 0, NX)] = u0; // Does not propogate
   output_grid[L(e  , y  , 1, NX)] = u1; // Does not propogate
