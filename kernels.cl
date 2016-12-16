@@ -214,7 +214,7 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   /* End: Collision */
 
   /* Add Acceleration */
-  if(y == NY-2){
+  /*if(y == NY-2){
     intv msk2 = (u2 > w1); // check that u2 > w1, 0 if false, all bits 1 if true
     intv msk5 = (u5 > w2); 
     intv msk6 = (u6 > w2);
@@ -231,7 +231,7 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
     u2 = (u2 - w1_masked);
     u5 = (u5 - w2_masked);
     u6 = (u6 - w2_masked);
-  }
+  }*/
 
   /* Begin: Rebound: openCL mix */
   u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
