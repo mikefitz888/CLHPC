@@ -234,7 +234,6 @@ int main(int argc, char* argv[])
  
   //Lattice-Bolzmann Iterations (this function contains the loop, no need to loop this call)
   timestep(params, cells, tmp_cells+offset, obstacles, av_vels, 1.0/available_cells, ocl);
-  return;
 
   //TODO: Pass chunks back to master from other nodes
 
@@ -258,6 +257,7 @@ int main(int argc, char* argv[])
   printf("Elapsed time:\t\t\t%.6lf (s)\n", toc - tic);
   //printf("Elapsed user CPU time:\t\t%.6lf (s)\n", usrtim);
   //printf("Elapsed system CPU time:\t%.6lf (s)\n", systim);
+  return;
   write_values(params, tmp_cells+offset, obstacles, av_vels);
 
   finalise(params, &cells, &tmp_cells, &obstacles, &av_vels, ocl);
