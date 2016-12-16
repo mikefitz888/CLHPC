@@ -324,10 +324,11 @@ int propagate(const t_param* params, t_speed* cells, t_speed* tmp_cells)
   for (int y = 0; y < params->ny; y++)
   {
     int s = y == 0 ? params->ny-1 : y-1;
-    int w = x == 0 ? params->nx-1 : x-1;
+   
     #pragma ivdep
     for (int x = 0; x < params->nx; x++)
     {
+      int w = x == 0 ? params->nx-1 : x-1;
       tmp_cells[L(x  , y               , 0, params->nx)] = cells[L(x  , y  , 0, params->nx)];
       tmp_cells[L((x+1)%params->nx, y               , 1, params->nx)] = cells[L(x  , y  , 1, params->nx)];
       tmp_cells[L(w, y               , 2, params->nx)] = cells[L(x  , y  , 2, params->nx)];
