@@ -214,7 +214,11 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   /* End: Collision */
 
   /* Add Acceleration */
-  
+  if(y == NY - 2){
+    u1 = u1 + (floatv)(1);
+    u3 = u3 + (floatv)(1);
+    u8 = u8 + (floatv)(1);
+  }
 
   /* Begin: Rebound: openCL mix */
   u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
