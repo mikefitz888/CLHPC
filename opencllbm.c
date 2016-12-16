@@ -369,6 +369,8 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   //Write cells to kernel
   err = clEnqueueWriteBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(t_speed) * (9 * ((params->ny_pad) * (params->nx_pad)) * 2), cells, 0, NULL, NULL);
   checkError(err, "writing cells data", __LINE__);
+  err = clEnqueueWriteBuffer(ocl.queue, ocl.obstacles, CL_TRUE, 0, sizeof(cl_float) * params.nx * params.ny, obstacles, 0, NULL, NULL);
+  checkError(err, "writing obstacles data", __LINE__);
 
   err = clSetKernelArg(ocl.lbm, 2, sizeof(cl_mem), &ocl.obstacles);
   checkError(err, "setting lbm arg 2", __LINE__);
