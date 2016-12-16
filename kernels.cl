@@ -63,9 +63,10 @@ kernel void swapGhostCellsTB(global float* cells){
 
 kernel void lbm(global float* grid, global float* tmp_cells, global float* obstacles, global float* partial_sums)
 {
-  printf("%f\n", grid[0]);
+  printf("%f %f\n", grid[0], tmp_cells[0]);
   grid[0] = 12.0f;
-  printf("%f\n", grid[0]);
+  tmp_cells[0] = 13.0f;
+  printf("%f %f\n", grid[0], tmp_cells[0]);
   return;
   /*int x = get_global_id(0)*16 + 4;
   int y = get_global_id(1);
