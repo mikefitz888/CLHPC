@@ -2,8 +2,8 @@
 
 #define NSPEEDS 9
 //int offset = 4 + (9 * (params->nx_pad));
-#define L(X, Y, V, NX) (4+(X) + ((V)+(Y)*18+9)*(NX)) //Offsets built in
-#define L2(X, Y, V, NX) (4+(X) + ((V)+(Y)*18+18)*(NX))
+#define L(X, Y, V, NX) (4+(X) + ((V)+(Y)*18+18)*(NX)) //Offsets built in
+#define L2(X, Y, V, NX) (4+(X) + ((V)+(Y)*18+27)*(NX))
 #define VEC_SIZE 8
 #define floatv float8
 #define intv int8
@@ -95,6 +95,7 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
     printf("NXPAD = %d, NX = %d, NY = %d\n", NXPAD, NX, NY);
   }
   return;
+  //int offset = 4 + (2 * 9 * (params->nx_pad));
   //int offset = 4 + (9 * nx_pad);
 
   floatv u0_o;
