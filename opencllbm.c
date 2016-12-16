@@ -399,6 +399,11 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     checkError(err, "enqueuing lbm kernel", __LINE__);
     err = clFinish(ocl.queue);
     checkError(err, "waiting for lbm kernel", __LINE__);
+    err = clEnqueueReadBuffer(
+    ocl.queue, ocl.cells, CL_TRUE, 0,
+    sizeof(t_speed) * (9 * ((params->ny_pad) * (params->nx_pad)) * 2), cells, 0, NULL, NULL);
+    printf("Host test: %f\n", cells[L(4+1, 86+1, 3, params->nx_pad)]);
+    checkError(err, "reading tmp_cells data", __LINE__);
 
     // Reposition top/bottom "ghost" rows
     err = clSetKernelArg(ocl.swapGhostCellsTB, 0, sizeof(cl_mem), &ocl.cells);
