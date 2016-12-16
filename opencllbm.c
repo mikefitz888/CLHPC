@@ -121,6 +121,8 @@ typedef struct
   cl_kernel  accelerate_flow;
   cl_kernel  propagate;
   cl_kernel  lbm;
+  cl_kernel  swapGhostCellsLR;
+  cl_kernel  swapGhostCellsTB;
 
   cl_mem grid;
   cl_mem cells; //subbuffer of grid
@@ -363,8 +365,6 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   cl_int err;
   //sizeof(t_speed) * (NSPEEDS * ((params->ny_pad) * (params->nx_pad)) * 2 + 4)
 
-  //TODO: reposition "ghost" cells
-
   //Write cells to kernel
   err = clEnqueueWriteBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(t_speed) * (9 * ((params->ny_pad) * (params->nx_pad)) * 2), cells, 0, NULL, NULL);
 
@@ -380,11 +380,30 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
 
 
   size_t global[2] = {params->nx/16, params->ny};//maybe divide nx by vectorsize
-  err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, NULL, 0, NULL, NULL);
-  checkError(err, "enqueuing lbm kernel", __LINE__);
+  size_t global_LR[1] = {params->ny};
+  size_t global_TB[1] = {params->nx_pad};
 
-  err = clFinish(ocl.queue);
-  checkError(err, "waiting for lbm kernel", __LINE__);
+  for(int iteration = 0; iteration < 1; i++){
+    // Reposition left/right "ghost" cells
+    for(int y = 0; y < params->ny; y++){
+      tmp_cells[L(4, y, 1, params->nx_pad)] = tmp_cells[L(params->nx+4, y, 1, params->nx_pad)];
+      tmp_cells[L(4, y, 3, params->nx_pad)] = tmp_cells[L(params->nx+4, y, 3, params->nx_pad)];
+      tmp_cells[L(4, y, 8, params->nx_pad)] = tmp_cells[L(params->nx+4, y, 8, params->nx_pad)];
+      
+      tmp_cells[L(params->nx+3, y, 2, params->nx_pad)] = tmp_cells[L(3, y, 2, params->nx_pad)];
+      tmp_cells[L(params->nx+3, y, 5, params->nx_pad)] = tmp_cells[L(3, y, 5, params->nx_pad)];
+      tmp_cells[L(params->nx+3, y, 6, params->nx_pad)] = tmp_cells[L(3, y, 6, params->nx_pad)];
+    }
+
+    err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, NULL, 0, NULL, NULL);
+    checkError(err, "enqueuing lbm kernel", __LINE__);
+
+    err = clFinish(ocl.queue);
+    checkError(err, "waiting for lbm kernel", __LINE__);
+
+    // Reposition top/bottom "ghost" rows
+
+  }
 
   // Read tmp_cells from device
   err = clEnqueueReadBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(t_speed) * (9 * ((params->ny_pad) * (params->nx_pad)) * 2), tmp_cells, 0, NULL, NULL);
@@ -719,6 +738,10 @@ int initialise(const char* paramfile, const char* obstaclefile,
   checkError(err, "creating propagate kernel", __LINE__);
   ocl->lbm = clCreateKernel(ocl->program, "lbm", &err);
   checkError(err, "creating lbm kernel", __LINE__);
+  ocl->swapGhostCellsLR = clCreateKernel(ocl->program, "swapGhostCellsLR", &err);
+  checkError(err, "creating swapGhostCellsLR kernel", __LINE__);
+  ocl->swapGhostCellsTB = clCreateKernel(ocl->program, "swapGhostCellsTB", &err);
+  checkError(err, "creating swapGhostCellsTB kernel", __LINE__);
 
 
   // Allocate OpenCL buffers

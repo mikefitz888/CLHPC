@@ -38,10 +38,32 @@ typedef struct
   double speeds[NSPEEDS];
 } t_speed;
 
+kernel void swapGhostCellsLR(global float* cells){
+  int y = get_global_id(0);
+  cells[L(4, y, 1, NXPAD)] = cells[L(NX+4, y, 1, NXPAD)];
+  cells[L(4, y, 3, NXPAD)] = cells[L(NX+4, y, 3, NXPAD)];
+  cells[L(4, y, 8, NXPAD)] = cells[L(NX+4, y, 8, NXPAD)];
+  
+  cells[L(NX+3, y, 2, NXPAD)] = cells[L(3, y, 2, NX_PAD)];
+  cells[L(NX+3, y, 5, NXPAD)] = cells[L(3, y, 5, NX_PAD)];
+  cells[L(NX+3, y, 6, NXPAD)] = cells[L(3, y, 6, NX_PAD)];
+}
+
+kernel void swapGhostCellsTB(global float* cells){
+  int x = get_global_id(0);
+  cells[L(x, 0, 3, NXPAD)] = cells[L(x, NY, 3, NXPAD)];
+  cells[L(x, 0, 4, NXPAD)] = cells[L(x, NY, 4, NXPAD)];
+  cells[L(x, 0, 5, NXPAD)] = cells[L(x, NY, 5, NXPAD)];
+  
+  cells[L(x, NY-1, 6, NXPAD)] = cells[L(x, -1, 6, NX_PAD)];
+  cells[L(x, NY-1, 7, NXPAD)] = cells[L(x, -1, 7, NX_PAD)];
+  cells[L(x, NY-1, 8, NXPAD)] = cells[L(x, -1, 8, NX_PAD)];
+}
+
 
 kernel void lbm(global float* cells, global float* tmp_cells, global float* obstacles, global float* partial_sums)
 {
-  int x = get_global_id(0)*16;
+  int x = get_global_id(0)*16 + 4;
   int y = get_global_id(1);
   int offset = 4 + (9 * nx_pad);
 
