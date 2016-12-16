@@ -108,7 +108,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
    floatv u7_o = input_grid[L(x, y, 7, NX)];
    floatv u8_o = input_grid[L(x, y, 8, NX)];
 
-  floatv o_mask2 = obstacles[y*nx+x-4];
+  floatv o_mask2 = obstacles[y*nx+x];
 
   floatv xneg = u2_o + u5_o + u6_o;
   floatv xpos = u1_o + u3_o + u8_o;
