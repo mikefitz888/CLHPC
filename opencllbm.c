@@ -384,7 +384,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   checkError(err, "setting lbm arg 3", __LINE__);
 
 
-  size_t global[2] = {params->nx/8, params->ny};//maybe divide nx by vectorsize
+  size_t global[2] = {params->nx, params->ny};//maybe divide nx by vectorsize
   size_t global_LR[1] = {params->ny};
   size_t global_TB[1] = {params->nx_pad};
   int zero = 0;

@@ -5,10 +5,10 @@
 #define L(X, Y, V, NX) (4+(X) + ((V)+(Y)*18+18)*(NX)) //Offsets built in
 #define L2(X, Y, V, NX) (4+(X) + ((V)+(Y)*18+27)*(NX))
 #define VEC_SIZE 8
-#define floatv float8
-#define intv int8
-#define VEC_LOAD(ADDR) vload8(0, (ADDR))
-#define VEC_STORE(ADDR, DATA) vstore8((DATA), 0, ADDR)
+#define floatv float
+#define int int
+#define VEC_LOAD(ADDR) (*(ADDR))//vload8(0, (ADDR))
+#define VEC_STORE(ADDR, DATA) *(ADDR)=DATA//vstore8((DATA), 0, ADDR)
 
 //Utility constants
 constant floatv Vo25 = (floatv)(0.25f);
