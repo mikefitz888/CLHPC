@@ -350,7 +350,7 @@ int rebound(const t_param* params, t_speed* tmp_cells, t_obstacle* obstacles)
     for (int x = 0; x < params->nx; x++)
     {
       /* if the cell contains an obstacle */
-      if (obstacles[y * params->nx + x])
+      if (obstacles[y * params->nx + x] == 0)
       {
         /* called after propagate, so taking values from scratch space
         ** mirroring, and writing into main grid */
@@ -394,16 +394,6 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   int one = 1;
 
   for(int iteration = 0; iteration < params->maxIters/2; iteration++){
-    // Reposition left/right "ghost" cells
-    /*err = clSetKernelArg(ocl.swapGhostCellsLR, 0, sizeof(cl_mem), &ocl.grid);
-    checkError(err, "swapping Left/Right ghost cells", __LINE__);
-    err = clSetKernelArg(ocl.swapGhostCellsLR, 1, sizeof(cl_int), &one);
-    checkError(err, "swapping Left/Right ghost cells", __LINE__);
-    err = clEnqueueNDRangeKernel(ocl.queue, ocl.swapGhostCellsLR, 1, NULL, global_LR, NULL, 0, NULL, NULL);
-    checkError(err, "enqueuing lbm kernel", __LINE__);
-    err = clFinish(ocl.queue);
-    checkError(err, "waiting for lbm kernel", __LINE__);*/
-
     err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.tmp_cells);
     checkError(err, "setting lbm arg 0", __LINE__);
     err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.cells);
@@ -415,27 +405,6 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     err = clFinish(ocl.queue);
     checkError(err, "waiting for lbm kernel", __LINE__);
 
-    // Reposition top/bottom "ghost" rows
-    /*err = clSetKernelArg(ocl.swapGhostCellsTB, 0, sizeof(cl_mem), &ocl.grid);
-    checkError(err, "swapping Left/Right ghost cells", __LINE__);
-    err = clSetKernelArg(ocl.swapGhostCellsTB, 1, sizeof(cl_int), &zero);
-    checkError(err, "swapping Left/Right ghost cells", __LINE__);
-    err = clEnqueueNDRangeKernel(ocl.queue, ocl.swapGhostCellsTB, 1, NULL, global_TB, NULL, 0, NULL, NULL);
-    checkError(err, "enqueuing lbm kernel", __LINE__);
-    err = clFinish(ocl.queue);
-    checkError(err, "waiting for lbm kernel", __LINE__);*/
-
-
-
-    // Reposition left/right "ghost" cells
-    /*err = clSetKernelArg(ocl.swapGhostCellsLR, 0, sizeof(cl_mem), &ocl.grid);
-    checkError(err, "swapping Left/Right ghost cells", __LINE__);
-     err = clSetKernelArg(ocl.swapGhostCellsLR, 1, sizeof(cl_int), &zero);
-    checkError(err, "swapping Left/Right ghost cells", __LINE__);
-    err = clEnqueueNDRangeKernel(ocl.queue, ocl.swapGhostCellsLR, 1, NULL, global_LR, NULL, 0, NULL, NULL);
-    checkError(err, "enqueuing lbm kernel", __LINE__);
-    err = clFinish(ocl.queue);
-    checkError(err, "waiting for lbm kernel", __LINE__);*/
 
     err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.cells);
     checkError(err, "setting lbm arg 0", __LINE__);
@@ -446,19 +415,6 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     checkError(err, "enqueuing lbm kernel", __LINE__);
     err = clFinish(ocl.queue);
     checkError(err, "waiting for lbm kernel", __LINE__);
-
-    // Reposition top/bottom "ghost" rows
-    /*err = clSetKernelArg(ocl.swapGhostCellsTB, 0, sizeof(cl_mem), &ocl.grid);
-    checkError(err, "swapping Left/Right ghost cells", __LINE__);
-    err = clSetKernelArg(ocl.swapGhostCellsTB, 1, sizeof(cl_int), &one);
-    checkError(err, "swapping Left/Right ghost cells", __LINE__);
-    err = clEnqueueNDRangeKernel(ocl.queue, ocl.swapGhostCellsTB, 1, NULL, global_TB, NULL, 0, NULL, NULL);
-    checkError(err, "enqueuing lbm kernel", __LINE__);
-    err = clFinish(ocl.queue);
-    checkError(err, "waiting for lbm kernel", __LINE__);*/
-
-
-
   }
 
   
@@ -482,7 +438,7 @@ t_speed av_velocity(const t_param* params, t_speed* cells, t_obstacle* obstacles
     for (int jj = 0; jj < params->nx; jj++)
     {
       /* ignore occupied cells */
-      if (((int*)obstacles)[ii * params->nx + jj] == -1)
+      if ((obstacles)[ii * params->nx + jj] != 0)
       {
         /* local density total */
         t_speed local_density = 0.0;

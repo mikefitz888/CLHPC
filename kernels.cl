@@ -169,7 +169,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   floatv trailing_diag = (V4o5*((xpos + ypos) * (xpos + ypos)));
 
   //The general equation to follow (slightly optimized) is: u_next = u * (1 - omega) + (density + density * (3u + 4.5u^2 - 1.5(ux^2 + uy^2))) * w * omega
-  density = (density * start_weight); //density *= w0 * omega
+  density = (density * STARTW); //density *= w0 * omega
 
   floatv e0 = (density - (density * (uxsq15 + uysq15)));
 
