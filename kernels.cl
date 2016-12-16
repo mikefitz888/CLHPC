@@ -196,10 +196,10 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   /* End: Collision */
 
   /* Add Acceleration */
-  if(o_mask2 > 0){
-    //u1 = u1 + (floatv)(1);
-    //u3 = u3 + (floatv)(1);
-    //u8 = u8 + (floatv)(1);
+  if(o_mask2 == 0){
+    u1 += 5.0f;
+    u3 += 5.0f;
+    u8 += 5.0f;
   }
 
   /* Begin: Rebound: openCL mix */
