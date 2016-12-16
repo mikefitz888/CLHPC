@@ -85,7 +85,7 @@ kernel void swapGhostCellsTB(global float* grid, int temp){
 
 kernel void lbm(global float* grid, int temp, global float* obstacles, global float* partial_sums)
 {
-  int x = get_global_id(0)*16 + 4;
+  int x = get_global_id(0)*8;
   int y = get_global_id(1);
   int offset = 4 + (9 * nx_pad);
 
