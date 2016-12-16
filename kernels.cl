@@ -92,10 +92,10 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
     printf("=======================\n");
     //printf("cells test: %f %d\n", grid[L(x, y, 5, nx_pad)], L(x, y, 5, nx_pad));
     //printf("tmp_cells test: %f %d\n", grid[L2(x, y, 5, nx_pad)], L2(x, y, 5, nx_pad));
-    printf("NXPAD = %d, NX = %d, NY = %d\n" NXPAD, NX, NY);
+    printf("NXPAD = %d, NX = %d, NY = %d\n", NXPAD, NX, NY);
   }
   return;
-  int offset = 4 + (9 * nx_pad);
+  //int offset = 4 + (9 * nx_pad);
 
   floatv u0_o;
   floatv u1_o;
