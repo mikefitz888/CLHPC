@@ -8,8 +8,8 @@
 #define VEC_SIZE 8
 #define floatv float
 #define int int
-#define VEC_LOAD(ADDR) (*(ADDR))//vload8(0, (ADDR))
-#define VEC_STORE(ADDR, DATA) *(ADDR)=DATA//vstore8((DATA), 0, ADDR)
+//#define VEC_LOAD(ADDR) (*(ADDR))//vload8(0, (ADDR))
+//#define VEC_STORE(ADDR, DATA) *(ADDR)=DATA//vstore8((DATA), 0, ADDR)
 
 //Utility constants
 constant floatv Vo25 = (floatv)(0.25f);
