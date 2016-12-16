@@ -214,7 +214,7 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   /* End: Collision */
 
   /* Add Acceleration */
-  if(y == NY-2){
+  /*if(y == NY-2){
     intv msk2 = (u2 > w1); // check that u2 > w1, 0 if false, all bits 1 if true
     intv msk5 = (u5 > w2); 
     intv msk6 = (u6 > w2);
@@ -231,18 +231,18 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
     u2 = (u2 - w1_masked);
     u5 = (u5 - w2_masked);
     u6 = (u6 - w2_masked);
-  }
+  }*
 
   /* Begin: Rebound: openCL mix */
-  u0 = (floatv)(8);//mix(u0_o, u0, o_mask2); //zero where obstacle
-  u1 = (floatv)(8);//mix(u2_o, u1, o_mask2);
-  u2 = (floatv)(8);//mix(u1_o, u2, o_mask2);
-  u3 = (floatv)(8);//mix(u6_o, u3, o_mask2);
-  u4 = (floatv)(8);//mix(u7_o, u4, o_mask2);
-  u5 = (floatv)(8);//mix(u8_o, u5, o_mask2);
-  u6 = (floatv)(8);//mix(u3_o, u6, o_mask2);
-  u7 = (floatv)(8);//mix(u4_o, u7, o_mask2);
-  u8 = (floatv)(8);//mix(u5_o, u8, o_mask2);
+  u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
+  u1 = mix(u2_o, u1, o_mask2);
+  u2 = mix(u1_o, u2, o_mask2);
+  u3 = mix(u6_o, u3, o_mask2);
+  u4 = mix(u7_o, u4, o_mask2);
+  u5 = mix(u8_o, u5, o_mask2);
+  u6 = mix(u3_o, u6, o_mask2);
+  u7 = mix(u4_o, u7, o_mask2);
+  u8 = mix(u5_o, u8, o_mask2);
   /* End: Rebound */
   
   /* Begin: Propogate */
