@@ -197,16 +197,19 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
 
    /* Begin: Accelerate */
   float wt1, wt2;
-  if(o_mask2 != 0 && u2 > w1 && u5 > w2 && u6 > w2){
+  if(y == NY - 2){
     wt1 = ACCEL * DENSITY / 9.0f;
     wt2 = wt1 / 4.0f;
-    u1 += wt1;
-    u3 += wt2;
-    u8 += wt2;
+    if(o_mask2 != 0 && u2 > wt1 && u5 > wt2 && u6 > wt2){
+      
+      u1 += wt1;
+      u3 += wt2;
+      u8 += wt2;
 
-    u2 -= wt1;
-    u5 -= wt2;
-    u6 -= wt2;
+      u2 -= wt1;
+      u5 -= wt2;
+      u6 -= wt2;
+    }
   }
   /* End: Accelerate */
 
