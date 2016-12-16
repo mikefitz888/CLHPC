@@ -2,11 +2,11 @@
 
 #define NSPEEDS 9
 #define L(X, Y, V, NX) ((X) + ((V)+(Y)*18)*(NX))
-#define VEC_SIZE 16
-#define floatv float16
-#define intv int16
-#define VEC_LOAD(ADDR) vload16(0, (ADDR))
-#define VEC_STORE(ADDR, DATA) vstore16((DATA), 0, ADDR)
+#define VEC_SIZE 8
+#define floatv float8
+#define intv int8
+#define VEC_LOAD(ADDR) vload8(0, (ADDR))
+#define VEC_STORE(ADDR, DATA) vstore8((DATA), 0, ADDR)
 
 //Utility constants
 constant floatv Vo25 = (floatv)(0.25f);

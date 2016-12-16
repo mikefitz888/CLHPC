@@ -378,7 +378,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   checkError(err, "setting lbm arg 3", __LINE__);
 
 
-  size_t global[2] = {params->nx/16, params->ny};//maybe divide nx by vectorsize
+  size_t global[2] = {params->nx/VECTOR_SIZE, params->ny};//maybe divide nx by vectorsize
   size_t global_LR[1] = {params->ny};
   size_t global_TB[1] = {params->nx_pad};
 
@@ -798,7 +798,7 @@ int initialise(const char* paramfile, const char* obstaclefile,
     sizeof(cl_int) * params->nx * params->ny, NULL, &err);
   checkError(err, "creating obstacles buffer", __LINE__);
 
-  ocl->partial_sums = clCreateBuffer(ocl->context, CL_MEM_WRITE_ONLY, sizeof(cl_float) * (params->nx/16) * params->ny, NULL, &err);
+  ocl->partial_sums = clCreateBuffer(ocl->context, CL_MEM_WRITE_ONLY, sizeof(cl_float) * (params->nx/VECTOR_SIZE) * params->ny, NULL, &err);
   checkError(err, "creating partial_sums buffer", __LINE__);
 
   return EXIT_SUCCESS;
