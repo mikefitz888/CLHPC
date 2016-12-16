@@ -4,6 +4,7 @@
 #define L(X, Y, V, NX) ((X) + ((V)+(Y)*18)*(NX))
 #define VEC_SIZE 16
 #define floatv float16
+#define intv int16
 #define VEC_LOAD(ADDR) vload16(0, (ADDR))
 #define VEC_STORE(ADDR, DATA) vstore16((DATA), 0, ADDR)
 
