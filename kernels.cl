@@ -73,7 +73,7 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
     cells[0] = 81;
     printf("tmp_cells[0]=%f\n", tmp_cells[0]);
     tmp_cells[0] = 82;
-    printf("Test value: %f %p\n", tmp_cells[L(x+1, y+1, 3, nx_pad)], &tmp_cells[L(x+1, y+1, 3, nx_pad)]);
+    printf("Test value: %f %d %p\n", tmp_cells[L(x+1, y+1, 3, nx_pad)], L(x+1, y+1, 3, nx_pad), &tmp_cells[L(x+1, y+1, 3, nx_pad)]);
     printf("Test value: %f %p\n", cells[L(x+1, y+1, 3, nx_pad)], &cells[L(x+1, y+1, 3, nx_pad)]);
     printf("%p %p\n", cells, tmp_cells);
  // }
