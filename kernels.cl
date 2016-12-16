@@ -221,15 +221,15 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   int n = (y+1)%NY;
   int s = (y==0)?NY-1:x-1;
 
-    VEC_STORE(&output_grid[L(x  , y  , 0, nx)], u0); // Does not propogate
-    VEC_STORE(&output_grid[L(e  , y  , 0, nx)], u1); // Does not propogate
-    VEC_STORE(&output_grid[L(w  , y  , 0, nx)], u2); // Does not propogate
-    VEC_STORE(&output_grid[L(e  , n  , 0, nx)], u3); // Does not propogate
-    VEC_STORE(&output_grid[L(x  , n  , 0, nx)], u4); // Does not propogate
-    VEC_STORE(&output_grid[L(w  , n  , 0, nx)], u5); // Does not propogate
-    VEC_STORE(&output_grid[L(w  , s  , 0, nx)], u6); // Does not propogate
-    VEC_STORE(&output_grid[L(x  , s  , 0, nx)], u7); // Does not propogate
-    VEC_STORE(&output_grid[L(e  , s  , 0, nx)], u8); // Does not propogate
+  output_grid[L(x  , y  , 0, nx)] = u0; // Does not propogate
+  output_grid[L(e  , y  , 1, nx)] = u1; // Does not propogate
+  output_grid[L(w  , y  , 2, nx)] = u2; // Does not propogate
+  output_grid[L(e  , n  , 3, nx)] = u3; // Does not propogate
+  output_grid[L(x  , n  , 4, nx)] = u4; // Does not propogate
+  output_grid[L(w  , n  , 5, nx)] = u5; // Does not propogate
+  output_grid[L(w  , s  , 6, nx)] = u6; // Does not propogate
+  output_grid[L(x  , s  , 7, nx)] = u7; // Does not propogate
+  output_grid[L(e  , s  , 8, nx)] = u8; // Does not propogate
     
 
     /*VEC_STORE(&output_grid[L(x  , y  , 0, nx)], u0); // Does not propogate
