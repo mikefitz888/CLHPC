@@ -235,7 +235,7 @@ int main(int argc, char* argv[])
 */
     cl_int err;
   //Write cells to kernel
-  err = clEnqueueWriteBuffer(ocl.queue, ocl.grid, CL_TRUE, 0, sizeof(t_speed) * (4 + 9 * ((params->ny_pad) * (params->nx_pad)) * 2), cells, 0, NULL, NULL);
+  err = clEnqueueWriteBuffer(ocl.queue, ocl.grid, CL_TRUE, 0, sizeof(cl_float) * (4 + 9 * ((params->ny_pad) * (params->nx_pad)) * 2), cells, 0, NULL, NULL);
   checkError(err, "writing cells data", __LINE__);
   err = clEnqueueWriteBuffer(ocl.queue, ocl.obstacles, CL_TRUE, 0, sizeof(cl_float) * params->nx * params->ny, obstacles, 0, NULL, NULL);
   checkError(err, "writing obstacles data", __LINE__);
@@ -245,7 +245,7 @@ int main(int argc, char* argv[])
 
   //TODO: Pass chunks back to master from other nodes
   // Read tmp_cells from device                                   
-  err = clEnqueueReadBuffer(ocl.queue, ocl.grid, CL_TRUE, 0, sizeof(t_speed) * (4 + 9 * ((params->ny_pad) * (params->nx_pad)) * 2), cells, 0, NULL, NULL);
+  err = clEnqueueReadBuffer(ocl.queue, ocl.grid, CL_TRUE, 0, sizeof(cl_float) * (4 + 9 * ((params->ny_pad) * (params->nx_pad)) * 2), cells, 0, NULL, NULL);
   checkError(err, "reading tmp_cells data", __LINE__);
 
 
