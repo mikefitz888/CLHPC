@@ -42,24 +42,44 @@ typedef struct
 
 kernel void swapGhostCellsLR(global float* grid, int temp){
   int y = get_global_id(0);
-  grid[L(4, y, 1, NXPAD)] = grid[L(NX+4, y, 1, NXPAD)];
-  grid[L(4, y, 3, NXPAD)] = grid[L(NX+4, y, 3, NXPAD)];
-  grid[L(4, y, 8, NXPAD)] = grid[L(NX+4, y, 8, NXPAD)];
+  if(temp){
+    grid[L2(4, y, 1, NXPAD)] = grid[L2(NX+4, y, 1, NXPAD)];
+    grid[L2(4, y, 3, NXPAD)] = grid[L2(NX+4, y, 3, NXPAD)];
+    grid[L2(4, y, 8, NXPAD)] = grid[L2(NX+4, y, 8, NXPAD)];
   
-  grid[L(NX+3, y, 2, NXPAD)] = grid[L(3, y, 2, NXPAD)];
-  grid[L(NX+3, y, 5, NXPAD)] = grid[L(3, y, 5, NXPAD)];
-  grid[L(NX+3, y, 6, NXPAD)] = grid[L(3, y, 6, NXPAD)];
+    grid[L2(NX+3, y, 2, NXPAD)] = grid[L2(3, y, 2, NXPAD)];
+    grid[L2(NX+3, y, 5, NXPAD)] = grid[L2(3, y, 5, NXPAD)];
+    grid[L2(NX+3, y, 6, NXPAD)] = grid[L2(3, y, 6, NXPAD)];
+  }else{
+    grid[L(4, y, 1, NXPAD)] = grid[L(NX+4, y, 1, NXPAD)];
+    grid[L(4, y, 3, NXPAD)] = grid[L(NX+4, y, 3, NXPAD)];
+    grid[L(4, y, 8, NXPAD)] = grid[L(NX+4, y, 8, NXPAD)];
+  
+    grid[L(NX+3, y, 2, NXPAD)] = grid[L(3, y, 2, NXPAD)];
+    grid[L(NX+3, y, 5, NXPAD)] = grid[L(3, y, 5, NXPAD)];
+    grid[L(NX+3, y, 6, NXPAD)] = grid[L(3, y, 6, NXPAD)];
+  }
 }
 
 kernel void swapGhostCellsTB(global float* grid, int temp){
   int x = get_global_id(0);
-  grid[L(x, 0, 3, NXPAD)] = grid[L(x, NY, 3, NXPAD)];
-  grid[L(x, 0, 4, NXPAD)] = grid[L(x, NY, 4, NXPAD)];
-  grid[L(x, 0, 5, NXPAD)] = grid[L(x, NY, 5, NXPAD)];
-  
-  grid[L(x, NY-1, 6, NXPAD)] = grid[L(x, -1, 6, NXPAD)];
-  grid[L(x, NY-1, 7, NXPAD)] = grid[L(x, -1, 7, NXPAD)];
-  grid[L(x, NY-1, 8, NXPAD)] = grid[L(x, -1, 8, NXPAD)];
+  if(temp){
+    grid[L2(x, 0, 3, NXPAD)] = grid[L2(x, NY, 3, NXPAD)];
+    grid[L2(x, 0, 4, NXPAD)] = grid[L2(x, NY, 4, NXPAD)];
+    grid[L2(x, 0, 5, NXPAD)] = grid[L2(x, NY, 5, NXPAD)];
+    
+    grid[L2(x, NY-1, 6, NXPAD)] = grid[L2(x, -1, 6, NXPAD)];
+    grid[L2(x, NY-1, 7, NXPAD)] = grid[L2(x, -1, 7, NXPAD)];
+    grid[L2(x, NY-1, 8, NXPAD)] = grid[L2(x, -1, 8, NXPAD)];
+  }else{
+    grid[L(x, 0, 3, NXPAD)] = grid[L(x, NY, 3, NXPAD)];
+    grid[L(x, 0, 4, NXPAD)] = grid[L(x, NY, 4, NXPAD)];
+    grid[L(x, 0, 5, NXPAD)] = grid[L(x, NY, 5, NXPAD)];
+    
+    grid[L(x, NY-1, 6, NXPAD)] = grid[L(x, -1, 6, NXPAD)];
+    grid[L(x, NY-1, 7, NXPAD)] = grid[L(x, -1, 7, NXPAD)];
+    grid[L(x, NY-1, 8, NXPAD)] = grid[L(x, -1, 8, NXPAD)];
+  }
 }
 
 
@@ -186,7 +206,7 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   /* End: Collision */
 
   /* Add Acceleration */
-  if(y == 2){
+  if(y == NY-2){
     intv msk2 = (u2 > w1); // check that u2 > w1, 0 if false, all bits 1 if true
     intv msk5 = (u5 > w2); 
     intv msk6 = (u6 > w2);
@@ -206,7 +226,7 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   }
 
   /* Begin: Rebound: openCL mix */
-  /*u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
+  u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
   u1 = mix(u2_o, u1, o_mask2);
   u2 = mix(u1_o, u2, o_mask2);
   u3 = mix(u6_o, u3, o_mask2);
@@ -214,7 +234,7 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   u5 = mix(u8_o, u5, o_mask2);
   u6 = mix(u3_o, u6, o_mask2);
   u7 = mix(u4_o, u7, o_mask2);
-  u8 = mix(u5_o, u8, o_mask2);*/
+  u8 = mix(u5_o, u8, o_mask2);
   /* End: Rebound */
   
   /* Begin: Propogate */
