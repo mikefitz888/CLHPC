@@ -239,6 +239,8 @@ int main(int argc, char* argv[])
   //Write cells to kernel
   err = clEnqueueWriteBuffer(ocl.queue, ocl.tmp_cells, CL_TRUE, 0, sizeof(cl_float) * (9 * params->ny * params->nx), tmp_cells, 0, NULL, NULL);
   checkError(err, "writing cells data", __LINE__);
+  err = clEnqueueWriteBuffer(ocl.queue, ocl.cells, CL_TRUE, 0, sizeof(cl_float) * (9 * params->ny * params->nx), cells, 0, NULL, NULL);
+  checkError(err, "writing cells data", __LINE__);
   err = clEnqueueWriteBuffer(ocl.queue, ocl.obstacles, CL_TRUE, 0, sizeof(cl_float) * params->nx * params->ny, obstacles, 0, NULL, NULL);
   checkError(err, "writing obstacles data", __LINE__);
  
