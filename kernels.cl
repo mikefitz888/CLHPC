@@ -69,8 +69,8 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
 
   if(x == 4 && y == 86){
     printf("==========================\n");
-    printf("Test value: %f %f %f\n", tmp_cells[L(x+1, y+1, 3, nx_pad)], tmp_cells[L(x+2, y+1, 3, nx_pad)], tmp_cells[L(x+3, y+1, 3, nx_pad)]);
-    printf("Test value: %f %f %f\n", cells[L(x+1, y+1, 3, nx_pad)], cells[L(x+2, y+1, 3, nx_pad)], cells[L(x+3, y+1, 3, nx_pad)]);
+    printf("Test value: %f %p\n", tmp_cells[L(x+1, y+1, 3, nx_pad)], &tmp_cells[L(x+1, y+1, 3, nx_pad)]);
+    printf("Test value: %f %p\n", cells[L(x+1, y+1, 3, nx_pad)], &cells[L(x+1, y+1, 3, nx_pad)]);
     printf("%p %p\n", cells, tmp_cells);
   }
 
@@ -215,7 +215,7 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
 
   if(x == 4 && y == 86){
     printf("Running kernel on (%d, %d); Sample = [%f, %f, %f, %f, %f, %f, %f, %f, %f] => [%f, %f, %f, %f, %f, %f, %f, %f, %f]\n", x, y, u0_o.s1, u1_o.s1, u2_o.s1, u3_o.s1, u4_o.s1, u5_o.s1, u6_o.s1, u7_o.s1, u8_o.s1, u0.s1, u1.s1, u2.s1, u3.s1, u4.s1, u5.s1, u6.s1, u7.s1, u8.s1);
-    printf("Test value: %f %f %f\n", cells[L(x+1, y+1, 3, nx_pad)], cells[L(x+2, y+1, 3, nx_pad)], cells[L(x+3, y+1, 3, nx_pad)]);
+    printf("Test value: %f %p\n", cells[L(x+1, y+1, 3, nx_pad)], &cells[L(x+1, y+1, 3, nx_pad)]);
     printf("%p %p\n", cells, tmp_cells);
   }     
   /* End: Propogate */
