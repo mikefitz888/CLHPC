@@ -98,17 +98,17 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   //int offset = 4 + (2 * 9 * (params->nx_pad));
   //int offset = 4 + (9 * nx_pad);
 
-   floatv u0_o = VEC_LOAD(&input_grid[L(x, y, 0, NX)]);
-   floatv u1_o = VEC_LOAD(&input_grid[L(x, y, 1, NX)]);
-   floatv u2_o = VEC_LOAD(&input_grid[L(x, y, 2, NX)]);
-   floatv u3_o = VEC_LOAD(&input_grid[L(x, y, 3, NX)]);
-   floatv u4_o = VEC_LOAD(&input_grid[L(x, y, 4, NX)]);
-   floatv u5_o = VEC_LOAD(&input_grid[L(x, y, 5, NX)]);
-   floatv u6_o = VEC_LOAD(&input_grid[L(x, y, 6, NX)]);
-   floatv u7_o = VEC_LOAD(&input_grid[L(x, y, 7, NX)]);
-   floatv u8_o = VEC_LOAD(&input_grid[L(x, y, 8, NX)]);
+   floatv u0_o = input_grid[L(x, y, 0, NX)];
+   floatv u1_o = input_grid[L(x, y, 1, NX)];
+   floatv u2_o = input_grid[L(x, y, 2, NX)];
+   floatv u3_o = input_grid[L(x, y, 3, NX)];
+   floatv u4_o = input_grid[L(x, y, 4, NX)];
+   floatv u5_o = input_grid[L(x, y, 5, NX)];
+   floatv u6_o = input_grid[L(x, y, 6, NX)];
+   floatv u7_o = input_grid[L(x, y, 7, NX)];
+   floatv u8_o = input_grid[L(x, y, 8, NX)];
 
-  floatv o_mask2 = VEC_LOAD(&obstacles[y*nx+x-4]);
+  floatv o_mask2 = obstacles[y*nx+x-4];
 
   floatv xneg = u2_o + u5_o + u6_o;
   floatv xpos = u1_o + u3_o + u8_o;
