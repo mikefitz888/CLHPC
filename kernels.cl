@@ -234,39 +234,39 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   }
 
   /* Begin: Rebound: openCL mix */
-  u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
-  u1 = mix(u2_o, u1, o_mask2);
-  u2 = mix(u1_o, u2, o_mask2);
-  u3 = mix(u6_o, u3, o_mask2);
-  u4 = mix(u7_o, u4, o_mask2);
-  u5 = mix(u8_o, u5, o_mask2);
-  u6 = mix(u3_o, u6, o_mask2);
-  u7 = mix(u4_o, u7, o_mask2);
-  u8 = mix(u5_o, u8, o_mask2);
+  u0 = (floatv)(8);//mix(u0_o, u0, o_mask2); //zero where obstacle
+  u1 = (floatv)(8);//mix(u2_o, u1, o_mask2);
+  u2 = (floatv)(8);//mix(u1_o, u2, o_mask2);
+  u3 = (floatv)(8);//mix(u6_o, u3, o_mask2);
+  u4 = (floatv)(8);//mix(u7_o, u4, o_mask2);
+  u5 = (floatv)(8);//mix(u8_o, u5, o_mask2);
+  u6 = (floatv)(8);//mix(u3_o, u6, o_mask2);
+  u7 = (floatv)(8);//mix(u4_o, u7, o_mask2);
+  u8 = (floatv)(8);//mix(u5_o, u8, o_mask2);
   /* End: Rebound */
   
   /* Begin: Propogate */
   /* None of these swap nodes as y != end && y != start */
   if(temp){
-    VEC_STORE(&grid[L2(x  , y  , 0, nx_pad)], u0_o); // Does not propogate
-    VEC_STORE(&grid[L2(x+1, y  , 1, nx_pad)], u1_o);
-    VEC_STORE(&grid[L2(x-1, y  , 2, nx_pad)], u2_o);
-    VEC_STORE(&grid[L2(x+1, y+1, 3, nx_pad)], u3_o);
-    VEC_STORE(&grid[L2(x  , y+1, 4, nx_pad)], u4_o);
-    VEC_STORE(&grid[L2(x-1, y+1, 5, nx_pad)], u5_o);
-    VEC_STORE(&grid[L2(x-1, y-1, 6, nx_pad)], u6_o);
-    VEC_STORE(&grid[L2(x  , y-1, 7, nx_pad)], u7_o);
-    VEC_STORE(&grid[L2(x+1, y-1, 8, nx_pad)], u8_o);
+    VEC_STORE(&grid[L2(x  , y  , 0, nx_pad)], u0); // Does not propogate
+    VEC_STORE(&grid[L2(x+1, y  , 1, nx_pad)], u1);
+    VEC_STORE(&grid[L2(x-1, y  , 2, nx_pad)], u2);
+    VEC_STORE(&grid[L2(x+1, y+1, 3, nx_pad)], u3);
+    VEC_STORE(&grid[L2(x  , y+1, 4, nx_pad)], u4);
+    VEC_STORE(&grid[L2(x-1, y+1, 5, nx_pad)], u5);
+    VEC_STORE(&grid[L2(x-1, y-1, 6, nx_pad)], u6);
+    VEC_STORE(&grid[L2(x  , y-1, 7, nx_pad)], u7);
+    VEC_STORE(&grid[L2(x+1, y-1, 8, nx_pad)], u8);
   }else{
-    VEC_STORE(&grid[L(x  , y  , 0, nx_pad)], u0_o); // Does not propogate
-    VEC_STORE(&grid[L(x+1, y  , 1, nx_pad)], u1_o);
-    VEC_STORE(&grid[L(x-1, y  , 2, nx_pad)], u2_o);
-    VEC_STORE(&grid[L(x+1, y+1, 3, nx_pad)], u3_o);
-    VEC_STORE(&grid[L(x  , y+1, 4, nx_pad)], u4_o);
-    VEC_STORE(&grid[L(x-1, y+1, 5, nx_pad)], u5_o);
-    VEC_STORE(&grid[L(x-1, y-1, 6, nx_pad)], u6_o);
-    VEC_STORE(&grid[L(x  , y-1, 7, nx_pad)], u7_o);
-    VEC_STORE(&grid[L(x+1, y-1, 8, nx_pad)], u8_o);
+    VEC_STORE(&grid[L(x  , y  , 0, nx_pad)], u0); // Does not propogate
+    VEC_STORE(&grid[L(x+1, y  , 1, nx_pad)], u1);
+    VEC_STORE(&grid[L(x-1, y  , 2, nx_pad)], u2);
+    VEC_STORE(&grid[L(x+1, y+1, 3, nx_pad)], u3);
+    VEC_STORE(&grid[L(x  , y+1, 4, nx_pad)], u4);
+    VEC_STORE(&grid[L(x-1, y+1, 5, nx_pad)], u5);
+    VEC_STORE(&grid[L(x-1, y-1, 6, nx_pad)], u6);
+    VEC_STORE(&grid[L(x  , y-1, 7, nx_pad)], u7);
+    VEC_STORE(&grid[L(x+1, y-1, 8, nx_pad)], u8);
   }
   /* End: Propogate */
 
