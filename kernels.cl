@@ -93,6 +93,7 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
     printf("cells test: %f %d\n", grid[L(x, y, 5, nx_pad)], L(x, y, 5, nx_pad));
     printf("tmp_cells test: %f %d\n", grid[L2(x, y, 5, nx_pad)], L2(x, y, 5, nx_pad));
   }
+  return;
   int offset = 4 + (9 * nx_pad);
 
   floatv u0_o;
