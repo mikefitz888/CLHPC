@@ -83,7 +83,7 @@ kernel void swapGhostCellsTB(global float* grid, int temp){
 }
 
 
-kernel void lbm(global float* grid, int temp, global float* obstacles, global float* partial_sums)
+kernel void lbm(global float* grid, int temp, global float* obstacles, global float* partial_sums, int it)
 {
   int x = get_global_id(0)*8 + 4;
   int y = get_global_id(1);
@@ -138,7 +138,7 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
 
   floatv density = u0_o + u1_o + u2_o + yneg + ypos;
   if(density.s0 <= 0){
-    printf("Density is negative");
+    printf("Density is negative: %d\n", it);
   }
   xpos = (xpos - xneg)/density;
   ypos = (ypos - yneg)/density;
