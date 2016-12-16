@@ -385,15 +385,8 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
 
   for(int iteration = 0; iteration < 1; iteration++){
     // Reposition left/right "ghost" cells
-    for(int y = 0; y < params->ny; y++){
-      tmp_cells[L(4, y, 1, params->nx_pad)] = tmp_cells[L(params->nx+4, y, 1, params->nx_pad)];
-      tmp_cells[L(4, y, 3, params->nx_pad)] = tmp_cells[L(params->nx+4, y, 3, params->nx_pad)];
-      tmp_cells[L(4, y, 8, params->nx_pad)] = tmp_cells[L(params->nx+4, y, 8, params->nx_pad)];
-      
-      tmp_cells[L(params->nx+3, y, 2, params->nx_pad)] = tmp_cells[L(3, y, 2, params->nx_pad)];
-      tmp_cells[L(params->nx+3, y, 5, params->nx_pad)] = tmp_cells[L(3, y, 5, params->nx_pad)];
-      tmp_cells[L(params->nx+3, y, 6, params->nx_pad)] = tmp_cells[L(3, y, 6, params->nx_pad)];
-    }
+    err = clSetKernelArg(ocl.swapGhostCellsLR, 0, sizeof(cl_mem), &ocl.tmp_cells);
+    checkError(err, "swapping Left/Right ghost cells");
 
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, NULL, 0, NULL, NULL);
     checkError(err, "enqueuing lbm kernel", __LINE__);
@@ -402,6 +395,8 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     checkError(err, "waiting for lbm kernel", __LINE__);
 
     // Reposition top/bottom "ghost" rows
+    err = clSetKernelArg(ocl.swapGhostCellsTB, 0, sizeof(cl_mem), &ocl.cells);
+    checkError(err, "swapping Left/Right ghost cells");
 
   }
 
