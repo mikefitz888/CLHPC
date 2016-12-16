@@ -438,7 +438,7 @@ t_speed av_velocity(const t_param* params, t_speed* cells, t_obstacle* obstacles
     for (int jj = 0; jj < params->nx; jj++)
     {
       /* ignore occupied cells */
-      if ((obstacles)[ii * params->nx + jj] != 0)
+      if ((obstacles)[ii * params->nx + jj] != 0.0f)
       {
         /* local density total */
         t_speed local_density = 0.0;
@@ -669,7 +669,7 @@ int initialise(const char* paramfile, const char* obstaclefile,
       }
     }
   }
-
+  printf("available_cells = %d\n", (*available_cells));
   /* and close the file */
   fclose(fp);
 
@@ -865,7 +865,7 @@ int write_values(const t_param* params, t_speed* cells, t_obstacle* obstacles, t
     for (int jj = 0; jj < params->nx; jj++)
     {
       /* an occupied cell */
-      if ( (obstacles)[ii * params->nx + jj] == 0 )
+      if ( (obstacles)[ii * params->nx + jj] == 0.0f )
       {
         u_x = u_y = u = 0.0;
         pressure = params->density * c_sq;

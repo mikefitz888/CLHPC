@@ -207,7 +207,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   float wt1, wt2;
   if(y == NY - 2){
     wt1 = ACCEL * DENSITY / 9.0f;
-    wt2 = wt1 / 4.0f;
+    wt2 = ACCEL * DENSITY / 36.0f;
     if(o_mask2 != 0 && u2 > wt1 && u5 > wt2 && u6 > wt2){
       
       u1 += wt1;
@@ -221,17 +221,8 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   }
   /* End: Accelerate */
 
-  /* Begin: Rebound: openCL mix */
-  /*u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
-  u1 = mix(u2_o, u1, o_mask2);
-  u2 = mix(u1_o, u2, o_mask2);
-  u3 = mix(u6_o, u3, o_mask2);
-  u4 = mix(u7_o, u4, o_mask2);
-  u5 = mix(u8_o, u5, o_mask2);
-  u6 = mix(u3_o, u6, o_mask2);
-  u7 = mix(u4_o, u7, o_mask2);
-  u8 = mix(u5_o, u8, o_mask2);*/
-  if(o_mask2 == 0){
+  /* Begin: Rebound */
+  if(o_mask2 == 0.0f){
     u0 = u0_o;
     u1 = u2_o;
     u2 = u1_o;
@@ -245,7 +236,6 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   /* End: Rebound */
   
   /* Begin: Propogate */
-  /* None of these swap nodes as y != end && y != start */
   int e = (x+1)%NX;
   int w = (x==0)?NX-1:x-1;
 
@@ -261,18 +251,6 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   output_grid[L(w  , s  , 6, NX)] = u6; // Does not propogate
   output_grid[L(x  , s  , 7, NX)] = u7; // Does not propogate
   output_grid[L(e  , s  , 8, NX)] = u8; // Does not propogate
-    
-
-    /*VEC_STORE(&output_grid[L(x  , y  , 0, nx)], u0); // Does not propogate
-    VEC_STORE(&output_grid[L((x+1)%(NX+4), y  , 1, nx)], u1);
-    VEC_STORE(&output_grid[L((x==4)?NX+3:x-1, y  , 2, nx)], u2);
-    VEC_STORE(&output_grid[L((x+1)%(NX+4), y+1, 3, nx)], u3);
-    VEC_STORE(&output_grid[L(x  , y+1, 4, nx)], u4);
-    VEC_STORE(&output_grid[L((x==4)?NX+3:x-1, y+1, 5, nx)], u5);
-    VEC_STORE(&output_grid[L((x==4)?NX+3:x-1, (y==0)?NY-1:y-1, 6, nx)], u6);
-    VEC_STORE(&output_grid[L(x  , (y==0)?NY-1:y-1, 7, nx)], u7);
-    VEC_STORE(&output_grid[L((x+1)%(NX+4), (y==0)?NY-1:y-1, 8, nx)], u8);*/
-  /* End: Propogate */
 
 }
 
