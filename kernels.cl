@@ -69,26 +69,36 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   int y = get_global_id(1);
   int offset = 4 + (9 * nx_pad);
 
+  floatv u0_o;
+  floatv u1_o;
+  floatv u2_o;
+  floatv u3_o;
+  floatv u4_o;
+  floatv u5_o;
+  floatv u6_o;
+  floatv u7_o;
+  floatv u8_o;
+
   if(temp){
-    floatv u0_o = VEC_LOAD(&grid[L(x, y, 0, nx_pad)]);
-    floatv u1_o = VEC_LOAD(&grid[L(x, y, 1, nx_pad)]);
-    floatv u2_o = VEC_LOAD(&grid[L(x, y, 2, nx_pad)]);
-    floatv u3_o = VEC_LOAD(&grid[L(x, y, 3, nx_pad)]);
-    floatv u4_o = VEC_LOAD(&grid[L(x, y, 4, nx_pad)]);
-    floatv u5_o = VEC_LOAD(&grid[L(x, y, 5, nx_pad)]);
-    floatv u6_o = VEC_LOAD(&grid[L(x, y, 6, nx_pad)]);
-    floatv u7_o = VEC_LOAD(&grid[L(x, y, 7, nx_pad)]);
-    floatv u8_o = VEC_LOAD(&grid[L(x, y, 8, nx_pad)]);
+    u0_o = VEC_LOAD(&grid[L(x, y, 0, nx_pad)]);
+    u1_o = VEC_LOAD(&grid[L(x, y, 1, nx_pad)]);
+    u2_o = VEC_LOAD(&grid[L(x, y, 2, nx_pad)]);
+    u3_o = VEC_LOAD(&grid[L(x, y, 3, nx_pad)]);
+    u4_o = VEC_LOAD(&grid[L(x, y, 4, nx_pad)]);
+    u5_o = VEC_LOAD(&grid[L(x, y, 5, nx_pad)]);
+    u6_o = VEC_LOAD(&grid[L(x, y, 6, nx_pad)]);
+    u7_o = VEC_LOAD(&grid[L(x, y, 7, nx_pad)]);
+    u8_o = VEC_LOAD(&grid[L(x, y, 8, nx_pad)]);
   }else{
-    floatv u0_o = VEC_LOAD(&grid[L2(x, y, 0, nx_pad)]);
-    floatv u1_o = VEC_LOAD(&grid[L2(x, y, 1, nx_pad)]);
-    floatv u2_o = VEC_LOAD(&grid[L2(x, y, 2, nx_pad)]);
-    floatv u3_o = VEC_LOAD(&grid[L2(x, y, 3, nx_pad)]);
-    floatv u4_o = VEC_LOAD(&grid[L2(x, y, 4, nx_pad)]);
-    floatv u5_o = VEC_LOAD(&grid[L2(x, y, 5, nx_pad)]);
-    floatv u6_o = VEC_LOAD(&grid[L2(x, y, 6, nx_pad)]);
-    floatv u7_o = VEC_LOAD(&grid[L2(x, y, 7, nx_pad)]);
-    floatv u8_o = VEC_LOAD(&grid[L2(x, y, 8, nx_pad)]);
+    u0_o = VEC_LOAD(&grid[L2(x, y, 0, nx_pad)]);
+    u1_o = VEC_LOAD(&grid[L2(x, y, 1, nx_pad)]);
+    u2_o = VEC_LOAD(&grid[L2(x, y, 2, nx_pad)]);
+    u3_o = VEC_LOAD(&grid[L2(x, y, 3, nx_pad)]);
+    u4_o = VEC_LOAD(&grid[L2(x, y, 4, nx_pad)]);
+    u5_o = VEC_LOAD(&grid[L2(x, y, 5, nx_pad)]);
+    u6_o = VEC_LOAD(&grid[L2(x, y, 6, nx_pad)]);
+    u7_o = VEC_LOAD(&grid[L2(x, y, 7, nx_pad)]);
+    u8_o = VEC_LOAD(&grid[L2(x, y, 8, nx_pad)]);
   }
 
   floatv o_mask2 = VEC_LOAD(&obstacles[y*nx+x-4]);
