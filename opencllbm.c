@@ -636,14 +636,14 @@ int initialise(const char* paramfile, const char* obstaclefile,
       (*cells_ptr)[L(jj+4, ii, 8, params->nx_pad) + offset] = w2;
 
       (*tmp_cells_ptr)[L(jj+4, ii, 0, params->nx_pad) + offset] = 0;
-      (*tmp_cells_ptr)[L(jj+4, ii, 1, params->nx_pad) + offset] = 0;
-      (*tmp_cells_ptr)[L(jj+4, ii, 2, params->nx_pad) + offset] = 0;
-      (*tmp_cells_ptr)[L(jj+4, ii, 3, params->nx_pad) + offset] = 0;
-      (*tmp_cells_ptr)[L(jj+4, ii, 4, params->nx_pad) + offset] = 0;
-      (*tmp_cells_ptr)[L(jj+4, ii, 5, params->nx_pad) + offset] = 0;
-      (*tmp_cells_ptr)[L(jj+4, ii, 6, params->nx_pad) + offset] = 0;
-      (*tmp_cells_ptr)[L(jj+4, ii, 7, params->nx_pad) + offset] = 0;
-      (*tmp_cells_ptr)[L(jj+4, ii, 8, params->nx_pad) + offset] = 0;
+      (*tmp_cells_ptr)[L(jj+4, ii, 1, params->nx_pad) + offset] = w1;
+      (*tmp_cells_ptr)[L(jj+4, ii, 2, params->nx_pad) + offset] = w1;
+      (*tmp_cells_ptr)[L(jj+4, ii, 3, params->nx_pad) + offset] = w2;
+      (*tmp_cells_ptr)[L(jj+4, ii, 4, params->nx_pad) + offset] = w1;
+      (*tmp_cells_ptr)[L(jj+4, ii, 5, params->nx_pad) + offset] = w2;
+      (*tmp_cells_ptr)[L(jj+4, ii, 6, params->nx_pad) + offset] = w2;
+      (*tmp_cells_ptr)[L(jj+4, ii, 7, params->nx_pad) + offset] = w1;
+      (*tmp_cells_ptr)[L(jj+4, ii, 8, params->nx_pad) + offset] = w2;
     }
   }
 
@@ -917,8 +917,7 @@ int write_values(const t_param* params, t_speed* cells, t_obstacle* obstacles, t
         u_x *= inverse_local_density;
         u_y *= inverse_local_density;
         /* accumulate the norm of x- and y- velocity components */
-        //u = ((u_x * u_x) + (u_y * u_y)); //TODO: Expensive line
-        u=0;
+        u = ((u_x * u_x) + (u_y * u_y)); //TODO: Expensive line
         pressure = local_density * c_sq;
         /* increase counter of inspected cells */
       }
