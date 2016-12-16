@@ -66,6 +66,7 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
   int x = get_global_id(0)*16 + 4;
   int y = get_global_id(1);
   int offset = 4 + (9 * nx_pad);
+  printf("Running kernel on (%d, %d)\n", x, y);
 
   floatv u0_o = VEC_LOAD(&tmp_cells[L(x, y, 0, nx_pad)]);
   floatv u1_o = VEC_LOAD(&tmp_cells[L(x, y, 1, nx_pad)]);
