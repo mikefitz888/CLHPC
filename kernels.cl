@@ -258,6 +258,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
 
   if(it == 0 && x == 116 && y == 77){
     printf("Outputting: %f\n", u0);
+    printf("In-values: %f %f %f %f %f %f %f %f %f", u0_o, u1_o, u2_o, u3_o, u4_o, u5_o, u6_o, u7_o, u8_o);
   }
 
   output_grid[L(x  , y  , 0, NX)] = u0; // Does not propogate
