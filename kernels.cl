@@ -79,7 +79,7 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
  // }
 
 
-  floatv u0_o = VEC_LOAD(&tmp_cells[L(x, y, 0, nx_pad)]);
+  /*floatv u0_o = VEC_LOAD(&tmp_cells[L(x, y, 0, nx_pad)]);
   floatv u1_o = VEC_LOAD(&tmp_cells[L(x, y, 1, nx_pad)]);
   floatv u2_o = VEC_LOAD(&tmp_cells[L(x, y, 2, nx_pad)]);
   floatv u3_o = VEC_LOAD(&tmp_cells[L(x, y, 3, nx_pad)]);
@@ -170,11 +170,11 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
   u5 = (u5 + e5);
   u6 = (u6 + e6);
   u7 = (u7 + e7);
-  u8 = (u8 + e8);
+  u8 = (u8 + e8);*/
   /* End: Collision */
 
   /* Add Acceleration */
-  if(y == 2){
+  /*if(y == 2){
     intv msk2 = (u2 > w1); // check that u2 > w1, 0 if false, all bits 1 if true
     intv msk5 = (u5 > w2); 
     intv msk6 = (u6 > w2);
@@ -191,10 +191,10 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
     u2 = (u2 - w1_masked);
     u5 = (u5 - w2_masked);
     u6 = (u6 - w2_masked);
-  }
+  }*/
 
   /* Begin: Rebound: openCL mix */
-  u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
+  /*u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
   u1 = mix(u2_o, u1, o_mask2);
   u2 = mix(u1_o, u2, o_mask2);
   u3 = mix(u6_o, u3, o_mask2);
@@ -202,7 +202,7 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
   u5 = mix(u8_o, u5, o_mask2);
   u6 = mix(u3_o, u6, o_mask2);
   u7 = mix(u4_o, u7, o_mask2);
-  u8 = mix(u5_o, u8, o_mask2);
+  u8 = mix(u5_o, u8, o_mask2);*/
   /* End: Rebound */
   
   /* Begin: Propogate */
