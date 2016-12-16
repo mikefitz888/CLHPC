@@ -65,13 +65,6 @@ kernel void lbm(global float* grid, global float* tmp_cells, global float* obsta
 {
   int x = get_global_id(0)*16 + 4;
   int y = get_global_id(1);
-  printf("%f %f\n", grid[x], tmp_cells[x]);
-  grid[x] = 12.0f;
-  tmp_cells[x] = 13.0f;
-  printf("%f %f\n", grid[x], tmp_cells[x]);
-  return;
-  /*int x = get_global_id(0)*16 + 4;
-  int y = get_global_id(1);
   int offset = 4 + (9 * nx_pad);
 
   if(x == 4 && y == 86){
@@ -173,11 +166,11 @@ kernel void lbm(global float* grid, global float* tmp_cells, global float* obsta
   u5 = (u5 + e5);
   u6 = (u6 + e6);
   u7 = (u7 + e7);
-  u8 = (u8 + e8);*/
+  u8 = (u8 + e8);
   /* End: Collision */
 
   /* Add Acceleration */
-  /*if(y == 2){
+  if(y == 2){
     intv msk2 = (u2 > w1); // check that u2 > w1, 0 if false, all bits 1 if true
     intv msk5 = (u5 > w2); 
     intv msk6 = (u6 > w2);
@@ -194,10 +187,10 @@ kernel void lbm(global float* grid, global float* tmp_cells, global float* obsta
     u2 = (u2 - w1_masked);
     u5 = (u5 - w2_masked);
     u6 = (u6 - w2_masked);
-  }*/
+  }
 
   /* Begin: Rebound: openCL mix */
-  /*u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
+  u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
   u1 = mix(u2_o, u1, o_mask2);
   u2 = mix(u1_o, u2, o_mask2);
   u3 = mix(u6_o, u3, o_mask2);
@@ -205,12 +198,12 @@ kernel void lbm(global float* grid, global float* tmp_cells, global float* obsta
   u5 = mix(u8_o, u5, o_mask2);
   u6 = mix(u3_o, u6, o_mask2);
   u7 = mix(u4_o, u7, o_mask2);
-  u8 = mix(u5_o, u8, o_mask2);*/
+  u8 = mix(u5_o, u8, o_mask2);
   /* End: Rebound */
   
   /* Begin: Propogate */
   /* None of these swap nodes as y != end && y != start */
-  /*VEC_STORE(&cells[L(x  , y  , 0, nx_pad)], u0); // Does not propogate
+  VEC_STORE(&cells[L(x  , y  , 0, nx_pad)], u0); // Does not propogate
   VEC_STORE(&cells[L(x+1, y  , 1, nx_pad)], u1);
   VEC_STORE(&cells[L(x-1, y  , 2, nx_pad)], u2);
   VEC_STORE(&cells[L(x+1, y+1, 3, nx_pad)], (floatv)(8));
@@ -224,7 +217,7 @@ kernel void lbm(global float* grid, global float* tmp_cells, global float* obsta
     printf("Running kernel on (%d, %d); Sample = [%f, %f, %f, %f, %f, %f, %f, %f, %f] => [%f, %f, %f, %f, %f, %f, %f, %f, %f]\n", x, y, u0_o.s1, u1_o.s1, u2_o.s1, u3_o.s1, u4_o.s1, u5_o.s1, u6_o.s1, u7_o.s1, u8_o.s1, u0.s1, u1.s1, u2.s1, u3.s1, u4.s1, u5.s1, u6.s1, u7.s1, u8.s1);
     printf("Test value: %f %p\n", cells[L(x+1, y+1, 3, nx_pad)], &cells[L(x+1, y+1, 3, nx_pad)]);
     printf("%p %p\n", cells, tmp_cells);
-  }     */
+  }
   /* End: Propogate */
 
 }
