@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
 */
  
   //Lattice-Bolzmann Iterations (this function contains the loop, no need to loop this call)
-  //timestep(params, cells+offset, tmp_cells+offset, obstacles, av_vels, 1.0/available_cells, ocl);
+  timestep(params, cells+offset, tmp_cells+offset, obstacles, av_vels, 1.0/available_cells, ocl);
 
   //TODO: Pass chunks back to master from other nodes
 
@@ -636,7 +636,7 @@ int initialise(const char* paramfile, const char* obstaclefile,
       (*cells_ptr)[L(jj+4, ii, 6, params->nx_pad) + offset] = w2;
       (*cells_ptr)[L(jj+4, ii, 8, params->nx_pad) + offset] = w2;
 
-      (*tmp_cells_ptr)[L(jj+4, ii, 0, params->nx_pad) + offset] = 0;
+      (*tmp_cells_ptr)[L(jj+4, ii, 0, params->nx_pad) + offset] = w0;
       (*tmp_cells_ptr)[L(jj+4, ii, 1, params->nx_pad) + offset] = w1;
       (*tmp_cells_ptr)[L(jj+4, ii, 2, params->nx_pad) + offset] = w1;
       (*tmp_cells_ptr)[L(jj+4, ii, 3, params->nx_pad) + offset] = w2;

@@ -201,7 +201,7 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
   VEC_STORE(&cells[L(x  , y  , 0, nx_pad)], u0); // Does not propogate
   VEC_STORE(&cells[L(x+1, y  , 1, nx_pad)], u1);
   VEC_STORE(&cells[L(x-1, y  , 2, nx_pad)], u2);
-  VEC_STORE(&cells[L(x+1, y+1, 3, nx_pad)], u3);
+  VEC_STORE(&cells[L(x+1, y+1, 3, nx_pad)], (floatv)(8));
   VEC_STORE(&cells[L(x  , y+1, 4, nx_pad)], u4);
   VEC_STORE(&cells[L(x-1, y+1, 5, nx_pad)], u5);
   VEC_STORE(&cells[L(x-1, y-1, 6, nx_pad)], u6);
