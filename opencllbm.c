@@ -820,6 +820,7 @@ int finalise(const t_param* params, t_speed** cells_ptr, t_speed** tmp_cells_ptr
   free(*av_vels_ptr);
   *av_vels_ptr = NULL;
 
+  clReleaseMemObject(ocl.grid);
   //clReleaseMemObject(ocl.cells);
   //clReleaseMemObject(ocl.tmp_cells);
   clReleaseMemObject(ocl.obstacles);
