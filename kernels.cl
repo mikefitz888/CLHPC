@@ -201,7 +201,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
     u8 = u8 + (floatv)(1);
 
   /* Begin: Rebound: openCL mix */
-  u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
+  /*u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
   u1 = mix(u2_o, u1, o_mask2);
   u2 = mix(u1_o, u2, o_mask2);
   u3 = mix(u6_o, u3, o_mask2);
@@ -209,7 +209,18 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   u5 = mix(u8_o, u5, o_mask2);
   u6 = mix(u3_o, u6, o_mask2);
   u7 = mix(u4_o, u7, o_mask2);
-  u8 = mix(u5_o, u8, o_mask2);
+  u8 = mix(u5_o, u8, o_mask2);*/
+  if(o_mask2 == 0){
+    u0 = u0_o;
+    u1 = u2_o;
+    u2 = u1_o;
+    u3 = u6_o;
+    u4 = u7_o;
+    u5 = u8_o;
+    u6 = u3_o;
+    u7 = u4_o;
+    u8 = u5_o;
+  }
   /* End: Rebound */
   
   /* Begin: Propogate */
