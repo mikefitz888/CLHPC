@@ -2,7 +2,7 @@
 
 EXE=opencllbm
 
-CC=icc
+CC=gcc
 CFLAGS= -std=c99 -Wall -O3
 LIBS = -lm
 
