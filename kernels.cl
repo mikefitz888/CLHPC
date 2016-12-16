@@ -195,12 +195,20 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   u8 = (u8 + e8);
   /* End: Collision */
 
-  /* Add Acceleration */
-  if(o_mask2 == 1){
-    u1 += 5.0f;
-    u3 += 5.0f;
-    u8 += 5.0f;
+   /* Begin: Accelerate */
+  float wt1, wt2;
+  if(o_mask2 != 0 && u2 > w1 && u5 > w2 && u6 > w2){
+    wt1 = ACCEL * DENSITY / 9.0f;
+    wt2 = wt1 / 4.0f;
+    u1 += wt1;
+    u3 += wt2;
+    u8 += wt2;
+
+    u2 -= wt1;
+    u5 -= wt2;
+    u6 -= wt2;
   }
+  /* End: Accelerate */
 
   /* Begin: Rebound: openCL mix */
   /*u0 = mix(u0_o, u0, o_mask2); //zero where obstacle
@@ -227,11 +235,11 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   
   /* Begin: Propogate */
   /* None of these swap nodes as y != end && y != start */
-  int e = x;//(x+1)%NX;
-  int w = x;//(x==0)?NX-1:x-1;
+  int e = (x+1)%NX;
+  int w = (x==0)?NX-1:x-1;
 
-  int n = y;//(y+1)%NY;
-  int s = y;//(y==0)?NY-1:y-1;
+  int n = (y+1)%NY;
+  int s = (y==0)?NY-1:y-1;
 
   output_grid[L(x  , y  , 0, NX)] = u0; // Does not propogate
   output_grid[L(e  , y  , 1, NX)] = u1; // Does not propogate
