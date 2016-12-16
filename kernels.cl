@@ -67,6 +67,12 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
   int y = get_global_id(1);
   int offset = 4 + (9 * nx_pad);
 
+  if(x == 4 && y == 86){
+    printf("==========================\n");
+    printf("Test value: %f %f %f\n", tmp_cells[L(x+1, y+1, 3, nx_pad)], tmp_cells[L(x+2, y+1, 3, nx_pad)], tmp_cells[L(x+3, y+1, 3, nx_pad)]);
+    printf("%p %p\n", cells, tmp_cells);
+  }
+
 
   floatv u0_o = VEC_LOAD(&tmp_cells[L(x, y, 0, nx_pad)]);
   floatv u1_o = VEC_LOAD(&tmp_cells[L(x, y, 1, nx_pad)]);
