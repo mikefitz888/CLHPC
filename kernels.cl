@@ -131,7 +131,7 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
 
   floatv o_mask2 = VEC_LOAD(&obstacles[y*nx+x-4]);
 
-  /*floatv xneg = u2_o + u5_o + u6_o;
+  floatv xneg = u2_o + u5_o + u6_o;
   floatv xpos = u1_o + u3_o + u8_o;
   floatv yneg = u6_o + u7_o + u8_o;
   floatv ypos = u3_o + u4_o + u5_o;
@@ -144,7 +144,7 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   floatv x_sq = xpos*xpos;
   floatv y_sq = ypos*ypos;
 
-  floatv sum =  sqrt(x_sq + y_sq) * o_mask2; //Ignore obstacles in the summation
+  /*floatv sum =  sqrt(x_sq + y_sq) * o_mask2; //Ignore obstacles in the summation
 
   //float tot_u = sum.s0 + sum.s1 + sum.s2 + sum.s3 + sum.s4 + sum.s5 + sum.s6 + sum.s7 + sum.s8 + sum.s9 + sum.s10 + sum.s11 + sum.s12 + sum.s13 + sum.s14 + sum.s15;
   float tot_u = dot(sum.s0123, (float4)(1));
@@ -162,7 +162,7 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   floatv u7 = (u7_o * Vnomega);
   floatv u8 = (u8_o * Vnomega);
 
-  /*floatv ux3 = (V3 * xpos);
+  floatv ux3 = (V3 * xpos);
   floatv uy3 = (V3 * ypos);
 
 
@@ -210,7 +210,7 @@ kernel void lbm(global float* grid, int temp, global float* obstacles, global fl
   u5 = (u5 + e5);
   u6 = (u6 + e6);
   u7 = (u7 + e7);
-  u8 = (u8 + e8);*/
+  u8 = (u8 + e8);
   /* End: Collision */
 
   /* Add Acceleration */
