@@ -164,7 +164,7 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
   /* End: Collision */
 
   /* Add Acceleration */
-  if(y == NY - 2){
+  if(y == 2){
     intv msk2 = (u2 > w1); // check that u2 > w1, 0 if false, all bits 1 if true
     intv msk5 = (u5 > w2); 
     intv msk6 = (u6 > w2);
@@ -210,6 +210,23 @@ kernel void lbm(global float* cells, global float* tmp_cells, global float* obst
   /* End: Propogate */
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 kernel void accelerate_flow(global t_speed* othercells,
                             global int* obstacles,
