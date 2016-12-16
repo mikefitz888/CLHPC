@@ -221,8 +221,9 @@ int main(int argc, char* argv[])
   propagate(params, cells+offset, tmp_cells+offset);
 
   cells[offset+L(12, 72, 5, params->nx_pad)] = 86;
+  printf("Test cell host addr: %p\n", &cells[offset+L(12, 72, 5, params->nx_pad)]);
   tmp_cells[offset+L(12, 72, 5, params->nx_pad)] = 87; 
-
+  printf("Test tmp_cell host addr: %p\n", &tmp_cells[offset+L(12, 72, 5, params->nx_pad)]);
 
   /* iterate for maxIters timesteps */
     gettimeofday(&timstr, NULL);
@@ -389,7 +390,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   int zero = 0;
   int one = 1;
 
-  for(int iteration = 0; iteration < params->maxIters/2; iteration++){
+  for(int iteration = 0; iteration < 1; iteration++){
     // Reposition left/right "ghost" cells
     err = clSetKernelArg(ocl.swapGhostCellsLR, 0, sizeof(cl_mem), &ocl.grid);
     checkError(err, "swapping Left/Right ghost cells", __LINE__);
