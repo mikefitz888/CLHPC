@@ -218,7 +218,9 @@ int main(int argc, char* argv[])
 
   //Ensure same start state ()
   // DOESN'T NEED MPI SPECIALISATION AS OUTSIDE TIMED REGION, WOULD BE BENEFICIAL OTHERWISE
-  
+  accelerate_flow(params, cells+offset, obstacles);
+  // DOESN'T NEED MPI SPECIALISATION AS OUTSIDE TIMED REGION, WOULD BE BENEFICIAL OTHERWISE
+  propagate(params, cells+offset, tmp_cells+offset);
 
   /* iterate for maxIters timesteps */
     gettimeofday(&timstr, NULL);
@@ -264,7 +266,7 @@ int main(int argc, char* argv[])
 
   /* write final values and free memory */
   printf("==done==\n");
-  printf("Reynolds number:\t\t%.12E\n", reynold_sum); //TODO: make calc_reynolds MPI
+  //printf("Reynolds number:\t\t%.12E\n", reynold_sum); //TODO: make calc_reynolds MPI
   printf("Elapsed time:\t\t\t%.6lf (s)\n", toc - tic);
   //printf("Elapsed user CPU time:\t\t%.6lf (s)\n", usrtim);
   //printf("Elapsed system CPU time:\t%.6lf (s)\n", systim);
