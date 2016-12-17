@@ -109,7 +109,7 @@ kernel void collision(global t_speed* cells,
 
     for (int kk = 0; kk < NSPEEDS; kk++)
     {
-      local_density += tmp_cells[ii * nx + jj].speeds[kk];
+      local_density += tmp_cells[L(jj, ii, kk, nx)];
     }
 
     /* compute x velocity component */
