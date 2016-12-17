@@ -240,6 +240,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
     if(x != 0 && x != 127 && y != 0 && y != 127){
       printf("Wow, stray obstacle!\n");
     }
+    printf("Obstacle at (%d, %d)\n", x, y);
     u0 = u0_o;
     u1 = u2_o;
     u2 = u1_o;
