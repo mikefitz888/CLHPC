@@ -184,9 +184,9 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
 
   //The general equation to follow (slightly optimized) is: u_next = u * (1 - omega) + (density + density * (3u + 4.5u^2 - 1.5(ux^2 + uy^2))) * w * omega
   density = (density * STARTW); //density *= w0 * omega
-  if(density == 0){
+  /*if(density == 0){
     printf("Density 0 at: (%d, %d)\n", x, y);
-  }
+  }*/
 
   floatv e0 = (density - (density * (uxsq15 + uysq15)));
 
@@ -209,9 +209,9 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   floatv e6 = ((e3 - px) - py);
   floatv e8 = ((e5 + px) - py);
 
-  if(x == 40 && y == 80){
+  /*if(x == 40 && y == 80){
     printf("u0=%f e0=%f\n", u0, e0);
-  }
+  }*/
   u0 = (u0 + e0);
   u1 = (u1 + e1);
   u2 = (u2 + e2);
@@ -221,10 +221,10 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   u6 = (u6 + e6);
   u7 = (u7 + e7);
   u8 = (u8 + e8);
-  if(x == 40 && y == 80){
+  /*if(x == 40 && y == 80){
     printf("u0=%f e0=%f\n, u0_o=%f, omega=%f", u0, e0, u0_o, params->omega);
     //printf("(%d, %d): %f %f %f %f %f %f %f %f %f\n", x, y, e0, e1, e2, e3, e4, e5, e6, e7, e8);
-  }
+  }*/
   /* End: Collision */
 
    /* Begin: Accelerate */
