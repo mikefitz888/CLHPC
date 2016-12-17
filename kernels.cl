@@ -282,6 +282,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   output_grid[L(x  , s  , 7, params->nx)] = u7; // Does not propogate
   output_grid[L(e  , s  , 8, params->nx)] = u8; // Does not propogate
 
+  barrier(CLK_GLOBAL_MEM_FENCE);
 }
 
 
