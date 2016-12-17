@@ -197,11 +197,6 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
     printf("u0=%f e0=%f\n", u0, e0);
   }*/
 
-  for (int kk = 0; kk < NSPEEDS; kk++)
-        {
-          cells[ii * params.nx + jj].speeds[kk] = tmp_cells[ii * params.nx + jj].speeds[kk]
-                                                  + params.omega
-                                                  * (d_equ[kk] - tmp_cells[ii * params.nx + jj].speeds[kk]);
   u0 = (u0_o + params->omega*(d_equ[0] - u0_o) );
   u1 = (u1_o + params->omega*(d_equ[1] - u1_o) );
   u2 = (u2_o + params->omega*(d_equ[2] - u2_o) );
