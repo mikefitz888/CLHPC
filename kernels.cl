@@ -122,62 +122,6 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
    floatv u7_o = input_grid[L(x, y, 7, params->nx)];
    floatv u8_o = input_grid[L(x, y, 8, params->nx)];
 
-   floatv o_mask2 = obstacles[y*params->nx+x];
-
-  floatv xneg = u2_o + u5_o + u6_o;
-  floatv xpos = u1_o + u3_o + u8_o;
-  floatv yneg = u6_o + u7_o + u8_o;
-  floatv ypos = u3_o + u4_o + u5_o;
-
-  floatv local_density = u0_o + u1_o + u2_o + yneg + ypos;
-  double u_x = native_divide((xpos - xneg),local_density);
-  double u_y = native_divide((ypos - yneg),local_density);
-
-   double u_sq = u_x * u_x + u_y * u_y;
-
-  double u[NSPEEDS];
-  u[1] =   u_x;        /* east */
-  u[2] =         u_y;  /* north */
-  u[3] = - u_x;        /* west */
-  u[4] =       - u_y;  /* south */
-  u[5] =   u_x + u_y;  /* north-east */
-  u[6] = - u_x + u_y;  /* north-west */
-  u[7] = - u_x - u_y;  /* south-west */
-  u[8] =   u_x - u_y;  /* south-east */
-
-  /* equilibrium densities */
-  double c_sq = 1.0 / 3.0;
-  double d_equ[NSPEEDS];
-  /* zero velocity density: weight w0 */
-  d_equ[0] = w0 * local_density
-             * (1.0 - u_sq / (2.0 * c_sq));
-  /* axis speeds: weight w1 */
-  d_equ[1] = w1 * local_density * (1.0 + u[1] / c_sq
-                                   + (u[1] * u[1]) / (2.0 * c_sq * c_sq)
-                                   - u_sq / (2.0 * c_sq));
-  d_equ[2] = w1 * local_density * (1.0 + u[2] / c_sq
-                                   + (u[2] * u[2]) / (2.0 * c_sq * c_sq)
-                                   - u_sq / (2.0 * c_sq));
-  d_equ[3] = w1 * local_density * (1.0 + u[3] / c_sq
-                                   + (u[3] * u[3]) / (2.0 * c_sq * c_sq)
-                                   - u_sq / (2.0 * c_sq));
-  d_equ[4] = w1 * local_density * (1.0 + u[4] / c_sq
-                                   + (u[4] * u[4]) / (2.0 * c_sq * c_sq)
-                                   - u_sq / (2.0 * c_sq));
-  /* diagonal speeds: weight w2 */
-  d_equ[5] = w2 * local_density * (1.0 + u[5] / c_sq
-                                   + (u[5] * u[5]) / (2.0 * c_sq * c_sq)
-                                   - u_sq / (2.0 * c_sq));
-  d_equ[6] = w2 * local_density * (1.0 + u[6] / c_sq
-                                   + (u[6] * u[6]) / (2.0 * c_sq * c_sq)
-                                   - u_sq / (2.0 * c_sq));
-  d_equ[7] = w2 * local_density * (1.0 + u[7] / c_sq
-                                   + (u[7] * u[7]) / (2.0 * c_sq * c_sq)
-                                   - u_sq / (2.0 * c_sq));
-  d_equ[8] = w2 * local_density * (1.0 + u[8] / c_sq
-                                   + (u[8] * u[8]) / (2.0 * c_sq * c_sq)
-                                   - u_sq / (2.0 * c_sq));
-
    /*if(it == 1){
     if(u0_o < 0){printf("(%d, %d)[0] < 0\n", x, y);}
     if(u1_o < 0){printf("(%d, %d)[1] < 0\n", x, y);}
@@ -190,22 +134,99 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
     if(u8_o < 0){printf("(%d, %d)[8] < 0\n", x, y);}
    }*/
 
+  floatv o_mask2 = obstacles[y*params->nx+x];
+
+  floatv xneg = u2_o + u5_o + u6_o;
+  floatv xpos = u1_o + u3_o + u8_o;
+  floatv yneg = u6_o + u7_o + u8_o;
+  floatv ypos = u3_o + u4_o + u5_o;
+
+  floatv density = u0_o + u1_o + u2_o + yneg + ypos;
+  xpos = native_divide((xpos - xneg),density);
+  ypos = native_divide((ypos - yneg),density);
   
-  
+  floatv x_sq = xpos*xpos;
+  floatv y_sq = ypos*ypos;
+
+  floatv sum = 0.0f;
+  if(o_mask2 != 0.0f){
+    sum = sqrt(x_sq + y_sq);
+  }
+  partial_sums[y*params->nx + x] = sum;
+
+  /*floatv sum =  sqrt(x_sq + y_sq) * o_mask2; //Ignore obstacles in the summation
+
+  //float tot_u = sum.s0 + sum.s1 + sum.s2 + sum.s3 + sum.s4 + sum.s5 + sum.s6 + sum.s7 + sum.s8 + sum.s9 + sum.s10 + sum.s11 + sum.s12 + sum.s13 + sum.s14 + sum.s15;
+  float tot_u = dot(sum.s0123, (float4)(1));
+  tot_u += dot(sum.s4567, (float4)(1));
+  //TODO: division
+  partial_sums[y*NX+get_global_id(0)] = tot_u;*/
+
+  floatv u0 = (u0_o * (1-params->omega));
+  floatv u1 = (u1_o * (1-params->omega));
+  floatv u2 = (u2_o * (1-params->omega));
+  floatv u3 = (u3_o * (1-params->omega));
+  floatv u4 = (u4_o * (1-params->omega));
+  floatv u5 = (u5_o * (1-params->omega));
+  floatv u6 = (u6_o * (1-params->omega));
+  floatv u7 = (u7_o * (1-params->omega));
+  floatv u8 = (u8_o * (1-params->omega));
+
+  floatv ux3 = (3 * xpos);
+  floatv uy3 = (3 * ypos);
+
+
+  floatv uxsq3 = (3 * x_sq);
+  floatv uysq3 = (3 * y_sq);
+
+
+  floatv uxsq15 = (1.5 * x_sq);
+  floatv uysq15 = (1.5 * y_sq);
+
+  floatv u_sq = (uxsq15 + uysq15);
+
+  floatv leading_diag  = (4.5*((xpos - ypos) * (xpos - ypos)));
+  floatv trailing_diag = (4.5*((xpos + ypos) * (xpos + ypos)));
+
+  //The general equation to follow (slightly optimized) is: u_next = u * (1 - omega) + (density + density * (3u + 4.5u^2 - 1.5(ux^2 + uy^2))) * w * omega
+  density = (density * STARTW); //density *= w0 * omega
+  /*if(density == 0){
+    printf("Density 0 at: (%d, %d)\n", x, y);
+  }*/
+
+  floatv e0 = (density - (density * (uxsq15 + uysq15)));
+
+  //Axis
+  density = (density * 0.25);
+  floatv px = density * ux3 * 2;
+  floatv py = density * uy3 * 2;
+  floatv e1 = (density + (density * ((ux3 + uxsq3) - uysq15))); //East
+  floatv e4 = (density + (density * ((uy3 + uysq3) - uxsq15))); //North
+  floatv e2 = (e1 - px); //West
+  floatv e7 = (e4 - py); //South
+
+  //Diagonals
+  density = (density * 0.25);
+  px = (px * 0.25);
+  py = (py * 0.25);
+
+  floatv e3 = (density + (density * ((trailing_diag + (ux3 + uy3)) - u_sq)));
+  floatv e5 = (density + (density * ((leading_diag + uy3) - (ux3 + u_sq) )));
+  floatv e6 = ((e3 - px) - py);
+  floatv e8 = ((e5 + px) - py);
 
   /*if(x == 40 && y == 80){
     printf("u0=%f e0=%f\n", u0, e0);
   }*/
-
-  float u0 = (u0_o + params->omega*(d_equ[0] - u0_o) );
-  float u1 = (u1_o + params->omega*(d_equ[1] - u1_o) );
-  float u2 = (u2_o + params->omega*(d_equ[2] - u2_o) );
-  float u3 = (u3_o + params->omega*(d_equ[3] - u3_o) );
-  float u4 = (u4_o + params->omega*(d_equ[4] - u4_o) );
-  float u5 = (u5_o + params->omega*(d_equ[5] - u5_o) );
-  float u6 = (u6_o + params->omega*(d_equ[6] - u6_o) );
-  float u7 = (u7_o + params->omega*(d_equ[7] - u7_o) );
-  float u8 = (u8_o + params->omega*(d_equ[8] - u8_o) );
+  u0 = (u0 + e0);
+  u1 = (u1 + e1);
+  u2 = (u2 + e2);
+  u3 = (u3 + e3);
+  u4 = (u4 + e4);
+  u5 = (u5 + e5);
+  u6 = (u6 + e6);
+  u7 = (u7 + e7);
+  u8 = (u8 + e8);
   /*if(x == 40 && y == 80){
     printf("u0=%f e0=%f\n, u0_o=%f, omega=%f", u0, e0, u0_o, params->omega);
     //printf("(%d, %d): %f %f %f %f %f %f %f %f %f\n", x, y, e0, e1, e2, e3, e4, e5, e6, e7, e8);
