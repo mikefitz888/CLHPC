@@ -166,21 +166,21 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   floatv u7 = (u7_o * (1-params->omega));
   floatv u8 = (u8_o * (1-params->omega));
 
-  floatv ux3 = (V3 * xpos);
-  floatv uy3 = (V3 * ypos);
+  floatv ux3 = (3 * xpos);
+  floatv uy3 = (3 * ypos);
 
 
-  floatv uxsq3 = (V3 * x_sq);
-  floatv uysq3 = (V3 * y_sq);
+  floatv uxsq3 = (3 * x_sq);
+  floatv uysq3 = (3 * y_sq);
 
 
-  floatv uxsq15 = (V1o5 * x_sq);
-  floatv uysq15 = (V1o5 * y_sq);
+  floatv uxsq15 = (1.5 * x_sq);
+  floatv uysq15 = (1.5 * y_sq);
 
   floatv u_sq = (uxsq15 + uysq15);
 
-  floatv leading_diag  = (V4o5*((xpos - ypos) * (xpos - ypos)));
-  floatv trailing_diag = (V4o5*((xpos + ypos) * (xpos + ypos)));
+  floatv leading_diag  = (4.5*((xpos - ypos) * (xpos - ypos)));
+  floatv trailing_diag = (4.5*((xpos + ypos) * (xpos + ypos)));
 
   //The general equation to follow (slightly optimized) is: u_next = u * (1 - omega) + (density + density * (3u + 4.5u^2 - 1.5(ux^2 + uy^2))) * w * omega
   density = (density * STARTW); //density *= w0 * omega
@@ -191,18 +191,18 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   floatv e0 = (density - (density * (uxsq15 + uysq15)));
 
   //Axis
-  density = (density * Vo25);
-  floatv px = density * ux3 * V2;
-  floatv py = density * uy3 * V2;
+  density = (density * 0.25);
+  floatv px = density * ux3 * 2;
+  floatv py = density * uy3 * 2;
   floatv e1 = (density + (density * ((ux3 + uxsq3) - uysq15))); //East
   floatv e4 = (density + (density * ((uy3 + uysq3) - uxsq15))); //North
   floatv e2 = (e1 - px); //West
   floatv e7 = (e4 - py); //South
 
   //Diagonals
-  density = (density * Vo25);
-  px = (px * Vo25);
-  py = (py * Vo25);
+  density = (density * 0.25);
+  px = (px * 0.25);
+  py = (py * 0.25);
 
   floatv e3 = (density + (density * ((trailing_diag + (ux3 + uy3)) - u_sq)));
   floatv e5 = (density + (density * ((leading_diag + uy3) - (ux3 + u_sq) )));
