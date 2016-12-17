@@ -421,7 +421,6 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     checkError(err, "setting lbm arg 0", __LINE__);
     err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.tmp_cells);
     checkError(err, "setting lbm arg 1", __LINE__);
-    checkError(err, "setting lbm arg 4", __LINE__);
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, NULL, 0, NULL, NULL);
     checkError(err, "enqueuing lbm kernel", __LINE__);
     err = clFinish(ocl.queue);
@@ -641,7 +640,7 @@ int initialise(const char* paramfile, const char* obstaclefile,
     #pragma omp for simd _SCHEDULE_
     for (int jj = 0; jj < params->nx; jj++)
     {
-      (*obstacles_ptr)[ii * params->nx + jj] = 1;
+      (*obstacles_ptr)[ii * params->nx + jj] = 1.0f;
     }
   }
   (*available_cells) = params->nx * params->ny;
@@ -762,12 +761,12 @@ int initialise(const char* paramfile, const char* obstaclefile,
 
   // Allocate OpenCL buffers
   ocl->cells = clCreateBuffer(
-    ocl->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+    ocl->context, CL_MEM_READ_WRITE,
     sizeof(cl_float) * (NSPEEDS * params->ny * params->nx), *cells_ptr, &err);
   checkError(err, "creating grid buffer", __LINE__);
 
   ocl->tmp_cells = clCreateBuffer(
-    ocl->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+    ocl->context, CL_MEM_READ_WRITE,
     sizeof(cl_float) * (NSPEEDS * params->ny * params->nx), *tmp_cells_ptr, &err);
   checkError(err, "creating grid buffer", __LINE__);
 
