@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
   // Write obstacles to OpenCL buffer
   err = clEnqueueWriteBuffer(
     ocl.queue, ocl.obstacles, CL_TRUE, 0,
-    sizeof(cl_int) * params.nx * params.ny * 9, obstacles, 0, NULL, NULL);
+    sizeof(cl_int) * params.nx * params.ny, obstacles, 0, NULL, NULL);
   checkError(err, "writing obstacles data", __LINE__);
 
   for (int tt = 0; tt < params.maxIters; tt++)
