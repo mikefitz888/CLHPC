@@ -93,18 +93,23 @@ kernel void collision(global t_speed* cells,
   int xe = (jj + 1) % nx;
   int ys = (ii == 0) ? (ny - 1) : (ii - 1);
   int xw = (jj == 0) ? (nx - 1) : (jj - 1);
-  //if (!obstacles[ii * nx + jj])
-  //{
+  if (!obstacles[ii * nx + jj])
+  {
 
     /* compute x velocity component */
     global float* speeds = tmp_cells[ii * nx + jj].speeds;
 
-    float xneg = speeds[3] + speeds[6] + speeds[7];
-    float yneg = speeds[4] + speeds[7] + speeds[8]; 
-    float xpos = speeds[1] + speeds[5] + speeds[8]; //048
-    float ypos = speeds[2] + speeds[5] + speeds[6]; //026
+    float in[9];
+    for(int i = 0; i < 9; i++){
+      in[i] = speeds[i];
+    }
 
-    float local_density = xpos + xneg + speeds[0] + speeds[2] + speeds[4];
+    float xneg = in[3] + in[6] + in[7];
+    float yneg = in[4] + in[7] + in[8]; 
+    float xpos = in[1] + in[5] + in[8]; //048
+    float ypos = in[2] + in[5] + in[6]; //026
+
+    float local_density = xpos + xneg + in[0] + in[2] + in[4];
     float inverse_local_density = 1.0f/local_density;
 
     float ux = (xpos - xneg)*inverse_local_density;
@@ -136,19 +141,19 @@ kernel void collision(global t_speed* cells,
     local_density *= w0 * omega;
 
     //local_density is no longer local density
-    cells[ii * nx + jj].speeds[0] = speeds[0] * (1 - omega) + (local_density + local_density * (-uxsq15 - uysq15));
+    cells[ii * nx + jj].speeds[0] = in[0] * (1 - omega) + (local_density + local_density * (-uxsq15 - uysq15));
 
     local_density *= 0.25;
-    cells[ii * nx + xe].speeds[1] = speeds[1] * (1 - omega) + (local_density + local_density * ( ux3 + uxsq3 - uysq15));
-    cells[yn * nx + jj].speeds[2] = speeds[2] * (1 - omega) + (local_density + local_density * ( uy3 + uysq3 - uxsq15));
-    cells[ii * nx + xw].speeds[3] = speeds[3] * (1 - omega) + (local_density + local_density * (-ux3 + uxsq3 - uysq15));
-    cells[ys * nx + jj].speeds[4] = speeds[4] * (1 - omega) + (local_density + local_density * (-uy3 + uysq3 - uxsq15));
+    cells[ii * nx + xe].speeds[1] = in[1] * (1 - omega) + (local_density + local_density * ( ux3 + uxsq3 - uysq15));
+    cells[yn * nx + jj].speeds[2] = in[2] * (1 - omega) + (local_density + local_density * ( uy3 + uysq3 - uxsq15));
+    cells[ii * nx + xw].speeds[3] = in[3] * (1 - omega) + (local_density + local_density * (-ux3 + uxsq3 - uysq15));
+    cells[ys * nx + jj].speeds[4] = in[4] * (1 - omega) + (local_density + local_density * (-uy3 + uysq3 - uxsq15));
 
     local_density *= 0.25;
-    cells[yn * nx + xe].speeds[5] = speeds[5] * (1 - omega) + (local_density + local_density * ( ux3 + uy3 + trailing_diag -u_sq));
-    cells[yn * nx + xw].speeds[6] = speeds[6] * (1 - omega) + (local_density + local_density * (-ux3 + uy3 + leading_diag  -u_sq));
-    cells[ys * nx + xw].speeds[7] = speeds[7] * (1 - omega) + (local_density + local_density * (-ux3 - uy3 + trailing_diag -u_sq));
-    cells[ys * nx + xe].speeds[8] = speeds[8] * (1 - omega) + (local_density + local_density * ( ux3 - uy3 + leading_diag  -u_sq));
+    cells[yn * nx + xe].speeds[5] = in[5] * (1 - omega) + (local_density + local_density * ( ux3 + uy3 + trailing_diag -u_sq));
+    cells[yn * nx + xw].speeds[6] = in[6] * (1 - omega) + (local_density + local_density * (-ux3 + uy3 + leading_diag  -u_sq));
+    cells[ys * nx + xw].speeds[7] = in[7] * (1 - omega) + (local_density + local_density * (-ux3 - uy3 + trailing_diag -u_sq));
+    cells[ys * nx + xe].speeds[8] = in[8] * (1 - omega) + (local_density + local_density * ( ux3 - uy3 + leading_diag  -u_sq));
 
 
     float w1 = density * accel / 9.0;
@@ -171,7 +176,7 @@ kernel void collision(global t_speed* cells,
       cells[ys * nx + xw].speeds[7] -= w2;
     }
 
-  /*}else{
+  }else{
     cells[ii * nx + xe].speeds[1] = tmp_cells[ii * nx + jj].speeds[3];
     cells[yn * nx + jj].speeds[2] = tmp_cells[ii * nx + jj].speeds[4];
     cells[ii * nx + xw].speeds[3] = tmp_cells[ii * nx + jj].speeds[1];
@@ -180,5 +185,5 @@ kernel void collision(global t_speed* cells,
     cells[yn * nx + xw].speeds[6] = tmp_cells[ii * nx + jj].speeds[8];
     cells[ys * nx + xw].speeds[7] = tmp_cells[ii * nx + jj].speeds[5];
     cells[ys * nx + xe].speeds[8] = tmp_cells[ii * nx + jj].speeds[6];
-  }*/
+  }
 }
