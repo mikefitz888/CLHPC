@@ -1,6 +1,6 @@
 # Makefile
 
-EXE=opencllbm
+EXE=d2q9-bgk2
 
 CC=gcc
 CFLAGS= -std=c99 -Wall -O3
