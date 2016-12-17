@@ -110,150 +110,84 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   int x = get_global_id(0);
   int y = get_global_id(1);
 
-  floatv u0_o = input_grid[L(x, y, 0, params->nx)];
-  floatv u1_o = input_grid[L(x, y, 1, params->nx)];
-  floatv u2_o = input_grid[L(x, y, 2, params->nx)];
-  floatv u3_o = input_grid[L(x, y, 3, params->nx)];
-  floatv u4_o = input_grid[L(x, y, 4, params->nx)];
-  floatv u5_o = input_grid[L(x, y, 5, params->nx)];
-  floatv u6_o = input_grid[L(x, y, 6, params->nx)];
-  floatv u7_o = input_grid[L(x, y, 7, params->nx)];
-  floatv u8_o = input_grid[L(x, y, 8, params->nx)];
+  int y_n = (y + 1) % params->ny;
+  int y_s = y - 1; if(y_s < 0) y_s = params->ny-1;
+  int x_e = (x + 1) % params->nx;
+  int x_w = x - 1; if(x_w < 0) x_w = params->nx-1;
 
-  floatv o_mask2 = obstacles[y*params->nx+x];
+  if(obstacles[y*params->nx+x] != 0){
+    float xneg = input_grid[L(x, y, 2, params->nx)] + input_grid[L(x, y, 6, params->nx)] + input_grid[L(x, y, 5, params->nx)];
+    float yneg = input_grid[L(x, y, 6, params->nx)] + input_grid[L(x, y, 7, params->nx)] + input_grid[L(x, y, 8, params->nx)];
+    float xpos = input_grid[L(x, y, 1, params->nx)] + input_grid[L(x, y, 3, params->nx)] + input_grid[L(x, y, 8, params->nx)];
+    float ypos = input_grid[L(x, y, 4, params->nx)] + input_grid[L(x, y, 3, params->nx)] + input_grid[L(x, y, 5, params->nx)];
+    float local_density = ypos + yneg + input_grid[L(x, y, 0, params->nx)] + input_grid[L(x, y, 1, params->nx)] + input_grid[L(x, y, 2, params->nx)];
+    float inverse_local_density = 1.0/local_density;
 
-  floatv xneg = u2_o + u5_o + u6_o;
-  floatv xpos = u1_o + u3_o + u8_o;
-  floatv yneg = u6_o + u7_o + u8_o;
-  floatv ypos = u3_o + u4_o + u5_o;
+    float ux = xpos - xneg;
+          ux*= inverse_local_density;
+    float uy = ypos - yneg;
+          uy*= inverse_local_density;
 
-  floatv density = u0_o + u1_o + u2_o + yneg + ypos;
-  xpos = ((xpos - xneg) / density);
-  ypos = ((ypos - yneg) / density);
-  
-  floatv x_sq = xpos*xpos;
-  floatv y_sq = ypos*ypos;
+    float uxsq = ux*ux;
+    float uysq = uy*uy;
+    //sum = sqrt(uxsq + uysq);
 
-  floatv sum = 0.0f;
-  if(o_mask2 != 0.0f){
-    sum = sqrt(x_sq + y_sq);
-  }
+    float ux3 = 3.0 * ux;
+    float uy3 = 3.0 * uy;
 
-  //partial_sums[y*params->nx + x] = sum;
-  int X = get_group_id(0);
-  int Y = get_group_id(1);
-  int N = Y*get_num_groups(0)+X;
-  partial_sums[N] += sum;
+    float uxsq3 = 3.0 * uxsq;
+    float uxsq15= 1.5 * uxsq;
 
-  floatv u0 = (u0_o * (1-params->omega));
-  floatv u1 = (u1_o * (1-params->omega));
-  floatv u2 = (u2_o * (1-params->omega));
-  floatv u3 = (u3_o * (1-params->omega));
-  floatv u4 = (u4_o * (1-params->omega));
-  floatv u5 = (u5_o * (1-params->omega));
-  floatv u6 = (u6_o * (1-params->omega));
-  floatv u7 = (u7_o * (1-params->omega));
-  floatv u8 = (u8_o * (1-params->omega));
+    float uysq3 = 3.0 * uysq;
+    float uysq15= 1.5 * uysq;
 
-  floatv ux3 = (3 * xpos);
-  floatv uy3 = (3 * ypos);
+    float u_sq = uxsq15 + uysq15;
 
-  floatv uxsq3 = (3 * x_sq);
-  floatv uysq3 = (3 * y_sq);
+    float leading_diag  = 4.5 * (ux-uy)*(ux-uy); // = 4.5*(x-y)^2 == 4.5*(y-x)^2
+    float trailing_diag = 4.5 * (ux+uy)*(ux+uy);
 
-  floatv uxsq15 = (1.5 * x_sq);
-  floatv uysq15 = (1.5 * y_sq);
+    local_density *= (4.0 / 9.0) * params->omega;
 
-  floatv u_sq = (uxsq15 + uysq15);
+    output_grid[L(x, y, 0, params->nx)] = input_grid[L(x, y, 0, params->nx)] * (1 - params->omega) + (local_density + local_density * (-uxsq15 - uysq15));
 
-  floatv leading_diag  = (4.5*((xpos - ypos) * (xpos - ypos)));
-  floatv trailing_diag = (4.5*((xpos + ypos) * (xpos + ypos)));
 
-  //The general equation to follow (slightly optimized) is: u_next = u * (1 - omega) + (density + density * (3u + 4.5u^2 - 1.5(ux^2 + uy^2))) * w * omega
-  density = (density * STARTW); //density *= w0 * omega
+    local_density *= 0.25;
+    output_grid[L(x_w, y, 2, params->nx)] = input_grid[L(x, y, 2, params->nx)] * (1 - params->omega) + (local_density + local_density * (-ux3 + uxsq3 - uysq15));
+    output_grid[L(x, y_s, 7, params->nx)] = input_grid[L(x, y, 7, params->nx)] * (1 - params->omega) + (local_density + local_density * (-uy3 + uysq3 - uxsq15));
+    output_grid[L(x_e, y, 1, params->nx)] = input_grid[L(x, y, 1, params->nx)] * (1 - params->omega) + (local_density + local_density * ( ux3 + uxsq3 - uysq15));
+    output_grid[L(x, y_n, 4, params->nx)] = input_grid[L(x, y, 4, params->nx)] * (1 - params->omega) + (local_density + local_density * ( uy3 + uysq3 - uxsq15));
 
-  floatv e0 = (density - (density * (uxsq15 + uysq15)));
+    local_density *= 0.25;
+    output_grid[L(x_w, y_n, 5, params->nx)] = input_grid[L(x, y, 5, params->nx)] * (1 - params->omega) + (local_density + local_density * (-ux3 + uy3 + leading_diag  -u_sq));
+    output_grid[L(x_w, y_s, 6, params->nx)] = input_grid[L(x, y, 6, params->nx)] * (1 - params->omega) + (local_density + local_density * (-ux3 - uy3 + trailing_diag -u_sq));
+    output_grid[L(x_e, y_s, 8, params->nx)] = input_grid[L(x, y, 8, params->nx)] * (1 - params->omega) + (local_density + local_density * ( ux3 - uy3 + leading_diag  -u_sq));
+    output_grid[L(x_e, y_n, 3, params->nx)] = input_grid[L(x, y, 3, params->nx)] * (1 - params->omega) + (local_density + local_density * ( ux3 + uy3 + trailing_diag -u_sq));
+    if(y == params->ny - 2){
+      float m1 = params->density * params->accel / 9.0;
+      float m2 = params->density * params->accel / 36.0;
+      if (output_grid[L(x_w, y_n, 5, params->nx)] > m2
+          && output_grid[L(x_w, y, 2, params->nx)] > m1
+          && output_grid[L(x_w, y_s, 6, params->nx)] > m2)
+      {
+        output_grid[L(x_w, y_n, 5, params->nx)] -= m2;
+        output_grid[L(x_w, y, 2, params->nx)] -= m1;
+        output_grid[L(x_w, y_s, 6, params->nx)] -= m2;
 
-  //Axis
-  density = (density * 0.25);
-  floatv px = density * ux3 * 2;
-  floatv py = density * uy3 * 2;
-  floatv e1 = (density + (density * ((ux3 + uxsq3) - uysq15))); //East
-  floatv e4 = (density + (density * ((uy3 + uysq3) - uxsq15))); //North
-  floatv e2 = (e1 - px); //West
-  floatv e7 = (e4 - py); //South
-
-  //Diagonals
-  density = (density * 0.25);
-  px = (px * 0.25);
-  py = (py * 0.25);
-
-  floatv e3 = (density + (density * ((trailing_diag + (ux3 + uy3)) - u_sq)));
-  floatv e5 = (density + (density * ((leading_diag + uy3) - (ux3 + u_sq) )));
-  floatv e6 = ((e3 - px) - py);
-  floatv e8 = ((e5 + px) - py);
-
-  u0 = (u0 + e0);
-  u1 = (u1 + e1);
-  u2 = (u2 + e2);
-  u3 = (u3 + e3);
-  u4 = (u4 + e4);
-  u5 = (u5 + e5);
-  u6 = (u6 + e6);
-  u7 = (u7 + e7);
-  u8 = (u8 + e8);
-  /* End: Collision */
-
-   /* Begin: Accelerate */
-  float wt1, wt2;
-  if(y == params->ny - 2){
-    wt1 = (params->accel * params->density / 9.0f);
-    wt2 = (params->accel * params->density / 36.0f);
-    if(o_mask2 != 0.0f && u2 > wt1 && u5 > wt2 && u6 > wt2){
-      
-      u1 += wt1;
-      u3 += wt2;
-      u8 += wt2;
-
-      u2 -= wt1;
-      u5 -= wt2;
-      u6 -= wt2;
+        output_grid[L(x_e, y_n, 3, params->nx)] += m2;
+        output_grid[L(x_e, y, 1, params->nx)] += m1;
+        output_grid[L(x_e, y_s, 8, params->nx)] += m2; 
+      }
     }
+  }else{
+    output_grid[L(x_e, y, 1, params->nx)] = input_grid[L(x, y, 2, params->nx)];
+    output_grid[L(x_w, y, 2, params->nx)] = input_grid[L(x, y, 1, params->nx)];
+    output_grid[L(x_e, y_n, 3, params->nx)] = input_grid[L(x, y, 6, params->nx)];
+    output_grid[L(x, y_n, 4, params->nx)] = input_grid[L(x, y, 7, params->nx)];
+    output_grid[L(x_w, y_n, 5, params->nx)] = input_grid[L(x, y, 8, params->nx)];
+    output_grid[L(x_w, y_s, 6, params->nx)] = input_grid[L(x, y, 3, params->nx)];
+    output_grid[L(x, y_s, 7, params->nx)] = input_grid[L(x, y, 4, params->nx)];
+    output_grid[L(x_e, y_s, 8, params->nx)] = input_grid[L(x, y, 5, params->nx)]; 
   }
-  /* End: Accelerate */
-
-  /* Begin: Rebound */
-  if(o_mask2 == 0.0f){
-    u0 = u0_o;
-    u1 = u2_o;
-    u2 = u1_o;
-    u3 = u6_o;
-    u4 = u7_o;
-    u5 = u8_o;
-    u6 = u3_o;
-    u7 = u4_o;
-    u8 = u5_o;
-  }
-  /* End: Rebound */
-  
-  /* Begin: Propogate */
-  int e = (x+1)%params->nx;
-  int w = (x==0)?params->nx-1:x-1;
-
-  int n = (y+1)%params->ny;
-  int s = (y==0)?params->ny-1:y-1;
-
-  output_grid[L(x  , y  , 0, params->nx)] = u0; // Does not propogate
-  output_grid[L(e  , y  , 1, params->nx)] = u1; // Does not propogate
-  output_grid[L(w  , y  , 2, params->nx)] = u2; // Does not propogate
-  output_grid[L(e  , n  , 3, params->nx)] = u3; // Does not propogate
-  output_grid[L(x  , n  , 4, params->nx)] = u4; // Does not propogate
-  output_grid[L(w  , n  , 5, params->nx)] = u5; // Does not propogate
-  output_grid[L(w  , s  , 6, params->nx)] = u6; // Does not propogate
-  output_grid[L(x  , s  , 7, params->nx)] = u7; // Does not propogate
-  output_grid[L(e  , s  , 8, params->nx)] = u8; // Does not propogate
-
-  barrier(CLK_GLOBAL_MEM_FENCE);
 }
 
 
