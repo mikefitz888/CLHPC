@@ -184,6 +184,9 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
 
   //The general equation to follow (slightly optimized) is: u_next = u * (1 - omega) + (density + density * (3u + 4.5u^2 - 1.5(ux^2 + uy^2))) * w * omega
   density = (density * STARTW); //density *= w0 * omega
+  if(density == 0){
+    printf("Density 0 at: (%d, %d)\n", x, y);
+  }
 
   floatv e0 = (density - (density * (uxsq15 + uysq15)));
 
