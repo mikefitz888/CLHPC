@@ -7,10 +7,10 @@ typedef struct
   float speeds[NSPEEDS];
 } t_speed;
 
-constant double c_sq = 1.0 / 3.0; /* square of speed of sound */
-constant double w0 = 4.0 / 9.0;  /* weighting factor */
-constant double w1 = 1.0 / 9.0;  /* weighting factor */
-constant double w2 = 1.0 / 36.0; /* weighting factor */
+constant float c_sq = 1.0 / 3.0; /* square of speed of sound */
+constant float w0 = 4.0 / 9.0;  /* weighting factor */
+constant float w1 = 1.0 / 9.0;  /* weighting factor */
+constant float w2 = 1.0 / 36.0; /* weighting factor */
 
 kernel void accelerate_flow(global t_speed* cells,
                             global int* obstacles,
@@ -96,7 +96,7 @@ kernel void collision(global t_speed* cells,
   if (!obstacles[ii * nx + jj])
   {
     /* compute local density total */
-    double local_density = 0.0;
+    flaot local_density = 0.0;
 
     for (int kk = 0; kk < NSPEEDS; kk++)
     {
@@ -104,7 +104,7 @@ kernel void collision(global t_speed* cells,
     }
 
     /* compute x velocity component */
-    double u_x = (tmp_cells[ii * nx + jj].speeds[1]
+    float u_x = (tmp_cells[ii * nx + jj].speeds[1]
                   + tmp_cells[ii * nx + jj].speeds[5]
                   + tmp_cells[ii * nx + jj].speeds[8]
                   - (tmp_cells[ii * nx + jj].speeds[3]
@@ -112,7 +112,7 @@ kernel void collision(global t_speed* cells,
                      + tmp_cells[ii * nx + jj].speeds[7]))
                  / local_density;
     /* compute y velocity component */
-    double u_y = (tmp_cells[ii * nx + jj].speeds[2]
+    flaot u_y = (tmp_cells[ii * nx + jj].speeds[2]
                   + tmp_cells[ii * nx + jj].speeds[5]
                   + tmp_cells[ii * nx + jj].speeds[6]
                   - (tmp_cells[ii * nx + jj].speeds[4]
@@ -121,10 +121,10 @@ kernel void collision(global t_speed* cells,
                  / local_density;
 
     /* velocity squared */
-    double u_sq = u_x * u_x + u_y * u_y;
+    flaot u_sq = u_x * u_x + u_y * u_y;
 
     /* directional velocity components */
-    double u[NSPEEDS];
+    flaot u[NSPEEDS];
     u[1] =   u_x;        /* east */
     u[2] =         u_y;  /* north */
     u[3] = - u_x;        /* west */
@@ -135,7 +135,7 @@ kernel void collision(global t_speed* cells,
     u[8] =   u_x - u_y;  /* south-east */
 
     /* equilibrium densities */
-    double d_equ[NSPEEDS];
+    flaot d_equ[NSPEEDS];
     /* zero velocity density: weight w0 */
     d_equ[0] = w0 * local_density
                * (1.0 - u_sq / (2.0 * c_sq));
@@ -178,8 +178,8 @@ kernel void collision(global t_speed* cells,
     cells[ys * nx + xe].speeds[8] = tmp_cells[ii * nx + jj].speeds[8] + omega * (d_equ[8] - tmp_cells[ii * nx + jj].speeds[8]);
 
 
-    double w1 = density * accel / 9.0;
-    double w2 = density * accel / 36.0;
+    flaot w1 = density * accel / 9.0;
+    flaot w2 = density * accel / 36.0;
 
     /* if the cell is not occupied and
     ** we don't send a negative density */

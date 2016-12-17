@@ -75,9 +75,9 @@ typedef struct
   int    ny;            /* no. of cells in y-direction */
   int    maxIters;      /* no. of iterations */
   int    reynolds_dim;  /* dimension for Reynolds number */
-  double density;       /* density per link */
-  double accel;         /* density redistribution */
-  double omega;         /* relaxation parameter */
+  float density;       /* density per link */
+  float accel;         /* density redistribution */
+  float omega;         /* relaxation parameter */
 } t_param;
 
 /* struct to hold OpenCL objects */
@@ -221,9 +221,9 @@ int main(int argc, char* argv[])
   checkError(err, "setting accelerate_flow arg 2", __LINE__);
   err = clSetKernelArg(ocl.accelerate_flow, 3, sizeof(cl_int), &params.ny);
   checkError(err, "setting accelerate_flow arg 3", __LINE__);
-  err = clSetKernelArg(ocl.accelerate_flow, 4, sizeof(cl_double), &params.density);
+  err = clSetKernelArg(ocl.accelerate_flow, 4, sizeof(cl_float), &params.density);
   checkError(err, "setting accelerate_flow arg 4", __LINE__);
-  err = clSetKernelArg(ocl.accelerate_flow, 5, sizeof(cl_double), &params.accel);
+  err = clSetKernelArg(ocl.accelerate_flow, 5, sizeof(cl_float), &params.accel);
   checkError(err, "setting accelerate_flow arg 5", __LINE__);
 
   err = clSetKernelArg(ocl.rebound, 0, sizeof(cl_mem), &ocl.cells);
@@ -247,11 +247,11 @@ int main(int argc, char* argv[])
   checkError(err, "setting collision arg 3", __LINE__);
   err = clSetKernelArg(ocl.collision, 4, sizeof(cl_int), &params.ny);
   checkError(err, "setting collision arg 4", __LINE__);
-  err = clSetKernelArg(ocl.collision, 5, sizeof(cl_double), &params.omega);
+  err = clSetKernelArg(ocl.collision, 5, sizeof(cl_float), &params.omega);
   checkError(err, "setting collision arg 5", __LINE__);
-  err = clSetKernelArg(ocl.collision, 6, sizeof(cl_double), &params.density);
+  err = clSetKernelArg(ocl.collision, 6, sizeof(cl_float), &params.density);
   checkError(err, "setting collision arg 6", __LINE__);
-  err = clSetKernelArg(ocl.collision, 7, sizeof(cl_double), &params.accel);
+  err = clSetKernelArg(ocl.collision, 7, sizeof(cl_float), &params.accel);
   checkError(err, "setting collision arg 7", __LINE__);
 
   err = clSetKernelArg(ocl.collision2, 0, sizeof(cl_mem), &ocl.tmp_cells);
@@ -264,11 +264,11 @@ int main(int argc, char* argv[])
   checkError(err, "setting collision arg 3", __LINE__);
   err = clSetKernelArg(ocl.collision2, 4, sizeof(cl_int), &params.ny);
   checkError(err, "setting collision arg 4", __LINE__);
-  err = clSetKernelArg(ocl.collision2, 5, sizeof(cl_double), &params.omega);
+  err = clSetKernelArg(ocl.collision2, 5, sizeof(cl_float), &params.omega);
   checkError(err, "setting collision arg 5", __LINE__);
-  err = clSetKernelArg(ocl.collision2, 6, sizeof(cl_double), &params.density);
+  err = clSetKernelArg(ocl.collision2, 6, sizeof(cl_float), &params.density);
   checkError(err, "setting collision arg 6", __LINE__);
-  err = clSetKernelArg(ocl.collision2, 7, sizeof(cl_double), &params.accel);
+  err = clSetKernelArg(ocl.collision2, 7, sizeof(cl_float), &params.accel);
   checkError(err, "setting collision arg 7", __LINE__);
 
   accelerate_flow(params, cells, obstacles, ocl);
