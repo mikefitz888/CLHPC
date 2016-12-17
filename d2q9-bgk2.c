@@ -196,7 +196,7 @@ int main(int argc, char* argv[])
     ocl.queue, ocl.obstacles, CL_TRUE, 0,
     sizeof(cl_int) * params.nx * params.ny, obstacles, 0, NULL, NULL);
   checkError(err, "writing obstacles data", __LINE__);
-
+  accelerate_flow(params, cells, obstacles, ocl);
   for (int tt = 0; tt < params.maxIters; tt++)
   {
     timestep(params, cells, tmp_cells, obstacles, ocl);
@@ -236,7 +236,7 @@ int main(int argc, char* argv[])
 
 int timestep(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obstacles, t_ocl ocl)
 {
-  accelerate_flow(params, cells, obstacles, ocl);
+  
   propagate(params, cells, tmp_cells, ocl);
 
   //rebound(params, cells, tmp_cells, obstacles, ocl);

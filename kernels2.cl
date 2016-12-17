@@ -169,6 +169,27 @@ kernel void collision(global t_speed* cells,
                                               + omega
                                               * (d_equ[kk] - tmp_cells[ii * nx + jj].speeds[kk]);
     }
+
+    double w1 = density * accel / 9.0;
+    double w2 = density * accel / 36.0;
+
+    /* if the cell is not occupied and
+    ** we don't send a negative density */
+    if (ii == ny-2
+        && (cells[ii * nx + jj].speeds[3] - w1) > 0.0
+        && (cells[ii * nx + jj].speeds[6] - w2) > 0.0
+        && (cells[ii * nx + jj].speeds[7] - w2) > 0.0)
+    {
+      /* increase 'east-side' densities */
+      cells[ii * nx + jj].speeds[1] += w1;
+      cells[ii * nx + jj].speeds[5] += w2;
+      cells[ii * nx + jj].speeds[8] += w2;
+      /* decrease 'west-side' densities */
+      cells[ii * nx + jj].speeds[3] -= w1;
+      cells[ii * nx + jj].speeds[6] -= w2;
+      cells[ii * nx + jj].speeds[7] -= w2;
+    }
+
   }else{
     cells[ii * nx + jj].speeds[1] = tmp_cells[ii * nx + jj].speeds[3];
     cells[ii * nx + jj].speeds[2] = tmp_cells[ii * nx + jj].speeds[4];
