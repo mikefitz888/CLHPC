@@ -204,7 +204,7 @@ int main(int argc, char* argv[])
   for (int tt = 0; tt < params.maxIters; tt++)
   {
     timestep(params, cells, tmp_cells, obstacles, ocl);
-    av_vels[tt] = av_velocity(params, cells, obstacles, ocl);
+    //av_vels[tt] = av_velocity(params, cells, obstacles, ocl);
 #ifdef DEBUG
     printf("==timestep: %d==\n", tt);
     printf("av velocity: %.12E\n", av_vels[tt]);
@@ -225,6 +225,8 @@ int main(int argc, char* argv[])
     ocl.queue, ocl.cells, CL_TRUE, 0,
     sizeof(t_speed) * params.nx * params.ny * 9, cells, 0, NULL, NULL);
   checkError(err, "reading tmp_cells data", __LINE__);
+
+  printf("Example = %f\n", cells[L(80, 80, 5, params.nx)]);
 
   /* write final values and free memory */
   printf("==done==\n");
