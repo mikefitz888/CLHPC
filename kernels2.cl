@@ -136,19 +136,19 @@ kernel void collision(global t_speed* cells,
     local_density *= w0 * omega;
 
     //local_density is no longer local density
-    cells[y * params->nx + x].speeds[0] = speeds[0] * (1 - params->omega) + (local_density + local_density * (-uxsq15 - uysq15));
+    cells[y * nx + x].speeds[0] = speeds[0] * (1 - omega) + (local_density + local_density * (-uxsq15 - uysq15));
 
     local_density *= 0.25;
-    cells[y * params->nx + x_e].speeds[1] = speeds[1] * (1 - params->omega) + (local_density + local_density * ( ux3 + uxsq3 - uysq15));
-    cells[y_n * params->nx + x].speeds[2] = speeds[2] * (1 - params->omega) + (local_density + local_density * ( uy3 + uysq3 - uxsq15));
-    cells[y * params->nx + x_w].speeds[3] = speeds[3] * (1 - params->omega) + (local_density + local_density * (-ux3 + uxsq3 - uysq15));
-    cells[y_s * params->nx + x].speeds[4] = speeds[4] * (1 - params->omega) + (local_density + local_density * (-uy3 + uysq3 - uxsq15));
+    cells[y * nx + xe].speeds[1] = speeds[1] * (1 - omega) + (local_density + local_density * ( ux3 + uxsq3 - uysq15));
+    cells[yn * nx + x].speeds[2] = speeds[2] * (1 - omega) + (local_density + local_density * ( uy3 + uysq3 - uxsq15));
+    cells[y * nx + xw].speeds[3] = speeds[3] * (1 - omega) + (local_density + local_density * (-ux3 + uxsq3 - uysq15));
+    cells[ys * nx + x].speeds[4] = speeds[4] * (1 - omega) + (local_density + local_density * (-uy3 + uysq3 - uxsq15));
 
     local_density *= 0.25;
-    cells[y_n * params->nx + x_e].speeds[5] = speeds[5] * (1 - params->omega) + (local_density + local_density * ( ux3 + uy3 + trailing_diag -u_sq));
-    cells[y_n * params->nx + x_w].speeds[6] = speeds[6] * (1 - params->omega) + (local_density + local_density * (-ux3 + uy3 + leading_diag  -u_sq));
-    cells[y_s * params->nx + x_w].speeds[7] = speeds[7] * (1 - params->omega) + (local_density + local_density * (-ux3 - uy3 + trailing_diag -u_sq));
-    cells[y_s * params->nx + x_e].speeds[8] = speeds[8] * (1 - params->omega) + (local_density + local_density * ( ux3 - uy3 + leading_diag  -u_sq));
+    cells[yn * nx + xe].speeds[5] = speeds[5] * (1 - omega) + (local_density + local_density * ( ux3 + uy3 + trailing_diag -u_sq));
+    cells[yn * nx + xw].speeds[6] = speeds[6] * (1 - omega) + (local_density + local_density * (-ux3 + uy3 + leading_diag  -u_sq));
+    cells[ys * nx + xw].speeds[7] = speeds[7] * (1 - omega) + (local_density + local_density * (-ux3 - uy3 + trailing_diag -u_sq));
+    cells[ys * nx + xe].speeds[8] = speeds[8] * (1 - omega) + (local_density + local_density * ( ux3 - uy3 + leading_diag  -u_sq));
     
 
 
