@@ -142,8 +142,8 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   floatv ypos = u3_o + u4_o + u5_o;
 
   floatv density = u0_o + u1_o + u2_o + yneg + ypos;
-  xpos = (xpos - xneg)/density;
-  ypos = (ypos - yneg)/density;
+  xpos = native_divide((xpos - xneg),density);
+  ypos = native_divide((ypos - yneg),density);
   
   floatv x_sq = xpos*xpos;
   floatv y_sq = ypos*ypos;
@@ -230,8 +230,8 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
    /* Begin: Accelerate */
   float wt1, wt2;
   if(y == params->ny - 2){
-    wt1 = params->accel * params->density / 9.0f;
-    wt2 = params->accel * params->density / 36.0f;
+    wt1 = native_divide(params->accel * params->density , 9.0f);
+    wt2 = native_divide(params->accel * params->density , 36.0f);
     if(o_mask2 != 0.0f && u2 > wt1 && u5 > wt2 && u6 > wt2){
       
       u1 += wt1;
