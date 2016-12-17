@@ -133,6 +133,8 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   double u_x = native_divide((xpos - xneg),local_density);
   double u_y = native_divide((ypos - yneg),local_density);
 
+   double u_sq = u_x * u_x + u_y * u_y;
+
   double u[NSPEEDS];
   u[1] =   u_x;        /* east */
   u[2] =         u_y;  /* north */
