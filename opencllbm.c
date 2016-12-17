@@ -409,7 +409,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   int zero = 0;
   int one = 1;
 
-  err = clSetKernelArg(ocl.reduce, 0, sizeof(cl_int), work_group_size);
+  err = clSetKernelArg(ocl.reduce, 0, sizeof(size_t), work_group_size);
   checkError(err, "setting reduce arg 0", __LINE__);
   err = clSetKernelArg(ocl.reduce, 1, sizeof(cl_mem), &ocl.partial_sums);
   checkError(err, "setting reduce arg 1", __LINE__);
