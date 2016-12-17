@@ -11,6 +11,20 @@
 //#define VEC_LOAD(ADDR) (*(ADDR))//vload8(0, (ADDR))
 //#define VEC_STORE(ADDR, DATA) *(ADDR)=DATA//vstore8((DATA), 0, ADDR)
 
+typedef struct
+{
+  int    nx;            /* no. of cells in x-direction */
+  int    ny;            /* no. of cells in y-direction */
+  int    maxIters;      /* no. of iterations */
+  int    reynolds_dim;  /* dimension for Reynolds number */
+  float density;       /* density per link */
+  float accel;         /* density redistribution */
+  float omega;         /* relaxation parameter */
+  int nx_pad;
+  int ny_pad;
+  int available_cells;
+} t_param;
+
 //Utility constants
 constant floatv Vo25 = (floatv)(0.25f);
 constant floatv V1o5 = (floatv)(1.5f);
@@ -84,7 +98,7 @@ kernel void swapGhostCellsTB(global float* grid, int temp){
 }
 
 
-kernel void lbm(global float* input_grid, global float* output_grid, global float* obstacles, global float* partial_sums, int it)
+kernel void lbm(global float* input_grid, global float* output_grid, global float* obstacles, global float* partial_sums, int it, global t_param* params)
 {
   int x = get_global_id(0);
   int y = get_global_id(1);

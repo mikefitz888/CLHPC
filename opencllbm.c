@@ -128,6 +128,7 @@ typedef struct
   cl_mem cells;
   cl_mem tmp_cells;
   cl_mem obstacles;
+  cl_mem params;
   cl_mem partial_sums;
 } t_ocl;
 
@@ -238,6 +239,8 @@ int main(int argc, char* argv[])
   checkError(err, "writing cells data", __LINE__);
   err = clEnqueueWriteBuffer(ocl.queue, ocl.obstacles, CL_TRUE, 0, sizeof(cl_float) * params->nx * params->ny, obstacles, 0, NULL, NULL);
   checkError(err, "writing obstacles data", __LINE__);
+  err = clEnqueueWriteBuffer(ocl.queue, ocl.params, CL_TRUE, 0, sizeof(t_param), params, 0, NULL, NULL);
+  checkError(err, "writing param data", __LINE__);
  
   //Lattice-Bolzmann Iterations (this function contains the loop, no need to loop this call)
   timestep(params, cells+offset, tmp_cells+offset, obstacles, av_vels, 1.0/available_cells, ocl);
@@ -776,6 +779,11 @@ int initialise(const char* paramfile, const char* obstaclefile,
     ocl->context, CL_MEM_READ_WRITE,
     sizeof(cl_int) * params->nx * params->ny, NULL, &err);
   checkError(err, "creating obstacles buffer", __LINE__);
+
+  ocl->params = clCreateBuffer(
+    ocl->context, CL_MEM_READ_WRITE,
+    sizeof(t_param), NULL, &err);
+  checkError(err, "creating param buffer", __LINE__);
 
   ocl->partial_sums = clCreateBuffer(ocl->context, CL_MEM_WRITE_ONLY, sizeof(cl_float) * (params->nx/VECTOR_SIZE) * params->ny, NULL, &err);
   checkError(err, "creating partial_sums buffer", __LINE__);
