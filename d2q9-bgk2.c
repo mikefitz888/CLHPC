@@ -346,7 +346,7 @@ int collision(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obs
   checkError(err, "setting collision arg 3", __LINE__);
   err = clSetKernelArg(ocl.collision, 4, sizeof(cl_int), &params.ny);
   checkError(err, "setting collision arg 4", __LINE__);
-  err = clSetKernelArg(ocl.collision, 5, sizeof(cl_float), &params.omega);
+  err = clSetKernelArg(ocl.collision, 5, sizeof(cl_double), &params.omega);
   checkError(err, "setting collision arg 5", __LINE__);
 
   // Enqueue kernel
