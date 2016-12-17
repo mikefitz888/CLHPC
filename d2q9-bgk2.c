@@ -236,10 +236,7 @@ int main(int argc, char* argv[])
   err = clSetKernelArg(ocl.rebound, 4, sizeof(cl_int), &params.ny);
   checkError(err, "setting rebound arg 4", __LINE__);
 
-  err = clSetKernelArg(ocl.collision, 0, sizeof(cl_mem), &ocl.cells);
-  checkError(err, "setting collision arg 0", __LINE__);
-  err = clSetKernelArg(ocl.collision, 1, sizeof(cl_mem), &ocl.tmp_cells);
-  checkError(err, "setting collision arg 1", __LINE__);
+  
   err = clSetKernelArg(ocl.collision, 2, sizeof(cl_mem), &ocl.obstacles);
   checkError(err, "setting collision arg 2", __LINE__);
   err = clSetKernelArg(ocl.collision, 3, sizeof(cl_int), &params.nx);
@@ -257,6 +254,10 @@ int main(int argc, char* argv[])
   propagate(params, cells, tmp_cells, ocl);
   for (int tt = 0; tt < params.maxIters; tt++)
   {
+    err = clSetKernelArg(ocl.collision, (tt)%2, sizeof(cl_mem), &ocl.cells);
+    checkError(err, "setting collision arg 0", __LINE__);
+    err = clSetKernelArg(ocl.collision, (tt+1)%2, sizeof(cl_mem), &ocl.tmp_cells);
+    checkError(err, "setting collision arg 1", __LINE__);
     timestep(params, cells, tmp_cells, obstacles, ocl);
     av_vels[tt] = av_velocity(params, cells, obstacles, ocl);
 #ifdef DEBUG
