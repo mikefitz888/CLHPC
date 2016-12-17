@@ -107,31 +107,69 @@ kernel void collision(global t_speed* cells,
     float local_density = xpos + xneg + speeds[0] + speeds[2] + speeds[4];
     float inverse_local_density = 1.0f/local_density;
 
-    float u_x = (xpos - xneg)*inverse_local_density;
+    float ux = (xpos - xneg)*inverse_local_density;
     /* compute y velocity component */
-    float u_y = (ypos - yneg)*inverse_local_density;
+    float uy = (ypos - yneg)*inverse_local_density;
 
     /* velocity squared */
-    float u_sq = u_x * u_x + u_y * u_y;
+    //float u_sq = ux * ux + uy * uy;
+
+
+    float uxsq = ux*ux;
+    float uysq = uy*uy;
+    //tot_u += sqrt(uxsq + uysq);
+
+    float ux3 = 3.0 * ux;
+    float uy3 = 3.0 * uy;
+
+    float uxsq3 = 3.0 * uxsq;
+    float uxsq15= 1.5 * uxsq;
+
+    float uysq3 = 3.0 * uysq;
+    float uysq15= 1.5 * uysq;
+
+    float u_sq = uxsq15 + uysq15;
+
+    float leading_diag  = 4.5 * (ux-uy)*(ux-uy); // = 4.5*(x-y)^2 == 4.5*(y-x)^2
+    float trailing_diag = 4.5 * (ux+uy)*(ux+uy);
+
+    local_density *= w0 * omega;
+
+    //local_density is no longer local density
+    cells[y * params->nx + x].speeds[0] = speeds[0] * (1 - params->omega) + (local_density + local_density * (-uxsq15 - uysq15));
+
+    local_density *= 0.25;
+    cells[y * params->nx + x_e].speeds[1] = speeds[1] * (1 - params->omega) + (local_density + local_density * ( ux3 + uxsq3 - uysq15));
+    cells[y_n * params->nx + x].speeds[2] = speeds[2] * (1 - params->omega) + (local_density + local_density * ( uy3 + uysq3 - uxsq15));
+    cells[y * params->nx + x_w].speeds[3] = speeds[3] * (1 - params->omega) + (local_density + local_density * (-ux3 + uxsq3 - uysq15));
+    cells[y_s * params->nx + x].speeds[4] = speeds[4] * (1 - params->omega) + (local_density + local_density * (-uy3 + uysq3 - uxsq15));
+
+    local_density *= 0.25;
+    cells[y_n * params->nx + x_e].speeds[5] = speeds[5] * (1 - params->omega) + (local_density + local_density * ( ux3 + uy3 + trailing_diag -u_sq));
+    cells[y_n * params->nx + x_w].speeds[6] = speeds[6] * (1 - params->omega) + (local_density + local_density * (-ux3 + uy3 + leading_diag  -u_sq));
+    cells[y_s * params->nx + x_w].speeds[7] = speeds[7] * (1 - params->omega) + (local_density + local_density * (-ux3 - uy3 + trailing_diag -u_sq));
+    cells[y_s * params->nx + x_e].speeds[8] = speeds[8] * (1 - params->omega) + (local_density + local_density * ( ux3 - uy3 + leading_diag  -u_sq));
+    
+
 
     /* directional velocity components */
-    float u[NSPEEDS];
-    u[1] =   u_x;        /* east */
-    u[2] =         u_y;  /* north */
-    u[3] = - u_x;        /* west */
-    u[4] =       - u_y;  /* south */
-    u[5] =   u_x + u_y;  /* north-east */
-    u[6] = - u_x + u_y;  /* north-west */
-    u[7] = - u_x - u_y;  /* south-west */
-    u[8] =   u_x - u_y;  /* south-east */
+    //float u[NSPEEDS];
+    //u[1] =   u_x;        /* east */
+    //u[2] =         u_y;  /* north */
+    //u[3] = - u_x;        /* west */
+    //u[4] =       - u_y;  /* south */
+    //u[5] =   u_x + u_y;  /* north-east */
+    //u[6] = - u_x + u_y;  /* north-west */
+    //u[7] = - u_x - u_y;  /* south-west */
+    //u[8] =   u_x - u_y;  /* south-east */
 
     /* equilibrium densities */
-    float d_equ[NSPEEDS];
+    //float d_equ[NSPEEDS];
     /* zero velocity density: weight w0 */
-    d_equ[0] = w0 * local_density
-               * (1.0 - u_sq / (2.0 * c_sq));
+    //d_equ[0] = w0 * local_density
+    //           * (1.0 - u_sq / (2.0 * c_sq));
     /* axis speeds: weight w1 */
-    d_equ[1] = w1 * local_density * (1.0 + u[1] / c_sq
+    /*d_equ[1] = w1 * local_density * (1.0 + u[1] / c_sq
                                      + (u[1] * u[1]) / (2.0 * c_sq * c_sq)
                                      - u_sq / (2.0 * c_sq));
     d_equ[2] = w1 * local_density * (1.0 + u[2] / c_sq
@@ -142,9 +180,9 @@ kernel void collision(global t_speed* cells,
                                      - u_sq / (2.0 * c_sq));
     d_equ[4] = w1 * local_density * (1.0 + u[4] / c_sq
                                      + (u[4] * u[4]) / (2.0 * c_sq * c_sq)
-                                     - u_sq / (2.0 * c_sq));
+                                     - u_sq / (2.0 * c_sq));*/
     /* diagonal speeds: weight w2 */
-    d_equ[5] = w2 * local_density * (1.0 + u[5] / c_sq
+    /*d_equ[5] = w2 * local_density * (1.0 + u[5] / c_sq
                                      + (u[5] * u[5]) / (2.0 * c_sq * c_sq)
                                      - u_sq / (2.0 * c_sq));
     d_equ[6] = w2 * local_density * (1.0 + u[6] / c_sq
@@ -155,7 +193,7 @@ kernel void collision(global t_speed* cells,
                                      - u_sq / (2.0 * c_sq));
     d_equ[8] = w2 * local_density * (1.0 + u[8] / c_sq
                                      + (u[8] * u[8]) / (2.0 * c_sq * c_sq)
-                                     - u_sq / (2.0 * c_sq));
+                                     - u_sq / (2.0 * c_sq));*/
 
     /* relaxation step */
     cells[ii * nx + jj].speeds[0] = tmp_cells[ii * nx + jj].speeds[0] + omega * (d_equ[0] - tmp_cells[ii * nx + jj].speeds[0]);
