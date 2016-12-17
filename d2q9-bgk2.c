@@ -316,6 +316,7 @@ int rebound(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obsta
 {
   /* loop over the cells in the grid */
   // Set kernel arguments
+  cl_int err;
   err = clSetKernelArg(ocl.rebound, 0, sizeof(cl_mem), &ocl.cells);
   checkError(err, "setting rebound arg 0", __LINE__);
   err = clSetKernelArg(ocl.rebound, 1, sizeof(cl_mem), &ocl.tmp_cells);
@@ -342,7 +343,7 @@ int rebound(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obsta
 
 int collision(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obstacles, t_ocl ocl)
 {
-  
+  cl_int err;
   err = clSetKernelArg(ocl.collision, 0, sizeof(cl_mem), &ocl.cells);
   checkError(err, "setting collision arg 0", __LINE__);
   err = clSetKernelArg(ocl.collision, 1, sizeof(cl_mem), &ocl.tmp_cells);
