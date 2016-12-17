@@ -222,7 +222,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   if(y == NY - 2){
     wt1 = params->accel * params->density / 9.0f;
     wt2 = params->accel * params->density / 36.0f;
-    if(o_mask2 != 0 && u2 > wt1 && u5 > wt2 && u6 > wt2){
+    if(o_mask2 != 0.0f && u2 > wt1 && u5 > wt2 && u6 > wt2){
       
       u1 += wt1;
       u3 += wt2;
@@ -237,10 +237,6 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
 
   /* Begin: Rebound */
   if(o_mask2 == 0.0f){
-    if(x != 0 && x != 127 && y != 0 && y != 127){
-      printf("Wow, stray obstacle!\n");
-    }
-    printf("Obstacle at (%d, %d)\n", x, y);
     u0 = u0_o;
     u1 = u2_o;
     u2 = u1_o;

@@ -297,6 +297,8 @@ int accelerate_flow(const t_param* params, t_speed* cells, t_obstacle* obstacles
   /* modify the 2nd row of the grid */
   int ii = params->ny - 2;
 
+  int count = 0;
+
   for (int jj = 0; jj < params->nx; jj++)
   {
     /* if the cell is not occupied and
@@ -314,10 +316,13 @@ int accelerate_flow(const t_param* params, t_speed* cells, t_obstacle* obstacles
       cells[L(jj, ii, 1, params->nx)] += w1;
       cells[L(jj, ii, 3, params->nx)] += w2;
       cells[L(jj, ii, 8, params->nx)] += w2;
+      count++;
       
     }
   }
-
+  if(count != 126){
+    printf("Count error in accelerate_flow!!!!!\n");
+  }
   return EXIT_SUCCESS;
 }
 
@@ -331,15 +336,15 @@ int propagate(const t_param* params, t_speed* cells, t_speed* tmp_cells)
     for (int x = 0; x < params->nx; x++)
     {
       int w = ((x == 0) ? params->nx-1 : x-1);
-      tmp_cells[L(x  , y               , 0, params->nx)] = cells[L(x  , y  , 0, params->nx)];
+      tmp_cells[L(x               , y               , 0, params->nx)] = cells[L(x  , y  , 0, params->nx)];
       tmp_cells[L((x+1)%params->nx, y               , 1, params->nx)] = cells[L(x  , y  , 1, params->nx)];
-      tmp_cells[L(w, y               , 2, params->nx)] = cells[L(x  , y  , 2, params->nx)];
+      tmp_cells[L(w               , y               , 2, params->nx)] = cells[L(x  , y  , 2, params->nx)];
       tmp_cells[L((x+1)%params->nx, (y+1)%params->ny, 3, params->nx)] = cells[L(x  , y  , 3, params->nx)];
-      tmp_cells[L(x  , (y+1)%params->ny, 4, params->nx)] = cells[L(x  , y  , 4, params->nx)];
-      tmp_cells[L(w, (y+1)%params->ny, 5, params->nx)] = cells[L(x  , y  , 5, params->nx)];
-      tmp_cells[L(w, (s), 6, params->nx)] = cells[L(x  , y  , 6, params->nx)];
-      tmp_cells[L(x  , (s), 7, params->nx)] = cells[L(x  , y  , 7, params->nx)];
-      tmp_cells[L((x+1)%params->nx, (s), 8, params->nx)] = cells[L(x  , y  , 8, params->nx)];
+      tmp_cells[L(x               , (y+1)%params->ny, 4, params->nx)] = cells[L(x  , y  , 4, params->nx)];
+      tmp_cells[L(w               , (y+1)%params->ny, 5, params->nx)] = cells[L(x  , y  , 5, params->nx)];
+      tmp_cells[L(w               , (s)             , 6, params->nx)] = cells[L(x  , y  , 6, params->nx)];
+      tmp_cells[L(x               , (s)             , 7, params->nx)] = cells[L(x  , y  , 7, params->nx)];
+      tmp_cells[L((x+1)%params->nx, (s)             , 8, params->nx)] = cells[L(x  , y  , 8, params->nx)];
     }
   }
   return EXIT_SUCCESS;
@@ -348,6 +353,7 @@ int propagate(const t_param* params, t_speed* cells, t_speed* tmp_cells)
 int rebound(const t_param* params, t_speed* tmp_cells, t_obstacle* obstacles)
 {
   /* loop over the cells in the grid */
+  printf("THis function should not be called!!!");
   for (int y = 0; y < params->ny; y++)
   {
     for (int x = 0; x < params->nx; x++)
