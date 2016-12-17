@@ -15,7 +15,7 @@ constant float w2 = 1.0 / 36.0; /* weighting factor */
 kernel void accelerate_flow(global t_speed* cells,
                             global int* obstacles,
                             int nx, int ny,
-                            double density, double accel)
+                            float density, float accel)
 {
   /* compute weighting factors */
   double w1 = density * accel / 9.0;
@@ -86,7 +86,7 @@ kernel void rebound(global t_speed* cells,
 kernel void collision(global t_speed* cells,
                       global t_speed* tmp_cells,
                       global int* obstacles,
-                      int nx, int ny, double omega, double density, double accel){
+                      int nx, int ny, float omega, float density, float accel){
   int jj = get_global_id(0);
   int ii = get_global_id(1);
   int yn = (ii + 1) % ny;
