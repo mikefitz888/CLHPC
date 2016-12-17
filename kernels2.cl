@@ -77,7 +77,7 @@ kernel void propagate(global t_speed* cells,
 kernel void rebound(global t_speed* cells,
                     global t_speed* tmp_cells,
                     global int* obstacles,
-                    int nx, int ny){
+                    int nx, int ny, float omega){
   int jj = get_global_id(0);
   int ii = get_global_id(1);
 
