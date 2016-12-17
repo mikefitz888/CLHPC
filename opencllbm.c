@@ -439,7 +439,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     err = clEnqueueReadBuffer(ocl.queue, ocl.partial_sums, CL_TRUE, 0, sizeof(cl_float) * (params->ny * params->nx), params->partial_sums, 0, NULL, NULL);
     checkError(err, "reading partial_sums data", __LINE__);
 
-    av_vels[2*iteration] = 0.0f;
+    av_vels[2*iteration+1] = 0.0f;
     for(int y = 0; y < params->ny; y++){
       for(int x = 0; x < params->nx; x++){
         av_vels[2*iteration+1] += params->partial_sums[y*params->ny+x];

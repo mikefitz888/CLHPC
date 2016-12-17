@@ -149,7 +149,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   floatv y_sq = ypos*ypos;
 
   floatv sum = 0.0f;
-  if(omask2 != 0.0f){
+  if(o_mask2 != 0.0f){
     sum = sqrt(x_sq + y_sq);
   }
   partial_sums[y*params->nx + x] = sum;
