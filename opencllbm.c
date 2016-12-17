@@ -842,8 +842,8 @@ int initialise(const char* paramfile, const char* obstaclefile,
   ocl->partial_sums = clCreateBuffer(ocl->context, CL_MEM_WRITE_ONLY, sizeof(cl_float) * (params->nx) * params->ny, NULL, &err);
   checkError(err, "creating partial_sums buffer", __LINE__);
 
-  ocl->partial_sums2nd = clCreateBuffer(ocl->context, CL_MEM_WRITE_ONLY, sizeof(cl_float) * (params->nx) * params->ny, NULL, &err);
-  checkError(err, "creating partial_sums buffer", __LINE__);
+  //ocl->partial_sums2nd = clCreateBuffer(ocl->context, CL_MEM_WRITE_ONLY, sizeof(cl_float) * (params->nx) * params->ny, NULL, &err);
+  //checkError(err, "creating partial_sums buffer", __LINE__);
 
   return EXIT_SUCCESS;
 }
