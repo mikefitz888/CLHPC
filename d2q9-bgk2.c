@@ -246,7 +246,7 @@ int timestep(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obst
 
   rebound(params, cells, tmp_cells, obstacles, ocl);
 
-  //collision(params, cells, tmp_cells, obstacles, ocl);
+  collision(params, cells, tmp_cells, obstacles, ocl);
 
 
   return EXIT_SUCCESS;
