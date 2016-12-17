@@ -136,7 +136,7 @@ kernel void collision(global t_speed* cells,
     local_density *= w0 * omega;
 
     //local_density is no longer local density
-    cells[y * nx + x].speeds[0] = speeds[0] * (1 - omega) + (local_density + local_density * (-uxsq15 - uysq15));
+    cells[ii * nx + jj].speeds[0] = speeds[0] * (1 - omega) + (local_density + local_density * (-uxsq15 - uysq15));
 
     local_density *= 0.25;
     cells[ii * nx + xe].speeds[1] = speeds[1] * (1 - omega) + (local_density + local_density * ( ux3 + uxsq3 - uysq15));
