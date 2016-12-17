@@ -97,7 +97,7 @@ kernel void swapGhostCellsTB(global float* grid, int temp){
   }
 }
 
-kernel void reduce(int w){
+kernel void reduce(int w, global float* partial_sums){
   int x = get_global_id(0);
   int y = get_global_id(1);
 

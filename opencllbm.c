@@ -411,6 +411,8 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
 
   err = clSetKernelArg(ocl.reduce, 0, sizeof(cl_int), work_group_size);
   checkError(err, "setting reduce arg 0", __LINE__);
+  err = clSetKernelArg(ocl.reduce, 1, sizeof(cl_mem), &ocl.partial_sums);
+  checkError(err, "setting reduce arg 1", __LINE__);
 
   for(int iteration = 0; iteration < params->maxIters/2; iteration++){
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.reduce, 2, NULL, global, work_group_size, 0, NULL, NULL);
