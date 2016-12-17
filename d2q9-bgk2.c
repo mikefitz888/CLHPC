@@ -390,24 +390,24 @@ double av_velocity(const t_param params, t_speed* cells, int* obstacles, t_ocl o
 
         for (int kk = 0; kk < NSPEEDS; kk++)
         {
-          local_density += cells[L(jj, ii, kk, params->nx)];
+          local_density += cells[L(jj, ii, kk, params.nx)];
         }
 
         /* x-component of velocity */
-        double u_x = (cells[L(jj, ii, 1, params->nx)]
-               + cells[L(jj, ii, 5, params->nx)]
-               + cells[L(jj, ii, 8, params->nx)]
-               - (cells[L(jj, ii, 3, params->nx)]
-                  + cells[L(jj, ii, 6, params->nx)]
-                  + cells[L(jj, ii, 7, params->nx)]))
+        double u_x = (cells[L(jj, ii, 1, params.nx)]
+               + cells[L(jj, ii, 5, params.nx)]
+               + cells[L(jj, ii, 8, params.nx)]
+               - (cells[L(jj, ii, 3, params.nx)]
+                  + cells[L(jj, ii, 6, params.nx)]
+                  + cells[L(jj, ii, 7, params.nx)]))
               / local_density;
         /* compute y velocity component */
-        double u_y = (cells[L(jj, ii, 2, params->nx)]
-               + cells[L(jj, ii, 5, params->nx)]
-               + cells[L(jj, ii, 6, params->nx)]
-               - (cells[L(jj, ii, 4, params->nx)]
-                  + cells[L(jj, ii, 7, params->nx)]
-                  + cells[L(jj, ii, 8, params->nx)]))
+        double u_y = (cells[L(jj, ii, 2, params.nx)]
+               + cells[L(jj, ii, 5, params.nx)]
+               + cells[L(jj, ii, 6, params.nx)]
+               - (cells[L(jj, ii, 4, params.nx)]
+                  + cells[L(jj, ii, 7, params.nx)]
+                  + cells[L(jj, ii, 8, params.nx)]))
               / local_density;
         /* accumulate the norm of x- and y- velocity components */
         tot_u += sqrt((u_x * u_x) + (u_y * u_y));
@@ -701,7 +701,7 @@ double total_density(const t_param params, t_speed* cells)
     {
       for (int kk = 0; kk < NSPEEDS; kk++)
       {
-        total += cells[L(jj, ii, kk, params->nx)];
+        total += cells[L(jj, ii, kk, params.nx)];
       }
     }
   }
@@ -743,24 +743,24 @@ int write_values(const t_param params, t_speed* cells, int* obstacles, double* a
 
         for (int kk = 0; kk < NSPEEDS; kk++)
         {
-          local_density += cells[L(jj, ii, kk, params->nx)];
+          local_density += cells[L(jj, ii, kk, params.nx)];
         }
 
         /* compute x velocity component */
-        u_x = (cells[L(jj, ii, 1, params->nx)]
-               + cells[L(jj, ii, 5, params->nx)]
-               + cells[L(jj, ii, 8, params->nx)]
-               - (cells[L(jj, ii, 3, params->nx)]
-                  + cells[L(jj, ii, 6, params->nx)]
-                  + cells[L(jj, ii, 7, params->nx)]))
+        u_x = (cells[L(jj, ii, 1, params.nx)]
+               + cells[L(jj, ii, 5, params.nx)]
+               + cells[L(jj, ii, 8, params.nx)]
+               - (cells[L(jj, ii, 3, params.nx)]
+                  + cells[L(jj, ii, 6, params.nx)]
+                  + cells[L(jj, ii, 7, params.nx)]))
               / local_density;
         /* compute y velocity component */
-        u_y = (cells[L(jj, ii, 2, params->nx)]
-               + cells[L(jj, ii, 5, params->nx)]
-               + cells[L(jj, ii, 6, params->nx)]
-               - (cells[L(jj, ii, 4, params->nx)]
-                  + cells[L(jj, ii, 7, params->nx)]
-                  + cells[L(jj, ii, 8, params->nx)]))
+        u_y = (cells[L(jj, ii, 2, params.nx)]
+               + cells[L(jj, ii, 5, params.nx)]
+               + cells[L(jj, ii, 6, params.nx)]
+               - (cells[L(jj, ii, 4, params.nx)]
+                  + cells[L(jj, ii, 7, params.nx)]
+                  + cells[L(jj, ii, 8, params.nx)]))
               / local_density;
         /* compute norm of velocity */
         u = sqrt((u_x * u_x) + (u_y * u_y));
