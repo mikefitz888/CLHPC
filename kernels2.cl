@@ -1,6 +1,7 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
 #define NSPEEDS         9
+#define L(X, Y, V, WIDTH) ((X) + (V)*(WIDTH) + (Y)*(WIDTH)*(9))
 
 /*typedef struct
 {
