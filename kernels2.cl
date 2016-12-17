@@ -86,7 +86,7 @@ kernel void rebound(global t_speed* cells,
 kernel void collision(global t_speed* cells,
                       global t_speed* tmp_cells,
                       global int* obstacles,
-                      int nx, int ny, double omega){
+                      int nx, int ny, double omega, double density, double accel){
   int jj = get_global_id(0);
   int ii = get_global_id(1);
   if (!obstacles[ii * nx + jj])
