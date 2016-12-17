@@ -91,34 +91,25 @@ kernel void collision(global t_speed* cells,
   int ii = get_global_id(1);
   int yn = (ii + 1) % ny;
   int xe = (jj + 1) % nx;
-  int ys = (ii == 0) ? (ii + ny - 1) : (ii - 1);
-  int xw = (jj == 0) ? (jj + nx - 1) : (jj - 1);
+  int ys = (ii == 0) ? (ny - 1) : (ii - 1);
+  int xw = (jj == 0) ? (nx - 1) : (jj - 1);
   if (!obstacles[ii * nx + jj])
   {
-    /* compute local density total */
-    float local_density = 0.0;
-
-    for (int kk = 0; kk < NSPEEDS; kk++)
-    {
-      local_density += tmp_cells[ii * nx + jj].speeds[kk];
-    }
 
     /* compute x velocity component */
-    float u_x = (tmp_cells[ii * nx + jj].speeds[1]
-                  + tmp_cells[ii * nx + jj].speeds[5]
-                  + tmp_cells[ii * nx + jj].speeds[8]
-                  - (tmp_cells[ii * nx + jj].speeds[3]
-                     + tmp_cells[ii * nx + jj].speeds[6]
-                     + tmp_cells[ii * nx + jj].speeds[7]))
-                 / local_density;
+    float* speeds = tmp_cells[ii * nx + jj].speeds;
+
+    float xneg = speeds[3] + speeds[6] + speeds[7];
+    float yneg = speeds[4] + speeds[7] + speeds[8]; 
+    float xpos = speeds[1] + speeds[5] + speeds[8]; //048
+    float ypos = speeds[2] + speeds[5] + speeds[6]; //026
+
+    float local_density = xpos + xneg + speeds[0] + speeds[2] + speeds[4];
+    float inverse_local_density = 1.0f/local_density;
+
+    float u_x = (xpos - xneg)*inverse_local_density;
     /* compute y velocity component */
-    float u_y = (tmp_cells[ii * nx + jj].speeds[2]
-                  + tmp_cells[ii * nx + jj].speeds[5]
-                  + tmp_cells[ii * nx + jj].speeds[6]
-                  - (tmp_cells[ii * nx + jj].speeds[4]
-                     + tmp_cells[ii * nx + jj].speeds[7]
-                     + tmp_cells[ii * nx + jj].speeds[8]))
-                 / local_density;
+    float u_y = (ypos - yneg)*inverse_local_density;
 
     /* velocity squared */
     float u_sq = u_x * u_x + u_y * u_y;
