@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
     sizeof(cl_int) * params.nx * params.ny, obstacles, 0, NULL, NULL);
   checkError(err, "writing obstacles data", __LINE__);
 
-  for (int tt = 0; tt < 10+0*params.maxIters; tt++)
+  for (int tt = 0; tt < params.maxIters; tt++)
   {
     timestep(params, cells, tmp_cells, obstacles, ocl);
     //av_vels[tt] = av_velocity(params, cells, obstacles, ocl);
@@ -246,7 +246,7 @@ int timestep(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obst
 
   rebound(params, cells, tmp_cells, obstacles, ocl);
 
-  collision(params, cells, tmp_cells, obstacles, ocl);
+  //collision(params, cells, tmp_cells, obstacles, ocl);
 
 
   return EXIT_SUCCESS;
