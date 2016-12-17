@@ -192,13 +192,13 @@ int main(int argc, char* argv[])
   // Write cells to OpenCL buffer
   err = clEnqueueWriteBuffer(
     ocl.queue, ocl.cells, CL_TRUE, 0,
-    sizeof(t_speed) * params.nx * params.ny, cells, 0, NULL, NULL);
+    sizeof(t_speed) * params.nx * params.ny * 9, cells, 0, NULL, NULL);
   checkError(err, "writing cells data", __LINE__);
 
   // Write obstacles to OpenCL buffer
   err = clEnqueueWriteBuffer(
     ocl.queue, ocl.obstacles, CL_TRUE, 0,
-    sizeof(cl_int) * params.nx * params.ny, obstacles, 0, NULL, NULL);
+    sizeof(cl_int) * params.nx * params.ny * 9, obstacles, 0, NULL, NULL);
   checkError(err, "writing obstacles data", __LINE__);
 
   for (int tt = 0; tt < params.maxIters; tt++)
@@ -223,7 +223,7 @@ int main(int argc, char* argv[])
   // Read tmp_cells from device
   err = clEnqueueReadBuffer(
     ocl.queue, ocl.cells, CL_TRUE, 0,
-    sizeof(t_speed) * params.nx * params.ny, cells, 0, NULL, NULL);
+    sizeof(t_speed) * params.nx * params.ny * 9, cells, 0, NULL, NULL);
   checkError(err, "reading tmp_cells data", __LINE__);
 
   /* write final values and free memory */
