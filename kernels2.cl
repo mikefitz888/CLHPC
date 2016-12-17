@@ -96,7 +96,7 @@ kernel void collision(global t_speed* cells,
   if (!obstacles[ii * nx + jj])
   {
     /* compute local density total */
-    flaot local_density = 0.0;
+    float local_density = 0.0;
 
     for (int kk = 0; kk < NSPEEDS; kk++)
     {
