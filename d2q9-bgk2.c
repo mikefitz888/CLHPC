@@ -92,6 +92,7 @@ typedef struct
   cl_kernel  propagate;
   cl_kernel  rebound;
   cl_kernel  collision;
+  cl_kernel  collision2;
 
   cl_mem cells;
   cl_mem tmp_cells;
@@ -122,7 +123,7 @@ int timestep(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obst
 int accelerate_flow(const t_param params, t_speed* cells, int* obstacles, t_ocl ocl);
 int propagate(const t_param params, t_speed* cells, t_speed* tmp_cells, t_ocl ocl);
 int rebound(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obstacles, t_ocl ocl);
-int collision(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obstacles, t_ocl ocl);
+int collision(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obstacles, t_ocl ocl, int iteration);
 int write_values(const t_param params, t_speed* cells, int* obstacles, double* av_vels);
 
 /* finalise, including freeing up allocated memory */
@@ -253,10 +254,29 @@ int main(int argc, char* argv[])
   err = clSetKernelArg(ocl.collision, 7, sizeof(cl_double), &params.accel);
   checkError(err, "setting collision arg 7", __LINE__);
 
+  err = clSetKernelArg(ocl.collision2, 0, sizeof(cl_mem), &ocl.tmp_cells);
+  checkError(err, "setting collision arg 0", __LINE__);
+  err = clSetKernelArg(ocl.collision2, 1, sizeof(cl_mem), &ocl.cells);
+  checkError(err, "setting collision arg 1", __LINE__);
+  err = clSetKernelArg(ocl.collision2, 2, sizeof(cl_mem), &ocl.obstacles);
+  checkError(err, "setting collision arg 2", __LINE__);
+  err = clSetKernelArg(ocl.collision2, 3, sizeof(cl_int), &params.nx);
+  checkError(err, "setting collision arg 3", __LINE__);
+  err = clSetKernelArg(ocl.collision2, 4, sizeof(cl_int), &params.ny);
+  checkError(err, "setting collision arg 4", __LINE__);
+  err = clSetKernelArg(ocl.collision2, 5, sizeof(cl_double), &params.omega);
+  checkError(err, "setting collision arg 5", __LINE__);
+  err = clSetKernelArg(ocl.collision2, 6, sizeof(cl_double), &params.density);
+  checkError(err, "setting collision arg 6", __LINE__);
+  err = clSetKernelArg(ocl.collision2, 7, sizeof(cl_double), &params.accel);
+  checkError(err, "setting collision arg 7", __LINE__);
+
   accelerate_flow(params, cells, obstacles, ocl);
+  propagate(params, cells, tmp_cells, ocl);
   for (int tt = 0; tt < params.maxIters; tt++)
   {
-    timestep(params, cells, tmp_cells, obstacles, ocl);
+    //timestep(params, cells, tmp_cells, obstacles, ocl);
+    collision(params, cells, tmp_cells, obstacles, ocl, tt);
     av_vels[tt] = av_velocity(params, cells, obstacles, ocl);
 #ifdef DEBUG
     printf("==timestep: %d==\n", tt);
@@ -294,11 +314,11 @@ int main(int argc, char* argv[])
 int timestep(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obstacles, t_ocl ocl)
 {
   
-  propagate(params, cells, tmp_cells, ocl);
+  
 
   //rebound(params, cells, tmp_cells, obstacles, ocl);
 
-  collision(params, cells, tmp_cells, obstacles, ocl);
+  
 
 
   return EXIT_SUCCESS;
@@ -357,13 +377,13 @@ int rebound(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obsta
   return EXIT_SUCCESS;
 }
 
-int collision(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obstacles, t_ocl ocl)
+int collision(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obstacles, t_ocl ocl, int iteration)
 {
   cl_int err;
   
   // Enqueue kernel
   size_t global[2] = {params.nx, params.ny};
-  err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
+  err = clEnqueueNDRangeKernel(ocl.queue, it%2 ? ocl.collision : ocl.collision2,
                                2, NULL, global, NULL, 0, NULL, NULL);
   checkError(err, "enqueueing collision kernel", __LINE__);
 
@@ -639,6 +659,8 @@ int initialise(const char* paramfile, const char* obstaclefile,
   ocl->rebound = clCreateKernel(ocl->program, "rebound", &err);
   checkError(err, "creating propagate kernel", __LINE__);
   ocl->collision = clCreateKernel(ocl->program, "collision", &err);
+  checkError(err, "creating propagate kernel", __LINE__);
+  ocl->collision2 = clCreateKernel(ocl->program, "collision", &err);
   checkError(err, "creating propagate kernel", __LINE__);
 
   // Allocate OpenCL buffers
