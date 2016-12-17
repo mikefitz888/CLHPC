@@ -209,6 +209,9 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   floatv e6 = ((e3 - px) - py);
   floatv e8 = ((e5 + px) - py);
 
+  if(x == 40 && y == 80){
+    printf("u0=%f e0=%f\n", u0, e0);
+  }
   u0 = (u0 + e0);
   u1 = (u1 + e1);
   u2 = (u2 + e2);
@@ -218,8 +221,9 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   u6 = (u6 + e6);
   u7 = (u7 + e7);
   u8 = (u8 + e8);
-  if(x == 40 && y > 4 && y < 120){
-    printf("(%d, %d): %f (%f) %f %f %f %f %f %f %f %f\n", x, y, e0, u0, e1, e2, e3, e4, e5, e6, e7, e8);
+  if(x == 40 && y == 80){
+    printf("u0=%f e0=%f\n", u0, e0);
+    //printf("(%d, %d): %f %f %f %f %f %f %f %f %f\n", x, y, e0, e1, e2, e3, e4, e5, e6, e7, e8);
   }
   /* End: Collision */
 
