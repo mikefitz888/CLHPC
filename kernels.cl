@@ -196,15 +196,21 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   /*if(x == 40 && y == 80){
     printf("u0=%f e0=%f\n", u0, e0);
   }*/
-  u0 = (u0 + d_equ[0]);
-  u1 = (u1 + d_equ[1]);
-  u2 = (u2 + d_equ[2]);
-  u3 = (u3 + d_equ[3]);
-  u4 = (u4 + d_equ[4]);
-  u5 = (u5 + d_equ[5]);
-  u6 = (u6 + d_equ[6]);
-  u7 = (u7 + d_equ[7]);
-  u8 = (u8 + d_equ[8]);
+
+  for (int kk = 0; kk < NSPEEDS; kk++)
+        {
+          cells[ii * params.nx + jj].speeds[kk] = tmp_cells[ii * params.nx + jj].speeds[kk]
+                                                  + params.omega
+                                                  * (d_equ[kk] - tmp_cells[ii * params.nx + jj].speeds[kk]);
+  u0 = (u0_o + params->omega*(d_equ[0] - u0_o) );
+  u1 = (u1_o + params->omega*(d_equ[1] - u1_o) );
+  u2 = (u2_o + params->omega*(d_equ[2] - u2_o) );
+  u3 = (u3_o + params->omega*(d_equ[3] - u3_o) );
+  u4 = (u4_o + params->omega*(d_equ[4] - u4_o) );
+  u5 = (u5_o + params->omega*(d_equ[5] - u5_o) );
+  u6 = (u6_o + params->omega*(d_equ[6] - u6_o) );
+  u7 = (u7_o + params->omega*(d_equ[7] - u7_o) );
+  u8 = (u8_o + params->omega*(d_equ[8] - u8_o) );
   /*if(x == 40 && y == 80){
     printf("u0=%f e0=%f\n, u0_o=%f, omega=%f", u0, e0, u0_o, params->omega);
     //printf("(%d, %d): %f %f %f %f %f %f %f %f %f\n", x, y, e0, e1, e2, e3, e4, e5, e6, e7, e8);
