@@ -112,15 +112,15 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   //int offset = 4 + (2 * 9 * (params->nx_pad));
   //int offset = 4 + (9 * nx_pad);
 
-   floatv u0_o = input_grid[L(x, y, 0, NX)];
-   floatv u1_o = input_grid[L(x, y, 1, NX)];
-   floatv u2_o = input_grid[L(x, y, 2, NX)];
-   floatv u3_o = input_grid[L(x, y, 3, NX)];
-   floatv u4_o = input_grid[L(x, y, 4, NX)];
-   floatv u5_o = input_grid[L(x, y, 5, NX)];
-   floatv u6_o = input_grid[L(x, y, 6, NX)];
-   floatv u7_o = input_grid[L(x, y, 7, NX)];
-   floatv u8_o = input_grid[L(x, y, 8, NX)];
+   floatv u0_o = input_grid[L(x, y, 0, params->nx)];
+   floatv u1_o = input_grid[L(x, y, 1, params->nx)];
+   floatv u2_o = input_grid[L(x, y, 2, params->nx)];
+   floatv u3_o = input_grid[L(x, y, 3, params->nx)];
+   floatv u4_o = input_grid[L(x, y, 4, params->nx)];
+   floatv u5_o = input_grid[L(x, y, 5, params->nx)];
+   floatv u6_o = input_grid[L(x, y, 6, params->nx)];
+   floatv u7_o = input_grid[L(x, y, 7, params->nx)];
+   floatv u8_o = input_grid[L(x, y, 8, params->nx)];
 
    /*if(it == 1){
     if(u0_o < 0){printf("(%d, %d)[0] < 0\n", x, y);}
@@ -134,7 +134,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
     if(u8_o < 0){printf("(%d, %d)[8] < 0\n", x, y);}
    }*/
 
-  floatv o_mask2 = obstacles[y*NX+x];
+  floatv o_mask2 = obstacles[y*params->nx+x];
 
   floatv xneg = u2_o + u5_o + u6_o;
   floatv xpos = u1_o + u3_o + u8_o;
@@ -156,15 +156,15 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   //TODO: division
   partial_sums[y*NX+get_global_id(0)] = tot_u;*/
 
-  floatv u0 = (u0_o * Vnomega);
-  floatv u1 = (u1_o * Vnomega);
-  floatv u2 = (u2_o * Vnomega);
-  floatv u3 = (u3_o * Vnomega);
-  floatv u4 = (u4_o * Vnomega);
-  floatv u5 = (u5_o * Vnomega);
-  floatv u6 = (u6_o * Vnomega);
-  floatv u7 = (u7_o * Vnomega);
-  floatv u8 = (u8_o * Vnomega);
+  floatv u0 = (u0_o * (1-params->omega));
+  floatv u1 = (u1_o * (1-params->omega));
+  floatv u2 = (u2_o * (1-params->omega));
+  floatv u3 = (u3_o * (1-params->omega));
+  floatv u4 = (u4_o * (1-params->omega));
+  floatv u5 = (u5_o * (1-params->omega));
+  floatv u6 = (u6_o * (1-params->omega));
+  floatv u7 = (u7_o * (1-params->omega));
+  floatv u8 = (u8_o * (1-params->omega));
 
   floatv ux3 = (V3 * xpos);
   floatv uy3 = (V3 * ypos);
@@ -220,8 +220,8 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
    /* Begin: Accelerate */
   float wt1, wt2;
   if(y == NY - 2){
-    wt1 = ACCEL * DENSITY / 9.0f;
-    wt2 = ACCEL * DENSITY / 36.0f;
+    wt1 = params->accel * params->density / 9.0f;
+    wt2 = params->accel * params->density / 36.0f;
     if(o_mask2 != 0 && u2 > wt1 && u5 > wt2 && u6 > wt2){
       
       u1 += wt1;
@@ -253,21 +253,21 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   /* End: Rebound */
   
   /* Begin: Propogate */
-  int e = (x+1)%NX;
-  int w = (x==0)?NX-1:x-1;
+  int e = (x+1)%params->nx;
+  int w = (x==0)?params->nx-1:x-1;
 
-  int n = (y+1)%NY;
-  int s = (y==0)?NY-1:y-1;
+  int n = (y+1)%params->ny;
+  int s = (y==0)?params->ny-1:y-1;
 
-  output_grid[L(x  , y  , 0, NX)] = u0; // Does not propogate
-  output_grid[L(e  , y  , 1, NX)] = u1; // Does not propogate
-  output_grid[L(w  , y  , 2, NX)] = u2; // Does not propogate
-  output_grid[L(e  , n  , 3, NX)] = u3; // Does not propogate
-  output_grid[L(x  , n  , 4, NX)] = u4; // Does not propogate
-  output_grid[L(w  , n  , 5, NX)] = u5; // Does not propogate
-  output_grid[L(w  , s  , 6, NX)] = u6; // Does not propogate
-  output_grid[L(x  , s  , 7, NX)] = u7; // Does not propogate
-  output_grid[L(e  , s  , 8, NX)] = u8; // Does not propogate
+  output_grid[L(x  , y  , 0, params->nx)] = u0; // Does not propogate
+  output_grid[L(e  , y  , 1, params->nx)] = u1; // Does not propogate
+  output_grid[L(w  , y  , 2, params->nx)] = u2; // Does not propogate
+  output_grid[L(e  , n  , 3, params->nx)] = u3; // Does not propogate
+  output_grid[L(x  , n  , 4, params->nx)] = u4; // Does not propogate
+  output_grid[L(w  , n  , 5, params->nx)] = u5; // Does not propogate
+  output_grid[L(w  , s  , 6, params->nx)] = u6; // Does not propogate
+  output_grid[L(x  , s  , 7, params->nx)] = u7; // Does not propogate
+  output_grid[L(e  , s  , 8, params->nx)] = u8; // Does not propogate
 
 }
 
