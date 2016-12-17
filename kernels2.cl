@@ -97,7 +97,7 @@ kernel void collision(global t_speed* cells,
   {
 
     /* compute x velocity component */
-    float* speeds = tmp_cells[ii * nx + jj].speeds;
+    global float* speeds = tmp_cells[ii * nx + jj].speeds;
 
     float xneg = speeds[3] + speeds[6] + speeds[7];
     float yneg = speeds[4] + speeds[7] + speeds[8]; 
