@@ -4,7 +4,7 @@
 
 typedef struct
 {
-  double speeds[NSPEEDS];
+  float speeds[NSPEEDS];
 } t_speed;
 
 constant double c_sq = 1.0 / 3.0; /* square of speed of sound */
