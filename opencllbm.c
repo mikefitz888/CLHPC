@@ -388,6 +388,8 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   checkError(err, "setting lbm arg 2", __LINE__);
   err = clSetKernelArg(ocl.lbm, 3, sizeof(cl_mem), &ocl.partial_sums);
   checkError(err, "setting lbm arg 3", __LINE__);
+  err = clSetKernelArg(ocl.lbm, 5, sizeof(cl_mem), &ocl.params);
+  checkError(err, "setting lbm arg 5", __LINE__);
 
 
   size_t global[2] = {params->nx, params->ny};//maybe divide nx by vectorsize
