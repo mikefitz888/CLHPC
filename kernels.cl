@@ -142,8 +142,8 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   //partial_sums[y*params->nx + x] = sum;
   int X = get_group_id(0);
   int Y = get_group_id(1);
-  int n = Y*get_num_groups(0)+X;
-  partial_sums[n] += sum;
+  int N = Y*get_num_groups(0)+X;
+  partial_sums[N] += sum;
 
   floatv u0 = (u0_o * (1-params->omega));
   floatv u1 = (u1_o * (1-params->omega));
