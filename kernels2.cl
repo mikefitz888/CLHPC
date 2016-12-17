@@ -2,10 +2,11 @@
 
 #define NSPEEDS         9
 
-typedef struct
+/*typedef struct
 {
   double speeds[NSPEEDS];
-} t_speed;
+} t_speed;*/
+typedef t_speed float*;
 
 constant double c_sq = 1.0 / 3.0; /* square of speed of sound */
 constant double w0 = 4.0 / 9.0;  /* weighting factor */
@@ -30,18 +31,18 @@ kernel void accelerate_flow(global t_speed* cells,
   /* if the cell is not occupied and
   ** we don't send a negative density */
   if (!obstacles[ii * nx + jj]
-      && (cells[ii * nx + jj].speeds[3] - w1) > 0.0
-      && (cells[ii * nx + jj].speeds[6] - w2) > 0.0
-      && (cells[ii * nx + jj].speeds[7] - w2) > 0.0)
+      && (cells[L(jj, ii, 3, nx)] - w1) > 0.0
+      && (cells[L(jj, ii, 6, nx)] - w2) > 0.0
+      && (cells[L(jj, ii, 7, nx)] - w2) > 0.0)
   {
     /* increase 'east-side' densities */
-    cells[ii * nx + jj].speeds[1] += w1;
-    cells[ii * nx + jj].speeds[5] += w2;
-    cells[ii * nx + jj].speeds[8] += w2;
-    /* decrease 'west-side' densities */
-    cells[ii * nx + jj].speeds[3] -= w1;
-    cells[ii * nx + jj].speeds[6] -= w2;
-    cells[ii * nx + jj].speeds[7] -= w2;
+    cells[L(jj, ii, 1, nx)] += w1;
+    cells[L(jj, ii, 5, nx)] += w2;
+    cells[L(jj, ii, 8, nx)] += w2;
+    /* decrease densities */
+    cells[L(jj, ii, 3, nx)] -= w1;
+    cells[L(jj, ii, 6, nx)] -= w2;
+    cells[L(jj, ii, 7, nx)] -= w2;
   }
 }
 
@@ -63,15 +64,15 @@ kernel void propagate(global t_speed* cells,
   /* propagate densities to neighbouring cells, following
   ** appropriate directions of travel and writing into
   ** scratch space grid */
-  tmp_cells[ii  * nx + jj ].speeds[0] = cells[ii * nx + jj].speeds[0]; /* central cell, no movement */
-  tmp_cells[ii  * nx + x_e].speeds[1] = cells[ii * nx + jj].speeds[1]; /* east */
-  tmp_cells[y_n * nx + jj ].speeds[2] = cells[ii * nx + jj].speeds[2]; /* north */
-  tmp_cells[ii  * nx + x_w].speeds[3] = cells[ii * nx + jj].speeds[3]; /* west */
-  tmp_cells[y_s * nx + jj ].speeds[4] = cells[ii * nx + jj].speeds[4]; /* south */
-  tmp_cells[y_n * nx + x_e].speeds[5] = cells[ii * nx + jj].speeds[5]; /* north-east */
-  tmp_cells[y_n * nx + x_w].speeds[6] = cells[ii * nx + jj].speeds[6]; /* north-west */
-  tmp_cells[y_s * nx + x_w].speeds[7] = cells[ii * nx + jj].speeds[7]; /* south-west */
-  tmp_cells[y_s * nx + x_e].speeds[8] = cells[ii * nx + jj].speeds[8]; /* south-east */
+  tmp_cells[L(jj, ii, 0, nx)] = cells[L(jj, ii, 0, nx)]; /* central cell, no movement */
+  tmp_cells[L(x_e, ii, 1, nx)] = cells[L(jj, ii, 1, nx)]; /* east */
+  tmp_cells[L(jj, y_n, 2, nx)] = cells[L(jj, ii, 2, nx)]; /* north */
+  tmp_cells[L(x_w, ii, 3, nx)] = cells[L(jj, ii, 3, nx)]; /* west */
+  tmp_cells[L(jj, y_s, 4, nx)] = cells[L(jj, ii, 4, nx)]; /* south */
+  tmp_cells[L(x_e, y_n, 5, nx)] = cells[L(jj, ii, 5, nx)]; /* north-east */
+  tmp_cells[L(x_w, y_n, 6, nx)] = cells[L(jj, ii, 6, nx)]; /* north-west */
+  tmp_cells[L(x_w, y_s, 7, nx)] = cells[L(jj, ii, 7, nx)]; /* south-west */
+  tmp_cells[L(x_e, y_s, 8, nx)] = cells[L(jj, ii, 8, nx)]; /* south-east */
 }
 
 kernel void rebound(global t_speed* cells,
@@ -83,14 +84,14 @@ kernel void rebound(global t_speed* cells,
 
   if (obstacles[ii * nx + jj])
   {
-    cells[ii * nx + jj].speeds[1] = tmp_cells[ii * nx + jj].speeds[3];
-    cells[ii * nx + jj].speeds[2] = tmp_cells[ii * nx + jj].speeds[4];
-    cells[ii * nx + jj].speeds[3] = tmp_cells[ii * nx + jj].speeds[1];
-    cells[ii * nx + jj].speeds[4] = tmp_cells[ii * nx + jj].speeds[2];
-    cells[ii * nx + jj].speeds[5] = tmp_cells[ii * nx + jj].speeds[7];
-    cells[ii * nx + jj].speeds[6] = tmp_cells[ii * nx + jj].speeds[8];
-    cells[ii * nx + jj].speeds[7] = tmp_cells[ii * nx + jj].speeds[5];
-    cells[ii * nx + jj].speeds[8] = tmp_cells[ii * nx + jj].speeds[6];
+    cells[L(jj, ii, 1, nx)] = tmp_cells[L(jj, ii, 3, nx)];
+    cells[L(jj, ii, 2, nx)] = tmp_cells[L(jj, ii, 4, nx)];
+    cells[L(jj, ii, 3, nx)] = tmp_cells[L(jj, ii, 1, nx)];
+    cells[L(jj, ii, 4, nx)] = tmp_cells[L(jj, ii, 2, nx)];
+    cells[L(jj, ii, 5, nx)] = tmp_cells[L(jj, ii, 7, nx)];
+    cells[L(jj, ii, 6, nx)] = tmp_cells[L(jj, ii, 8, nx)];
+    cells[L(jj, ii, 7, nx)] = tmp_cells[L(jj, ii, 5, nx)];
+    cells[L(jj, ii, 8, nx)] = tmp_cells[L(jj, ii, 6, nx)];
   }
 }
 
@@ -111,21 +112,21 @@ kernel void collision(global t_speed* cells,
     }
 
     /* compute x velocity component */
-    double u_x = (tmp_cells[ii * nx + jj].speeds[1]
-                  + tmp_cells[ii * nx + jj].speeds[5]
-                  + tmp_cells[ii * nx + jj].speeds[8]
-                  - (tmp_cells[ii * nx + jj].speeds[3]
-                     + tmp_cells[ii * nx + jj].speeds[6]
-                     + tmp_cells[ii * nx + jj].speeds[7]))
-                 / local_density;
+    double u_x = (cells[L(jj, ii, 1, nx)]
+           + cells[L(jj, ii, 5, nx)]
+           + cells[L(jj, ii, 8, nx)]
+           - (cells[L(jj, ii, 3, nx)]
+              + cells[L(jj, ii, 6, nx)]
+              + cells[L(jj, ii, 7, nx)]))
+          / local_density;
     /* compute y velocity component */
-    double u_y = (tmp_cells[ii * nx + jj].speeds[2]
-                  + tmp_cells[ii * nx + jj].speeds[5]
-                  + tmp_cells[ii * nx + jj].speeds[6]
-                  - (tmp_cells[ii * nx + jj].speeds[4]
-                     + tmp_cells[ii * nx + jj].speeds[7]
-                     + tmp_cells[ii * nx + jj].speeds[8]))
-                 / local_density;
+    double u_y = (cells[L(jj, ii, 2, nx)]
+           + cells[L(jj, ii, 5, nx)]
+           + cells[L(jj, ii, 6, nx)]
+           - (cells[L(jj, ii, 4, nx)]
+              + cells[L(jj, ii, 7, nx)]
+              + cells[L(jj, ii, 8, nx)]))
+          / local_density;
 
     /* velocity squared */
     double u_sq = u_x * u_x + u_y * u_y;
@@ -176,9 +177,9 @@ kernel void collision(global t_speed* cells,
     /* relaxation step */
     for (int kk = 0; kk < NSPEEDS; kk++)
     {
-      cells[ii * nx + jj].speeds[kk] = tmp_cells[ii * nx + jj].speeds[kk]
+      cells[L(jj, ii, kk, nx)] = tmp_cells[L(jj, ii, kk, nx)]
                                               + omega
-                                              * (d_equ[kk] - tmp_cells[ii * nx + jj].speeds[kk]);
+                                              * (d_equ[kk] - tmp_cells[L(jj, ii, kk, nx)]);
     }
   }
 }
