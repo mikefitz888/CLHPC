@@ -639,11 +639,11 @@ int initialise(const char* paramfile, const char* obstaclefile,
   // Allocate OpenCL buffers
   ocl->cells = clCreateBuffer(
     ocl->context, CL_MEM_READ_WRITE,
-    sizeof(t_speed) * params->nx * params->ny, NULL, &err);
+    sizeof(t_speed) * params->nx * params->ny * 9, NULL, &err);
   checkError(err, "creating cells buffer", __LINE__);
   ocl->tmp_cells = clCreateBuffer(
     ocl->context, CL_MEM_READ_WRITE,
-    sizeof(t_speed) * params->nx * params->ny, NULL, &err);
+    sizeof(t_speed) * params->nx * params->ny * 9, NULL, &err);
   checkError(err, "creating tmp_cells buffer", __LINE__);
   ocl->obstacles = clCreateBuffer(
     ocl->context, CL_MEM_READ_WRITE,
