@@ -222,7 +222,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   u7 = (u7 + e7);
   u8 = (u8 + e8);
   if(x == 40 && y == 80){
-    printf("u0=%f e0=%f\n", u0, e0);
+    printf("u0=%f e0=%f\n, u0_o=%f, omega=%f", u0, e0, u0_o, params->omega);
     //printf("(%d, %d): %f %f %f %f %f %f %f %f %f\n", x, y, e0, e1, e2, e3, e4, e5, e6, e7, e8);
   }
   /* End: Collision */
