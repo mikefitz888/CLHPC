@@ -6,7 +6,7 @@
 {
   double speeds[NSPEEDS];
 } t_speed;*/
-typedef t_speed float*;
+typedef float t_speed;
 
 constant double c_sq = 1.0 / 3.0; /* square of speed of sound */
 constant double w0 = 4.0 / 9.0;  /* weighting factor */
