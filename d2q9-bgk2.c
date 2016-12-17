@@ -184,7 +184,6 @@ int main(int argc, char* argv[])
 
   /* initialise our data structures and load values from file */
   initialise(paramfile, obstaclefile, &params, &cells, &tmp_cells, &obstacles, &av_vels, &ocl);
-  printf("Example = %f\n", cells[L(80, 80, 5, params.nx)]);
   /* iterate for maxIters timesteps */
   gettimeofday(&timstr, NULL);
   tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
@@ -201,7 +200,7 @@ int main(int argc, char* argv[])
     sizeof(cl_int) * params.nx * params.ny, obstacles, 0, NULL, NULL);
   checkError(err, "writing obstacles data", __LINE__);
 
-  for (int tt = 0; tt < params.maxIters; tt++)
+  for (int tt = 0; tt < 1+0*params.maxIters; tt++)
   {
     timestep(params, cells, tmp_cells, obstacles, ocl);
     //av_vels[tt] = av_velocity(params, cells, obstacles, ocl);
