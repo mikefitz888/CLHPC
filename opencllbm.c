@@ -799,7 +799,7 @@ int initialise(const char* paramfile, const char* obstaclefile,
   checkError(err, "creating tmp_cells buffer", __LINE__);*/
   ocl->obstacles = clCreateBuffer(
     ocl->context, CL_MEM_READ_WRITE,
-    sizeof(cl_int) * params->nx * params->ny, NULL, &err);
+    sizeof(cl_float) * params->nx * params->ny, NULL, &err);
   checkError(err, "creating obstacles buffer", __LINE__);
 
   ocl->params = clCreateBuffer(
