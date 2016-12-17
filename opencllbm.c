@@ -105,6 +105,7 @@ typedef struct
   int ny_pad;
   int available_cells;
   float* partial_sums;
+  float* partial_sums2nd;
 } t_param;
 
 /* struct to hold the 'speed' values */
@@ -123,6 +124,7 @@ typedef struct
   cl_kernel  accelerate_flow;
   cl_kernel  propagate;
   cl_kernel  lbm;
+  cl_kernel reduce;
   cl_kernel  swapGhostCellsLR;
   cl_kernel  swapGhostCellsTB;
 
@@ -387,6 +389,8 @@ int rebound(const t_param* params, t_speed* tmp_cells, t_obstacle* obstacles)
 
 int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells, t_obstacle* restrict obstacles, t_speed* restrict av_vels, t_speed inverse_available_cells, t_ocl ocl)
 {
+  size_t work_group_size[2] = {8, 8};
+
   //2496 GPU cores available
   cl_int err;
   //sizeof(t_speed) * (NSPEEDS * ((params->ny_pad) * (params->nx_pad)) * 2 + 4)
@@ -405,17 +409,28 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   int zero = 0;
   int one = 1;
 
+  err = clSetKernelArg(ocl.reduce, 0, sizeof(cl_int), work_group_size);
+  checkError(err, "setting reduce arg 0", __LINE__);
+
   for(int iteration = 0; iteration < params->maxIters/2; iteration++){
+    err = clEnqueueNDRangeKernel(ocl.queue, ocl.reduce, 2, NULL, global, work_group_size, 0, NULL, NULL);
+    checkError(err, "enqueuing lbm kernel", __LINE__);
+    err = clFinish(ocl.queue);
+    checkError(err, "waiting for lbm kernel", __LINE__);
+
+
     err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.tmp_cells);
     checkError(err, "setting lbm arg 0", __LINE__);
     err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.cells);
     checkError(err, "setting lbm arg 1", __LINE__);
     err = clSetKernelArg(ocl.lbm, 4, sizeof(cl_int), &iteration);
     checkError(err, "setting lbm arg 4", __LINE__);
-    err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, NULL, 0, NULL, NULL);
+    err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, work_group_size, 0, NULL, NULL);
     checkError(err, "enqueuing lbm kernel", __LINE__);
     err = clFinish(ocl.queue);
     checkError(err, "waiting for lbm kernel", __LINE__);
+
+
 
     err = clEnqueueReadBuffer(ocl.queue, ocl.partial_sums, CL_TRUE, 0, sizeof(cl_float) * (params->ny * params->nx), params->partial_sums, 0, NULL, NULL);
     checkError(err, "reading partial_sums data", __LINE__);
@@ -427,11 +442,16 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
       }
     }
 
+    err = clEnqueueNDRangeKernel(ocl.queue, ocl.reduce, 2, NULL, global, work_group_size, 0, NULL, NULL);
+    checkError(err, "enqueuing clear kernel", __LINE__);
+    err = clFinish(ocl.queue);
+    checkError(err, "waiting for clear kernel", __LINE__);
+
     err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.cells);
     checkError(err, "setting lbm arg 0", __LINE__);
     err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.tmp_cells);
     checkError(err, "setting lbm arg 1", __LINE__);
-    err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, NULL, 0, NULL, NULL);
+    err = clEnqueueNDRangeKernel(ocl.queue, ocl.lbm, 2, NULL, global, work_group_size, 0, NULL, NULL);
     checkError(err, "enqueuing lbm kernel", __LINE__);
     err = clFinish(ocl.queue);
     checkError(err, "waiting for lbm kernel", __LINE__);
@@ -771,14 +791,19 @@ int initialise(const char* paramfile, const char* obstaclefile,
   checkError(err, "creating accelerate_flow kernel", __LINE__);
   ocl->propagate = clCreateKernel(ocl->program, "propagate", &err);
   checkError(err, "creating propagate kernel", __LINE__);
+
   ocl->lbm = clCreateKernel(ocl->program, "lbm", &err);
   checkError(err, "creating lbm kernel", __LINE__);
+  ocl->reduce = clCreateKernel(ocl->program, "lbm", &err);
+  checkError(err, "creating reduce kernel", __LINE__);
+
   ocl->swapGhostCellsLR = clCreateKernel(ocl->program, "swapGhostCellsLR", &err);
   checkError(err, "creating swapGhostCellsLR kernel", __LINE__);
   ocl->swapGhostCellsTB = clCreateKernel(ocl->program, "swapGhostCellsTB", &err);
   checkError(err, "creating swapGhostCellsTB kernel", __LINE__);
 
   params->partial_sums = malloc(sizeof(float) * params->nx * params->ny);
+  params->partial_sums2nd = malloc(sizeof(float) * params->nx * params->ny);
 
 
   // Allocate OpenCL buffers
@@ -815,6 +840,9 @@ int initialise(const char* paramfile, const char* obstaclefile,
   checkError(err, "creating param buffer", __LINE__);
 
   ocl->partial_sums = clCreateBuffer(ocl->context, CL_MEM_WRITE_ONLY, sizeof(cl_float) * (params->nx) * params->ny, NULL, &err);
+  checkError(err, "creating partial_sums buffer", __LINE__);
+
+  ocl->partial_sums2nd = clCreateBuffer(ocl->context, CL_MEM_WRITE_ONLY, sizeof(cl_float) * (params->nx) * params->ny, NULL, &err);
   checkError(err, "creating partial_sums buffer", __LINE__);
 
   return EXIT_SUCCESS;

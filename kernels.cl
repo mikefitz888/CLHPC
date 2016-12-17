@@ -97,42 +97,28 @@ kernel void swapGhostCellsTB(global float* grid, int temp){
   }
 }
 
+kernel void reduce(int w){
+  int x = get_global_id(0);
+  int y = get_global_id(1);
+
+  partial_sums[y*w+x] = 0;
+}
+
 
 kernel void lbm(global float* input_grid, global float* output_grid, global float* obstacles, global float* partial_sums, int it, global t_param* params)
 {
   int x = get_global_id(0);
   int y = get_global_id(1);
 
-  /*if(x == 12 & y == 72){
-    printf("=======================\n");
-    printf("cells test: %f %d\n", grid[L(x, y, 5, nx_pad)], L(x, y, 5, nx_pad));
-    printf("tmp_cells test: %f %d\n", grid[L2(x, y, 5, nx_pad)], L2(x, y, 5, nx_pad));
-    printf("NXPAD = %d, NX = %d, NY = %d\n", NXPAD, NX, NY);
-  }*/
-  //int offset = 4 + (2 * 9 * (params->nx_pad));
-  //int offset = 4 + (9 * nx_pad);
-
-   floatv u0_o = input_grid[L(x, y, 0, params->nx)];
-   floatv u1_o = input_grid[L(x, y, 1, params->nx)];
-   floatv u2_o = input_grid[L(x, y, 2, params->nx)];
-   floatv u3_o = input_grid[L(x, y, 3, params->nx)];
-   floatv u4_o = input_grid[L(x, y, 4, params->nx)];
-   floatv u5_o = input_grid[L(x, y, 5, params->nx)];
-   floatv u6_o = input_grid[L(x, y, 6, params->nx)];
-   floatv u7_o = input_grid[L(x, y, 7, params->nx)];
-   floatv u8_o = input_grid[L(x, y, 8, params->nx)];
-
-   /*if(it == 1){
-    if(u0_o < 0){printf("(%d, %d)[0] < 0\n", x, y);}
-    if(u1_o < 0){printf("(%d, %d)[1] < 0\n", x, y);}
-    if(u2_o < 0){printf("(%d, %d)[2] < 0\n", x, y);}
-    if(u3_o < 0){printf("(%d, %d)[3] < 0\n", x, y);}
-    if(u4_o < 0){printf("(%d, %d)[4] < 0\n", x, y);}
-    if(u5_o < 0){printf("(%d, %d)[5] < 0\n", x, y);}
-    if(u6_o < 0){printf("(%d, %d)[6] < 0\n", x, y);}
-    if(u7_o < 0){printf("(%d, %d)[7] < 0\n", x, y);}
-    if(u8_o < 0){printf("(%d, %d)[8] < 0\n", x, y);}
-   }*/
+  floatv u0_o = input_grid[L(x, y, 0, params->nx)];
+  floatv u1_o = input_grid[L(x, y, 1, params->nx)];
+  floatv u2_o = input_grid[L(x, y, 2, params->nx)];
+  floatv u3_o = input_grid[L(x, y, 3, params->nx)];
+  floatv u4_o = input_grid[L(x, y, 4, params->nx)];
+  floatv u5_o = input_grid[L(x, y, 5, params->nx)];
+  floatv u6_o = input_grid[L(x, y, 6, params->nx)];
+  floatv u7_o = input_grid[L(x, y, 7, params->nx)];
+  floatv u8_o = input_grid[L(x, y, 8, params->nx)];
 
   floatv o_mask2 = obstacles[y*params->nx+x];
 
@@ -142,8 +128,8 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   floatv ypos = u3_o + u4_o + u5_o;
 
   floatv density = u0_o + u1_o + u2_o + yneg + ypos;
-  xpos = native_divide((xpos - xneg),density);
-  ypos = native_divide((ypos - yneg),density);
+  xpos = ((xpos - xneg) / density);
+  ypos = ((ypos - yneg) / density);
   
   floatv x_sq = xpos*xpos;
   floatv y_sq = ypos*ypos;
@@ -152,15 +138,12 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   if(o_mask2 != 0.0f){
     sum = sqrt(x_sq + y_sq);
   }
-  partial_sums[y*params->nx + x] = sum;
 
-  /*floatv sum =  sqrt(x_sq + y_sq) * o_mask2; //Ignore obstacles in the summation
-
-  //float tot_u = sum.s0 + sum.s1 + sum.s2 + sum.s3 + sum.s4 + sum.s5 + sum.s6 + sum.s7 + sum.s8 + sum.s9 + sum.s10 + sum.s11 + sum.s12 + sum.s13 + sum.s14 + sum.s15;
-  float tot_u = dot(sum.s0123, (float4)(1));
-  tot_u += dot(sum.s4567, (float4)(1));
-  //TODO: division
-  partial_sums[y*NX+get_global_id(0)] = tot_u;*/
+  //partial_sums[y*params->nx + x] = sum;
+  int X = get_group_id(0);
+  int Y = get_group_id(1);
+  int n = Y*get_num_groups(0)+X;
+  partial_sums[n] += sum;
 
   floatv u0 = (u0_o * (1-params->omega));
   floatv u1 = (u1_o * (1-params->omega));
@@ -175,10 +158,8 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   floatv ux3 = (3 * xpos);
   floatv uy3 = (3 * ypos);
 
-
   floatv uxsq3 = (3 * x_sq);
   floatv uysq3 = (3 * y_sq);
-
 
   floatv uxsq15 = (1.5 * x_sq);
   floatv uysq15 = (1.5 * y_sq);
@@ -190,9 +171,6 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
 
   //The general equation to follow (slightly optimized) is: u_next = u * (1 - omega) + (density + density * (3u + 4.5u^2 - 1.5(ux^2 + uy^2))) * w * omega
   density = (density * STARTW); //density *= w0 * omega
-  /*if(density == 0){
-    printf("Density 0 at: (%d, %d)\n", x, y);
-  }*/
 
   floatv e0 = (density - (density * (uxsq15 + uysq15)));
 
@@ -215,9 +193,6 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   floatv e6 = ((e3 - px) - py);
   floatv e8 = ((e5 + px) - py);
 
-  /*if(x == 40 && y == 80){
-    printf("u0=%f e0=%f\n", u0, e0);
-  }*/
   u0 = (u0 + e0);
   u1 = (u1 + e1);
   u2 = (u2 + e2);
@@ -227,17 +202,13 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   u6 = (u6 + e6);
   u7 = (u7 + e7);
   u8 = (u8 + e8);
-  /*if(x == 40 && y == 80){
-    printf("u0=%f e0=%f\n, u0_o=%f, omega=%f", u0, e0, u0_o, params->omega);
-    //printf("(%d, %d): %f %f %f %f %f %f %f %f %f\n", x, y, e0, e1, e2, e3, e4, e5, e6, e7, e8);
-  }*/
   /* End: Collision */
 
    /* Begin: Accelerate */
   float wt1, wt2;
   if(y == params->ny - 2){
-    wt1 = native_divide(params->accel * params->density , 9.0f);
-    wt2 = native_divide(params->accel * params->density , 36.0f);
+    wt1 = (params->accel * params->density / 9.0f);
+    wt2 = (params->accel * params->density / 36.0f);
     if(o_mask2 != 0.0f && u2 > wt1 && u5 > wt2 && u6 > wt2){
       
       u1 += wt1;
