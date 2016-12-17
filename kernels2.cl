@@ -81,16 +81,16 @@ kernel void rebound(global t_speed* cells,
   int jj = get_global_id(0);
   int ii = get_global_id(1);
 
-  if (obstacles[ii * params.nx + jj])
+  if (obstacles[ii * nx + jj])
   {
-    cells[ii * params.nx + jj].speeds[1] = tmp_cells[ii * params.nx + jj].speeds[3];
-    cells[ii * params.nx + jj].speeds[2] = tmp_cells[ii * params.nx + jj].speeds[4];
-    cells[ii * params.nx + jj].speeds[3] = tmp_cells[ii * params.nx + jj].speeds[1];
-    cells[ii * params.nx + jj].speeds[4] = tmp_cells[ii * params.nx + jj].speeds[2];
-    cells[ii * params.nx + jj].speeds[5] = tmp_cells[ii * params.nx + jj].speeds[7];
-    cells[ii * params.nx + jj].speeds[6] = tmp_cells[ii * params.nx + jj].speeds[8];
-    cells[ii * params.nx + jj].speeds[7] = tmp_cells[ii * params.nx + jj].speeds[5];
-    cells[ii * params.nx + jj].speeds[8] = tmp_cells[ii * params.nx + jj].speeds[6];
+    cells[ii * nx + jj].speeds[1] = tmp_cells[ii * nx + jj].speeds[3];
+    cells[ii * nx + jj].speeds[2] = tmp_cells[ii * nx + jj].speeds[4];
+    cells[ii * nx + jj].speeds[3] = tmp_cells[ii * nx + jj].speeds[1];
+    cells[ii * nx + jj].speeds[4] = tmp_cells[ii * nx + jj].speeds[2];
+    cells[ii * nx + jj].speeds[5] = tmp_cells[ii * nx + jj].speeds[7];
+    cells[ii * nx + jj].speeds[6] = tmp_cells[ii * nx + jj].speeds[8];
+    cells[ii * nx + jj].speeds[7] = tmp_cells[ii * nx + jj].speeds[5];
+    cells[ii * nx + jj].speeds[8] = tmp_cells[ii * nx + jj].speeds[6];
   }
 }
 
@@ -98,31 +98,31 @@ kernel void collision(global t_speed* cells,
                       global t_speed* tmp_cells,
                       global int* obstacles,
                       int nx, int ny){
-  if (!obstacles[ii * params.nx + jj])
+  if (!obstacles[ii * nx + jj])
   {
     /* compute local density total */
     double local_density = 0.0;
 
     for (int kk = 0; kk < NSPEEDS; kk++)
     {
-      local_density += tmp_cells[ii * params.nx + jj].speeds[kk];
+      local_density += tmp_cells[ii * nx + jj].speeds[kk];
     }
 
     /* compute x velocity component */
-    double u_x = (tmp_cells[ii * params.nx + jj].speeds[1]
-                  + tmp_cells[ii * params.nx + jj].speeds[5]
-                  + tmp_cells[ii * params.nx + jj].speeds[8]
-                  - (tmp_cells[ii * params.nx + jj].speeds[3]
-                     + tmp_cells[ii * params.nx + jj].speeds[6]
-                     + tmp_cells[ii * params.nx + jj].speeds[7]))
+    double u_x = (tmp_cells[ii * nx + jj].speeds[1]
+                  + tmp_cells[ii * nx + jj].speeds[5]
+                  + tmp_cells[ii * nx + jj].speeds[8]
+                  - (tmp_cells[ii * nx + jj].speeds[3]
+                     + tmp_cells[ii * nx + jj].speeds[6]
+                     + tmp_cells[ii * nx + jj].speeds[7]))
                  / local_density;
     /* compute y velocity component */
-    double u_y = (tmp_cells[ii * params.nx + jj].speeds[2]
-                  + tmp_cells[ii * params.nx + jj].speeds[5]
-                  + tmp_cells[ii * params.nx + jj].speeds[6]
-                  - (tmp_cells[ii * params.nx + jj].speeds[4]
-                     + tmp_cells[ii * params.nx + jj].speeds[7]
-                     + tmp_cells[ii * params.nx + jj].speeds[8]))
+    double u_y = (tmp_cells[ii * nx + jj].speeds[2]
+                  + tmp_cells[ii * nx + jj].speeds[5]
+                  + tmp_cells[ii * nx + jj].speeds[6]
+                  - (tmp_cells[ii * nx + jj].speeds[4]
+                     + tmp_cells[ii * nx + jj].speeds[7]
+                     + tmp_cells[ii * nx + jj].speeds[8]))
                  / local_density;
 
     /* velocity squared */
@@ -174,9 +174,9 @@ kernel void collision(global t_speed* cells,
     /* relaxation step */
     for (int kk = 0; kk < NSPEEDS; kk++)
     {
-      cells[ii * params.nx + jj].speeds[kk] = tmp_cells[ii * params.nx + jj].speeds[kk]
-                                              + params.omega
-                                              * (d_equ[kk] - tmp_cells[ii * params.nx + jj].speeds[kk]);
+      cells[ii * nx + jj].speeds[kk] = tmp_cells[ii * nx + jj].speeds[kk]
+                                              + omega
+                                              * (d_equ[kk] - tmp_cells[ii * nx + jj].speeds[kk]);
     }
   }
 }
