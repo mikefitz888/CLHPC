@@ -893,15 +893,13 @@ int write_values(const t_param* params, t_speed* cells, t_obstacle* obstacles, t
 
         for (int kk = 0; kk < NSPEEDS; kk++)
         {
-          if( (ii == 1 || ii == 34) && (jj == 5 || jj == 72) ){
-            printf("cell(%d, %d)[%d] = %f\n", jj-4, ii, kk, cells[L(jj, ii, kk, params->nx)]);
-          }
+
           local_density += cells[L(jj, ii, kk, params->nx)];
         }
         t_speed inverse_local_density = 1/local_density;
 
         /* x-component of velocity */
-        t_speed u_x = cells[L(jj, ii, 1, params->nx)]
+        u_x = cells[L(jj, ii, 1, params->nx)]
                       + cells[L(jj, ii, 3, params->nx)]
                       + cells[L(jj, ii, 8, params->nx)]
                       - (cells[L(jj, ii, 2, params->nx)]
@@ -909,7 +907,7 @@ int write_values(const t_param* params, t_speed* cells, t_obstacle* obstacles, t
                          + cells[L(jj, ii, 6, params->nx)]);
 
         /* compute y velocity component */
-        t_speed u_y = cells[L(jj, ii, 3, params->nx)]
+        u_y = cells[L(jj, ii, 3, params->nx)]
                       + cells[L(jj, ii, 4, params->nx)]
                       + cells[L(jj, ii, 5, params->nx)]
                       - (cells[L(jj, ii, 6, params->nx)]
