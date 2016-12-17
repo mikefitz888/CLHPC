@@ -196,6 +196,72 @@ int main(int argc, char* argv[])
     ocl.queue, ocl.obstacles, CL_TRUE, 0,
     sizeof(cl_int) * params.nx * params.ny, obstacles, 0, NULL, NULL);
   checkError(err, "writing obstacles data", __LINE__);
+
+
+  // Set kernel arguments
+  err = clSetKernelArg(ocl.propagate, 0, sizeof(cl_mem), &ocl.cells);
+  checkError(err, "setting propagate arg 0", __LINE__);
+  err = clSetKernelArg(ocl.propagate, 1, sizeof(cl_mem), &ocl.tmp_cells);
+  checkError(err, "setting propagate arg 1", __LINE__);
+  err = clSetKernelArg(ocl.propagate, 2, sizeof(cl_mem), &ocl.obstacles);
+  checkError(err, "setting propagate arg 2", __LINE__);
+  err = clSetKernelArg(ocl.propagate, 3, sizeof(cl_int), &params.nx);
+  checkError(err, "setting propagate arg 3", __LINE__);
+  err = clSetKernelArg(ocl.propagate, 4, sizeof(cl_int), &params.ny);
+  checkError(err, "setting propagate arg 4", __LINE__);
+
+
+  // Set kernel arguments
+  err = clSetKernelArg(ocl.accelerate_flow, 0, sizeof(cl_mem), &ocl.cells);
+  checkError(err, "setting accelerate_flow arg 0", __LINE__);
+  err = clSetKernelArg(ocl.accelerate_flow, 1, sizeof(cl_mem), &ocl.obstacles);
+  checkError(err, "setting accelerate_flow arg 1", __LINE__);
+  err = clSetKernelArg(ocl.accelerate_flow, 2, sizeof(cl_int), &params.nx);
+  checkError(err, "setting accelerate_flow arg 2", __LINE__);
+  err = clSetKernelArg(ocl.accelerate_flow, 3, sizeof(cl_int), &params.ny);
+  checkError(err, "setting accelerate_flow arg 3", __LINE__);
+  err = clSetKernelArg(ocl.accelerate_flow, 4, sizeof(cl_double), &params.density);
+  checkError(err, "setting accelerate_flow arg 4", __LINE__);
+  err = clSetKernelArg(ocl.accelerate_flow, 5, sizeof(cl_double), &params.accel);
+  checkError(err, "setting accelerate_flow arg 5", __LINE__);
+
+  err = clSetKernelArg(ocl.rebound, 0, sizeof(cl_mem), &ocl.cells);
+  checkError(err, "setting rebound arg 0", __LINE__);
+  err = clSetKernelArg(ocl.rebound, 1, sizeof(cl_mem), &ocl.tmp_cells);
+  checkError(err, "setting rebound arg 1", __LINE__);
+  err = clSetKernelArg(ocl.rebound, 2, sizeof(cl_mem), &ocl.obstacles);
+  checkError(err, "setting rebound arg 2", __LINE__);
+  err = clSetKernelArg(ocl.rebound, 3, sizeof(cl_int), &params.nx);
+  checkError(err, "setting rebound arg 3", __LINE__);
+  err = clSetKernelArg(ocl.rebound, 4, sizeof(cl_int), &params.ny);
+  checkError(err, "setting rebound arg 4", __LINE__);
+
+  err = clSetKernelArg(ocl.collision, 0, sizeof(cl_mem), &ocl.cells);
+  checkError(err, "setting collision arg 0", __LINE__);
+  err = clSetKernelArg(ocl.collision, 1, sizeof(cl_mem), &ocl.tmp_cells);
+  checkError(err, "setting collision arg 1", __LINE__);
+  err = clSetKernelArg(ocl.collision, 2, sizeof(cl_mem), &ocl.obstacles);
+  checkError(err, "setting collision arg 2", __LINE__);
+  err = clSetKernelArg(ocl.collision, 3, sizeof(cl_int), &params.nx);
+  checkError(err, "setting collision arg 3", __LINE__);
+  err = clSetKernelArg(ocl.collision, 4, sizeof(cl_int), &params.ny);
+  checkError(err, "setting collision arg 4", __LINE__);
+  err = clSetKernelArg(ocl.collision, 5, sizeof(cl_double), &params.omega);
+  checkError(err, "setting collision arg 5", __LINE__);
+  err = clSetKernelArg(ocl.collision, 6, sizeof(cl_double), &params.density);
+  checkError(err, "setting collision arg 6", __LINE__);
+  err = clSetKernelArg(ocl.collision, 7, sizeof(cl_double), &params.accel);
+  checkError(err, "setting collision arg 7", __LINE__);
+
+
+
+
+
+
+
+
+
+
   accelerate_flow(params, cells, obstacles, ocl);
   for (int tt = 0; tt < params.maxIters; tt++)
   {
@@ -251,20 +317,6 @@ int accelerate_flow(const t_param params, t_speed* cells, int* obstacles, t_ocl 
 {
   cl_int err;
 
-  // Set kernel arguments
-  err = clSetKernelArg(ocl.accelerate_flow, 0, sizeof(cl_mem), &ocl.cells);
-  checkError(err, "setting accelerate_flow arg 0", __LINE__);
-  err = clSetKernelArg(ocl.accelerate_flow, 1, sizeof(cl_mem), &ocl.obstacles);
-  checkError(err, "setting accelerate_flow arg 1", __LINE__);
-  err = clSetKernelArg(ocl.accelerate_flow, 2, sizeof(cl_int), &params.nx);
-  checkError(err, "setting accelerate_flow arg 2", __LINE__);
-  err = clSetKernelArg(ocl.accelerate_flow, 3, sizeof(cl_int), &params.ny);
-  checkError(err, "setting accelerate_flow arg 3", __LINE__);
-  err = clSetKernelArg(ocl.accelerate_flow, 4, sizeof(cl_double), &params.density);
-  checkError(err, "setting accelerate_flow arg 4", __LINE__);
-  err = clSetKernelArg(ocl.accelerate_flow, 5, sizeof(cl_double), &params.accel);
-  checkError(err, "setting accelerate_flow arg 5", __LINE__);
-
   // Enqueue kernel
   size_t global[1] = {params.nx};
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.accelerate_flow,
@@ -281,18 +333,6 @@ int accelerate_flow(const t_param params, t_speed* cells, int* obstacles, t_ocl 
 int propagate(const t_param params, t_speed* cells, t_speed* tmp_cells, t_ocl ocl)
 {
   cl_int err;
-
-  // Set kernel arguments
-  err = clSetKernelArg(ocl.propagate, 0, sizeof(cl_mem), &ocl.cells);
-  checkError(err, "setting propagate arg 0", __LINE__);
-  err = clSetKernelArg(ocl.propagate, 1, sizeof(cl_mem), &ocl.tmp_cells);
-  checkError(err, "setting propagate arg 1", __LINE__);
-  err = clSetKernelArg(ocl.propagate, 2, sizeof(cl_mem), &ocl.obstacles);
-  checkError(err, "setting propagate arg 2", __LINE__);
-  err = clSetKernelArg(ocl.propagate, 3, sizeof(cl_int), &params.nx);
-  checkError(err, "setting propagate arg 3", __LINE__);
-  err = clSetKernelArg(ocl.propagate, 4, sizeof(cl_int), &params.ny);
-  checkError(err, "setting propagate arg 4", __LINE__);
 
   // Enqueue kernel
   size_t global[2] = {params.nx, params.ny};
@@ -312,16 +352,6 @@ int rebound(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obsta
   /* loop over the cells in the grid */
   // Set kernel arguments
   cl_int err;
-  err = clSetKernelArg(ocl.rebound, 0, sizeof(cl_mem), &ocl.cells);
-  checkError(err, "setting rebound arg 0", __LINE__);
-  err = clSetKernelArg(ocl.rebound, 1, sizeof(cl_mem), &ocl.tmp_cells);
-  checkError(err, "setting rebound arg 1", __LINE__);
-  err = clSetKernelArg(ocl.rebound, 2, sizeof(cl_mem), &ocl.obstacles);
-  checkError(err, "setting rebound arg 2", __LINE__);
-  err = clSetKernelArg(ocl.rebound, 3, sizeof(cl_int), &params.nx);
-  checkError(err, "setting rebound arg 3", __LINE__);
-  err = clSetKernelArg(ocl.rebound, 4, sizeof(cl_int), &params.ny);
-  checkError(err, "setting rebound arg 4", __LINE__);
 
   // Enqueue kernel
   size_t global[2] = {params.nx, params.ny};
@@ -339,22 +369,7 @@ int rebound(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obsta
 int collision(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obstacles, t_ocl ocl)
 {
   cl_int err;
-  err = clSetKernelArg(ocl.collision, 0, sizeof(cl_mem), &ocl.cells);
-  checkError(err, "setting collision arg 0", __LINE__);
-  err = clSetKernelArg(ocl.collision, 1, sizeof(cl_mem), &ocl.tmp_cells);
-  checkError(err, "setting collision arg 1", __LINE__);
-  err = clSetKernelArg(ocl.collision, 2, sizeof(cl_mem), &ocl.obstacles);
-  checkError(err, "setting collision arg 2", __LINE__);
-  err = clSetKernelArg(ocl.collision, 3, sizeof(cl_int), &params.nx);
-  checkError(err, "setting collision arg 3", __LINE__);
-  err = clSetKernelArg(ocl.collision, 4, sizeof(cl_int), &params.ny);
-  checkError(err, "setting collision arg 4", __LINE__);
-  err = clSetKernelArg(ocl.collision, 5, sizeof(cl_double), &params.omega);
-  checkError(err, "setting collision arg 5", __LINE__);
-  err = clSetKernelArg(ocl.collision, 6, sizeof(cl_double), &params.density);
-  checkError(err, "setting collision arg 6", __LINE__);
-  err = clSetKernelArg(ocl.collision, 7, sizeof(cl_double), &params.accel);
-  checkError(err, "setting collision arg 7", __LINE__);
+  
   // Enqueue kernel
   size_t global[2] = {params.nx, params.ny};
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
