@@ -55,48 +55,15 @@ typedef struct
   double speeds[NSPEEDS];
 } t_speed;
 
-kernel void swapGhostCellsLR(global float* grid, int temp){
-  int y = get_global_id(0);
-  if(temp){
-    grid[L2(4, y, 1, NXPAD)] = grid[L2(NX+4, y, 1, NXPAD)];
-    grid[L2(4, y, 3, NXPAD)] = grid[L2(NX+4, y, 3, NXPAD)];
-    grid[L2(4, y, 8, NXPAD)] = grid[L2(NX+4, y, 8, NXPAD)];
-  
-    grid[L2(NX+3, y, 2, NXPAD)] = grid[L2(3, y, 2, NXPAD)];
-    grid[L2(NX+3, y, 5, NXPAD)] = grid[L2(3, y, 5, NXPAD)];
-    grid[L2(NX+3, y, 6, NXPAD)] = grid[L2(3, y, 6, NXPAD)];
-  }else{
-    grid[L(4, y, 1, NXPAD)] = grid[L(NX+4, y, 1, NXPAD)];
-    grid[L(4, y, 3, NXPAD)] = grid[L(NX+4, y, 3, NXPAD)];
-    grid[L(4, y, 8, NXPAD)] = grid[L(NX+4, y, 8, NXPAD)];
-  
-    grid[L(NX+3, y, 2, NXPAD)] = grid[L(3, y, 2, NXPAD)];
-    grid[L(NX+3, y, 5, NXPAD)] = grid[L(3, y, 5, NXPAD)];
-    grid[L(NX+3, y, 6, NXPAD)] = grid[L(3, y, 6, NXPAD)];
-  }
-}
-
-kernel void swapGhostCellsTB(global float* grid, int temp){
+kernel void reduce(global float* partial_sums){
   int x = get_global_id(0);
-  if(temp){
-    grid[L2(x, 0, 3, NXPAD)] = grid[L2(x, NY, 3, NXPAD)];
-    grid[L2(x, 0, 4, NXPAD)] = grid[L2(x, NY, 4, NXPAD)];
-    grid[L2(x, 0, 5, NXPAD)] = grid[L2(x, NY, 5, NXPAD)];
-    
-    grid[L2(x, NY-1, 6, NXPAD)] = grid[L2(x, -1, 6, NXPAD)];
-    grid[L2(x, NY-1, 7, NXPAD)] = grid[L2(x, -1, 7, NXPAD)];
-    grid[L2(x, NY-1, 8, NXPAD)] = grid[L2(x, -1, 8, NXPAD)];
-  }else{
-    grid[L(x, 0, 3, NXPAD)] = grid[L(x, NY, 3, NXPAD)];
-    grid[L(x, 0, 4, NXPAD)] = grid[L(x, NY, 4, NXPAD)];
-    grid[L(x, 0, 5, NXPAD)] = grid[L(x, NY, 5, NXPAD)];
-    
-    grid[L(x, NY-1, 6, NXPAD)] = grid[L(x, -1, 6, NXPAD)];
-    grid[L(x, NY-1, 7, NXPAD)] = grid[L(x, -1, 7, NXPAD)];
-    grid[L(x, NY-1, 8, NXPAD)] = grid[L(x, -1, 8, NXPAD)];
-  }
-}
+  int y = get_global_id(1);
 
+  int X = get_group_id(0);
+  int Y = get_group_id(1);
+
+  partial_sums[Y*get_num_groups(0)+X] += partial_sums[y*NX+x];
+}
 
 kernel void lbm(global float* input_grid, global float* output_grid, global float* obstacles, global float* partial_sums, int it, global t_param* params)
 {
@@ -281,84 +248,7 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   output_grid[L(w  , s  , 6, params->nx)] = u6; // Does not propogate
   output_grid[L(x  , s  , 7, params->nx)] = u7; // Does not propogate
   output_grid[L(e  , s  , 8, params->nx)] = u8; // Does not propogate
-
+  barrier(CLK_GLOBAL_MEM_FENCE);
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-kernel void accelerate_flow(global t_speed* othercells,
-                            global int* obstacles,
-                            int nx, int ny,
-                            double density, double accel)
-{
-  /* compute weighting factors */
-  double w1 = density * accel / 9.0;
-  double w2 = density * accel / 36.0;
-
-  /* modify the 2nd row of the grid */
-  int ii = ny - 2;
-
-  /* get column index */
-  int jj = get_global_id(0);
-
-  /* if the cell is not occupied and
-  ** we don't send a negative density */
-  if (!obstacles[ii * nx + jj]
-      && (othercells[ii * nx + jj].speeds[3] - w1) > 0.0
-      && (othercells[ii * nx + jj].speeds[6] - w2) > 0.0
-      && (othercells[ii * nx + jj].speeds[7] - w2) > 0.0)
-  {
-    /* increase 'east-side' densities */
-    othercells[ii * nx + jj].speeds[1] += w1;
-    othercells[ii * nx + jj].speeds[5] += w2;
-    othercells[ii * nx + jj].speeds[8] += w2;
-    /* decrease 'west-side' densities */
-    othercells[ii * nx + jj].speeds[3] -= w1;
-    othercells[ii * nx + jj].speeds[6] -= w2;
-    othercells[ii * nx + jj].speeds[7] -= w2;
-  }
-}
-
-kernel void propagate(global t_speed* othercells,
-                      global t_speed* tmp_othercells,
-                      global int* obstacles,
-                      int nx, int ny)
-{
-  /* get column and row indices */
-  int jj = get_global_id(0);
-  int ii = get_global_id(1);
-
-  /* determine indices of axis-direction neighbours
-  ** respecting periodic boundary conditions (wrap around) */
-  int y_n = (ii + 1) % ny;
-  int x_e = (jj + 1) % nx;
-  int y_s = (ii == 0) ? (ii + ny - 1) : (ii - 1);
-  int x_w = (jj == 0) ? (jj + nx - 1) : (jj - 1);
-  /* propagate densities to neighbouring othercells, following
-  ** appropriate directions of travel and writing into
-  ** scratch space grid */
-  tmp_othercells[ii  * nx + jj ].speeds[0] = othercells[ii * nx + jj].speeds[0]; /* central cell, no movement */
-  tmp_othercells[ii  * nx + x_e].speeds[1] = othercells[ii * nx + jj].speeds[1]; /* east */
-  tmp_othercells[y_n * nx + jj ].speeds[2] = othercells[ii * nx + jj].speeds[2]; /* north */
-  tmp_othercells[ii  * nx + x_w].speeds[3] = othercells[ii * nx + jj].speeds[3]; /* west */
-  tmp_othercells[y_s * nx + jj ].speeds[4] = othercells[ii * nx + jj].speeds[4]; /* south */
-  tmp_othercells[y_n * nx + x_e].speeds[5] = othercells[ii * nx + jj].speeds[5]; /* north-east */
-  tmp_othercells[y_n * nx + x_w].speeds[6] = othercells[ii * nx + jj].speeds[6]; /* north-west */
-  tmp_othercells[y_s * nx + x_w].speeds[7] = othercells[ii * nx + jj].speeds[7]; /* south-west */
-  tmp_othercells[y_s * nx + x_e].speeds[8] = othercells[ii * nx + jj].speeds[8]; /* south-east */
-}

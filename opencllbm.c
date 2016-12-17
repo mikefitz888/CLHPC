@@ -123,8 +123,7 @@ typedef struct
   cl_kernel  accelerate_flow;
   cl_kernel  propagate;
   cl_kernel  lbm;
-  cl_kernel  swapGhostCellsLR;
-  cl_kernel  swapGhostCellsTB;
+  cl_kernel  reduce;
 
   cl_mem cells;
   cl_mem tmp_cells;
@@ -773,10 +772,8 @@ int initialise(const char* paramfile, const char* obstaclefile,
   checkError(err, "creating propagate kernel", __LINE__);
   ocl->lbm = clCreateKernel(ocl->program, "lbm", &err);
   checkError(err, "creating lbm kernel", __LINE__);
-  ocl->swapGhostCellsLR = clCreateKernel(ocl->program, "swapGhostCellsLR", &err);
-  checkError(err, "creating swapGhostCellsLR kernel", __LINE__);
-  ocl->swapGhostCellsTB = clCreateKernel(ocl->program, "swapGhostCellsTB", &err);
-  checkError(err, "creating swapGhostCellsTB kernel", __LINE__);
+  ocl->lbm = clCreateKernel(ocl->program, "reduce", &err);
+  checkError(err, "creating reduce kernel", __LINE__);
 
   params->partial_sums = malloc(sizeof(float) * params->nx * params->ny);
 
