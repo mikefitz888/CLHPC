@@ -81,17 +81,6 @@ kernel void rebound(global t_speed* cells,
   int jj = get_global_id(0);
   int ii = get_global_id(1);
 
-  if (obstacles[ii * nx + jj])
-  {
-    cells[ii * nx + jj].speeds[1] = tmp_cells[ii * nx + jj].speeds[3];
-    cells[ii * nx + jj].speeds[2] = tmp_cells[ii * nx + jj].speeds[4];
-    cells[ii * nx + jj].speeds[3] = tmp_cells[ii * nx + jj].speeds[1];
-    cells[ii * nx + jj].speeds[4] = tmp_cells[ii * nx + jj].speeds[2];
-    cells[ii * nx + jj].speeds[5] = tmp_cells[ii * nx + jj].speeds[7];
-    cells[ii * nx + jj].speeds[6] = tmp_cells[ii * nx + jj].speeds[8];
-    cells[ii * nx + jj].speeds[7] = tmp_cells[ii * nx + jj].speeds[5];
-    cells[ii * nx + jj].speeds[8] = tmp_cells[ii * nx + jj].speeds[6];
-  }
 }
 
 kernel void collision(global t_speed* cells,
@@ -180,5 +169,14 @@ kernel void collision(global t_speed* cells,
                                               + omega
                                               * (d_equ[kk] - tmp_cells[ii * nx + jj].speeds[kk]);
     }
+  }else{
+    cells[ii * nx + jj].speeds[1] = tmp_cells[ii * nx + jj].speeds[3];
+    cells[ii * nx + jj].speeds[2] = tmp_cells[ii * nx + jj].speeds[4];
+    cells[ii * nx + jj].speeds[3] = tmp_cells[ii * nx + jj].speeds[1];
+    cells[ii * nx + jj].speeds[4] = tmp_cells[ii * nx + jj].speeds[2];
+    cells[ii * nx + jj].speeds[5] = tmp_cells[ii * nx + jj].speeds[7];
+    cells[ii * nx + jj].speeds[6] = tmp_cells[ii * nx + jj].speeds[8];
+    cells[ii * nx + jj].speeds[7] = tmp_cells[ii * nx + jj].speeds[5];
+    cells[ii * nx + jj].speeds[8] = tmp_cells[ii * nx + jj].speeds[6];
   }
 }
