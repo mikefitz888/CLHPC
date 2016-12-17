@@ -922,8 +922,8 @@ int write_values(const t_param* params, t_speed* cells, t_obstacle* obstacles, t
       }
 
       /* write to file */
-      //fprintf(fp, "%d %d %f %f %f %f %f %f %f %f %f %f\n", jj, ii, obstacles[ii*params->nx + jj], cells[L(jj, ii, 0, params->nx)], cells[L(jj, ii, 1, params->nx)], cells[L(jj, ii, 2, params->nx)], cells[L(jj, ii, 3, params->nx)], cells[L(jj, ii, 4, params->nx)], cells[L(jj, ii, 5, params->nx)], cells[L(jj, ii, 6, params->nx)], cells[L(jj, ii, 7, params->nx)], cells[L(jj, ii, 8, params->nx)]);
-      fprintf(fp, "%d %d %.12E %.12E %.12E %.12E %d\n", jj, ii, u_x, u_y, u, pressure, -(int)((obstacles)[ii * params->nx + jj]) );
+      fprintf(fp, "%d %d %f %f %f %f %f %f %f %f %f %f\n", jj, ii, obstacles[ii*params->nx + jj], cells[L(jj, ii, 0, params->nx)], cells[L(jj, ii, 1, params->nx)], cells[L(jj, ii, 2, params->nx)], cells[L(jj, ii, 3, params->nx)], cells[L(jj, ii, 4, params->nx)], cells[L(jj, ii, 5, params->nx)], cells[L(jj, ii, 6, params->nx)], cells[L(jj, ii, 7, params->nx)], cells[L(jj, ii, 8, params->nx)]);
+      //fprintf(fp, "%d %d %.12E %.12E %.12E %.12E %d\n", jj, ii, u_x, u_y, u, pressure, -(int)((obstacles)[ii * params->nx + jj]) );
     }
   }
 
