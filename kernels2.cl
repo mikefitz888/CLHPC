@@ -98,6 +98,8 @@ kernel void collision(global t_speed* cells,
                       global t_speed* tmp_cells,
                       global int* obstacles,
                       int nx, int ny){
+  int jj = get_global_id(0);
+  int ii = get_global_id(1);
   if (!obstacles[ii * nx + jj])
   {
     /* compute local density total */
