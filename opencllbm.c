@@ -104,6 +104,7 @@ typedef struct
   int nx_pad;
   int ny_pad;
   int available_cells;
+  float* partial_sums;
 } t_param;
 
 /* struct to hold the 'speed' values */
@@ -416,6 +417,16 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     err = clFinish(ocl.queue);
     checkError(err, "waiting for lbm kernel", __LINE__);
 
+    err = clEnqueueReadBuffer(ocl.queue, ocl.partial_sums, CL_TRUE, 0, sizeof(cl_float) * (params->ny * params->nx), params->partial_sums, 0, NULL, NULL);
+    checkError(err, "reading partial_sums data", __LINE__);
+
+    av_vels[2*iteration] = 0.0f;
+    for(int y = 0; y < params->ny; y++){
+      for(int x = 0; x < params->nx; x++){
+        av_vels[2*iteration] += params->partial_sums[y*params->ny+x];
+      }
+    }
+
     err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.cells);
     checkError(err, "setting lbm arg 0", __LINE__);
     err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.tmp_cells);
@@ -424,6 +435,16 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     checkError(err, "enqueuing lbm kernel", __LINE__);
     err = clFinish(ocl.queue);
     checkError(err, "waiting for lbm kernel", __LINE__);
+
+    err = clEnqueueReadBuffer(ocl.queue, ocl.partial_sums, CL_TRUE, 0, sizeof(cl_float) * (params->ny * params->nx), params->partial_sums, 0, NULL, NULL);
+    checkError(err, "reading partial_sums data", __LINE__);
+
+    av_vels[2*iteration] = 0.0f;
+    for(int y = 0; y < params->ny; y++){
+      for(int x = 0; x < params->nx; x++){
+        av_vels[2*iteration+1] += params->partial_sums[y*params->ny+x];
+      }
+    }
   }
 
   
@@ -757,16 +778,18 @@ int initialise(const char* paramfile, const char* obstaclefile,
   ocl->swapGhostCellsTB = clCreateKernel(ocl->program, "swapGhostCellsTB", &err);
   checkError(err, "creating swapGhostCellsTB kernel", __LINE__);
 
+  params->partial_sums = malloc(sizeof(float) * params->nx * params->ny);
+
 
   // Allocate OpenCL buffers
   ocl->cells = clCreateBuffer(
     ocl->context, CL_MEM_READ_WRITE,
-    sizeof(cl_float) * (NSPEEDS * params->ny * params->nx), *cells_ptr, &err);
+    sizeof(cl_float) * (NSPEEDS * params->ny * params->nx), NULL, &err);
   checkError(err, "creating grid buffer", __LINE__);
 
   ocl->tmp_cells = clCreateBuffer(
     ocl->context, CL_MEM_READ_WRITE,
-    sizeof(cl_float) * (NSPEEDS * params->ny * params->nx), *tmp_cells_ptr, &err);
+    sizeof(cl_float) * (NSPEEDS * params->ny * params->nx), NULL, &err);
   checkError(err, "creating grid buffer", __LINE__);
 
 
@@ -791,7 +814,7 @@ int initialise(const char* paramfile, const char* obstaclefile,
     sizeof(t_param), NULL, &err);
   checkError(err, "creating param buffer", __LINE__);
 
-  ocl->partial_sums = clCreateBuffer(ocl->context, CL_MEM_WRITE_ONLY, sizeof(cl_float) * (params->nx/VECTOR_SIZE) * params->ny, NULL, &err);
+  ocl->partial_sums = clCreateBuffer(ocl->context, CL_MEM_WRITE_ONLY, sizeof(cl_float) * (params->nx) * params->ny, NULL, &err);
   checkError(err, "creating partial_sums buffer", __LINE__);
 
   return EXIT_SUCCESS;

@@ -148,6 +148,12 @@ kernel void lbm(global float* input_grid, global float* output_grid, global floa
   floatv x_sq = xpos*xpos;
   floatv y_sq = ypos*ypos;
 
+  floatv sum = 0.0f;
+  if(omask2 != 0.0f){
+    sum = sqrt(x_sq + y_sq);
+  }
+  partial_sums[y*params->nx + x] = sum;
+
   /*floatv sum =  sqrt(x_sq + y_sq) * o_mask2; //Ignore obstacles in the summation
 
   //float tot_u = sum.s0 + sum.s1 + sum.s2 + sum.s3 + sum.s4 + sum.s5 + sum.s6 + sum.s7 + sum.s8 + sum.s9 + sum.s10 + sum.s11 + sum.s12 + sum.s13 + sum.s14 + sum.s15;
