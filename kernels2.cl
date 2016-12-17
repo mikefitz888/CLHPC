@@ -112,7 +112,7 @@ kernel void collision(global t_speed* cells,
                      + tmp_cells[ii * nx + jj].speeds[7]))
                  / local_density;
     /* compute y velocity component */
-    flaot u_y = (tmp_cells[ii * nx + jj].speeds[2]
+    float u_y = (tmp_cells[ii * nx + jj].speeds[2]
                   + tmp_cells[ii * nx + jj].speeds[5]
                   + tmp_cells[ii * nx + jj].speeds[6]
                   - (tmp_cells[ii * nx + jj].speeds[4]
@@ -121,10 +121,10 @@ kernel void collision(global t_speed* cells,
                  / local_density;
 
     /* velocity squared */
-    flaot u_sq = u_x * u_x + u_y * u_y;
+    float u_sq = u_x * u_x + u_y * u_y;
 
     /* directional velocity components */
-    flaot u[NSPEEDS];
+    float u[NSPEEDS];
     u[1] =   u_x;        /* east */
     u[2] =         u_y;  /* north */
     u[3] = - u_x;        /* west */
@@ -135,7 +135,7 @@ kernel void collision(global t_speed* cells,
     u[8] =   u_x - u_y;  /* south-east */
 
     /* equilibrium densities */
-    flaot d_equ[NSPEEDS];
+    float d_equ[NSPEEDS];
     /* zero velocity density: weight w0 */
     d_equ[0] = w0 * local_density
                * (1.0 - u_sq / (2.0 * c_sq));
@@ -178,8 +178,8 @@ kernel void collision(global t_speed* cells,
     cells[ys * nx + xe].speeds[8] = tmp_cells[ii * nx + jj].speeds[8] + omega * (d_equ[8] - tmp_cells[ii * nx + jj].speeds[8]);
 
 
-    flaot w1 = density * accel / 9.0;
-    flaot w2 = density * accel / 36.0;
+    float w1 = density * accel / 9.0;
+    float w2 = density * accel / 36.0;
 
     /* if the cell is not occupied and
     ** we don't send a negative density */
