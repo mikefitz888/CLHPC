@@ -404,7 +404,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
   int zero = 0;
   int one = 1;
 
-  for(int iteration = 0; iteration < 1; iteration++){
+  for(int iteration = 0; iteration < 20000; iteration++){
     err = clSetKernelArg(ocl.lbm, 0, sizeof(cl_mem), &ocl.tmp_cells);
     checkError(err, "setting lbm arg 0", __LINE__);
     err = clSetKernelArg(ocl.lbm, 1, sizeof(cl_mem), &ocl.cells);
