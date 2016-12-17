@@ -56,13 +56,13 @@ typedef struct
 } t_speed;
 
 kernel void reduce(global float* partial_sums){
-  int x = get_global_id(0);
+  /*int x = get_global_id(0);
   int y = get_global_id(1);
 
   int X = get_group_id(0);
   int Y = get_group_id(1);
 
-  partial_sums[Y*get_num_groups(0)+X] += partial_sums[y*NX+x];
+  partial_sums[Y*get_num_groups(0)+X] += partial_sums[y*NX+x];*/
 }
 
 kernel void lbm(global float* input_grid, global float* output_grid, global float* obstacles, global float* partial_sums, int it, global t_param* params)
