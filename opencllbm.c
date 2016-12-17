@@ -423,7 +423,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     av_vels[2*iteration] = 0.0f;
     for(int y = 0; y < params->ny; y++){
       for(int x = 0; x < params->nx; x++){
-        av_vels[2*iteration] += params->partial_sums[y*params->ny+x];
+        av_vels[2*iteration] += params->partial_sums[y*params->ny+x]*inverse_available_cells;
       }
     }
 
@@ -442,7 +442,7 @@ int timestep(const t_param* restrict params, t_speed* cells, t_speed* tmp_cells,
     av_vels[2*iteration+1] = 0.0f;
     for(int y = 0; y < params->ny; y++){
       for(int x = 0; x < params->nx; x++){
-        av_vels[2*iteration+1] += params->partial_sums[y*params->ny+x];
+        av_vels[2*iteration+1] += params->partial_sums[y*params->ny+x]*inverse_available_cells;
       }
     }
   }
