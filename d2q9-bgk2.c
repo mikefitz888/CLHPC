@@ -253,16 +253,8 @@ int main(int argc, char* argv[])
   err = clSetKernelArg(ocl.collision, 7, sizeof(cl_double), &params.accel);
   checkError(err, "setting collision arg 7", __LINE__);
 
-
-
-
-
-
-
-
-
-
   accelerate_flow(params, cells, obstacles, ocl);
+  propagate(params, cells, tmp_cells, ocl);
   for (int tt = 0; tt < params.maxIters; tt++)
   {
     timestep(params, cells, tmp_cells, obstacles, ocl);
@@ -302,9 +294,6 @@ int main(int argc, char* argv[])
 
 int timestep(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obstacles, t_ocl ocl)
 {
-  
-  propagate(params, cells, tmp_cells, ocl);
-
   //rebound(params, cells, tmp_cells, obstacles, ocl);
 
   collision(params, cells, tmp_cells, obstacles, ocl);
