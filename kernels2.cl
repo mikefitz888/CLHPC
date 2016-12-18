@@ -123,7 +123,7 @@ kernel void collision(global t_speed* restrict cells,
     printf("group_id=%d, size=%d\n", get_group_id(0), get_local_size(0)=64);
   }*/
   //t_speed cell = tmp_cells[gid];
-  float* in;// = cell.speeds;
+  float in[9];// = cell.speeds;
   for(int i = 0; i < 9; i++){
     in[i] = cells[L(jj, ii, i, nx)];
   }
