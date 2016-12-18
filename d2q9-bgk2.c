@@ -302,8 +302,6 @@ int main(int argc, char* argv[])
   for (int tt = 0; tt < params.maxIters/2; tt++)
   {
 
-    /*err = clSetKernelArg(ocl.collision, 11, sizeof(cl_int), &tt);
-    checkError(err, "setting collision arg 11", __LINE__);*/
     int a = tt;
     int b = tt+1;
     err = clSetKernelArg(ocl.collision, 11, sizeof(cl_int), &a);
@@ -317,19 +315,14 @@ int main(int argc, char* argv[])
     err = clEnqueueReadBuffer(ocl.queue, ocl.lbuffer, CL_TRUE, 0, sizeof(cl_float) * (num_work_groups), params.partial_sums, 0, NULL, NULL);
     checkError(err, "reading partial_sums data", __LINE__);
 
-    //err = clFinish(ocl.queue);
-    //checkError(err, "waiting for collision kernel", __LINE__);
+    err = clFinish(ocl.queue);
+    checkError(err, "waiting for collision kernel", __LINE__);
 
     av_vels[2*tt] = 0.0f;
     for(int y = 0; y < num_work_groups; y++){
         av_vels[2*tt] += params.partial_sums[y]*inverse_available_cells;
     }
 
-    
-
-    /*tt++;
-    err = clSetKernelArg(ocl.collision2, 11, sizeof(cl_int), &tt);
-    checkError(err, "setting collision arg 11", __LINE__);*/
 
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision2,
                                1, NULL, global, local, 0, NULL, NULL);
@@ -337,8 +330,8 @@ int main(int argc, char* argv[])
     err = clEnqueueReadBuffer(ocl.queue, ocl.lbuffer, CL_TRUE, 0, sizeof(cl_float) * (num_work_groups), params.partial_sums, 0, NULL, NULL);
     checkError(err, "reading partial_sums data", __LINE__);
 
-    //err = clFinish(ocl.queue);
-    //checkError(err, "waiting for collision kernel", __LINE__);
+    err = clFinish(ocl.queue);
+    checkError(err, "waiting for collision kernel", __LINE__);
 
     av_vels[2*tt+1] = 0.0f;
     for(int y = 0; y < num_work_groups; y++){
