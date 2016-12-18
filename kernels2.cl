@@ -88,13 +88,14 @@ void reduceGlobal(global float* lbuffer, global float* av_vels){
 }
 
 void reduce(global float* lbuffer, local volatile float* datastr, global float* av_vels){
-  float sum;
-  if(get_local_id(0) == 0){
-    sum = 0.0f;
-    for(int i = 0; i < 64; i++){
-      sum += datastr[i];
-    }
-    lbuffer[get_group_id(0)] = sum;
+  int i = get_local_id(0);
+  if(i < 32){
+    datastr[i] += datastr[i+32]; barrier(CLK_LOCAL_MEM_FENCE);
+    if(i < 16){ datastr[i] += datastr[i+16]; } barrier(CLK_LOCAL_MEM_FENCE);
+    if(i < 8){ datastr[i] += datastr[i+8]; } barrier(CLK_LOCAL_MEM_FENCE);
+    if(i < 4){ datastr[i] += datastr[i+4]; } barrier(CLK_LOCAL_MEM_FENCE);
+    if(i < 2){ datastr[i] += datastr[i+2]; } barrier(CLK_LOCAL_MEM_FENCE);
+    if(i < 1){ lbuffer[i] = datastr[i] + datastr[i+1]; } barrier(CLK_LOCAL_MEM_FENCE);
   }
 }
 
