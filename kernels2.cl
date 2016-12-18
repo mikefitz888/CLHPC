@@ -118,7 +118,8 @@ kernel void collision(global t_speed* cells,
 
     /* velocity squared */
     float sum = sqrt(ux * ux + uy * uy);
-    
+    /* Reduction */
+    unsigned int tid = get_local_id(0) + get_local_id(1)*get_local_size(0);
 
 
     float uxsq = ux*ux;
