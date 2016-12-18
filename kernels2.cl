@@ -125,7 +125,7 @@ kernel void collision(global t_speed* restrict cells,
   //t_speed cell = tmp_cells[gid];
   float* in;// = cell.speeds;
   for(int i = 0; i < 9; i++){
-    in[i] = cell[L(jj, ii, i, nx)];
+    in[i] = cells[L(jj, ii, i, nx)];
   }
 
   if (!obstacles[gid])
@@ -220,26 +220,26 @@ kernel void collision(global t_speed* restrict cells,
     }
 
     cells[L(jj, ii, 0, nx)]  =in[0]; /* central cell, no movement */
-    cells[L(x_e, ii, 1, nx)] =in[1]; /* east */
-    cells[L(jj, y_n, 2, nx)] =in[2]; /* north */
-    cells[L(x_w, ii, 3, nx)] =in[3]; /* west */
+    cells[L(xe, ii, 1, nx)] =in[1]; /* east */
+    cells[L(jj, yn, 2, nx)] =in[2]; /* north */
+    cells[L(xw, ii, 3, nx)] =in[3]; /* west */
     cells[L(jj, y_s, 4, nx)] =in[4]; /* south */
-    cells[L(x_e, y_n, 5, nx)]=in[5]; /* north-east */
-    cells[L(x_w, y_n, 6, nx)]=in[6]; /* north-west */
-    cells[L(x_w, y_s, 7, nx)]=in[7]; /* south-west */
-    cells[L(x_e, y_s, 8, nx)]=in[8]; /* south-east */
+    cells[L(xe, yn, 5, nx)]=in[5]; /* north-east */
+    cells[L(xw, yn, 6, nx)]=in[6]; /* north-west */
+    cells[L(xw, ys, 7, nx)]=in[7]; /* south-west */
+    cells[L(xe, ys, 8, nx)]=in[8]; /* south-east */
   }else{
     datastr[get_local_id(0)] = 0.0f;
     //lbuffer[get_global_id(0)] = 0.0f;
 
-    cells[L(x_e, ii, 1, nx)] =in[3]; /* east */
-    cells[L(jj, y_n, 2, nx)] =in[4]; /* north */
-    cells[L(x_w, ii, 3, nx)] =in[1]; /* west */
-    cells[L(jj, y_s, 4, nx)] =in[2]; /* south */
-    cells[L(x_e, y_n, 5, nx)]=in[7]; /* north-east */
-    cells[L(x_w, y_n, 6, nx)]=in[8]; /* north-west */
-    cells[L(x_w, y_s, 7, nx)]=in[5]; /* south-west */
-    cells[L(x_e, y_s, 8, nx)]=in[6]; /* south-east */
+    cells[L(xe, ii, 1, nx)] =in[3]; /* east */
+    cells[L(jj, yn, 2, nx)] =in[4]; /* north */
+    cells[L(xw, ii, 3, nx)] =in[1]; /* west */
+    cells[L(jj, ys, 4, nx)] =in[2]; /* south */
+    cells[L(xe, yn, 5, nx)]=in[7]; /* north-east */
+    cells[L(xw, yn, 6, nx)]=in[8]; /* north-west */
+    cells[L(xw, ys, 7, nx)]=in[5]; /* south-west */
+    cells[L(xe, ys, 8, nx)]=in[6]; /* south-east */
   }
 
   /* Reduction */
