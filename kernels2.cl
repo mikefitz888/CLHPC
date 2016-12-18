@@ -204,6 +204,15 @@ kernel void collision(global t_speed* cells,
   }
 
   /* Reduction */
+  int num_wrk_items  = get_local_size(0);                 
+  int local_id       = get_local_id(0);                   
+  int group_id       = get_group_id(0); 
+
+  if(ii == 40 && jj == 40){
+    printf("num_wrk_items = %d\n", num_wrk_items);
+    printf("local_id = %d\n", local_id);
+    printf("group_id = %d\n", group_id);
+  }
     /*printf("local_id[0]=%d, group_id[0]=%d, local_size[0]=%d, global_size[0]=%d\n", get_local_id(0), get_group_id(0), get_local_size(0), get_global_size(0));
     unsigned int tid = get_local_id(0);
     unsigned int i   = (get_group_id(0)) * (get_local_size(0)*2) + tid;
