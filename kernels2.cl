@@ -68,14 +68,14 @@ kernel void propagate(global t_speed* cells,
   ** appropriate directions of travel and writing into
   ** scratch space grid */
   tmp_cells[0*nx*ny + ii*nx + jj] = cells[0*nx*ny + ii*nx + jj]; /* central cell, no movement */
-  tmp_cells[1*nx*ny + x_e*nx + jj] = cells[1*nx*ny + ii*nx + jj]; /* east */
-  tmp_cells[2*nx*ny + ii*nx + y_n] = cells[2*nx*ny + ii*nx + jj]; /* north */
-  tmp_cells[3*nx*ny + x_w*nx + jj] = cells[3*nx*ny + ii*nx + jj]; /* west */
-  tmp_cells[4*nx*ny + ii*nx + y_s] = cells[4*nx*ny + ii*nx + jj]; /* south */
-  tmp_cells[5*nx*ny + x_e*nx + y_n] = cells[5*nx*ny + ii*nx + jj]; /* north-east */
-  tmp_cells[6*nx*ny + x_w*nx + y_n] = cells[6*nx*ny + ii*nx + jj]; /* north-west */
-  tmp_cells[7*nx*ny + x_w*nx + y_s] = cells[7*nx*ny + ii*nx + jj]; /* south-west */
-  tmp_cells[8*nx*ny + x_e*nx + y_s] = cells[8*nx*ny + ii*nx + jj]; /* south-east */
+  tmp_cells[1*nx*ny + ii*nx + x_e] = cells[1*nx*ny + ii*nx + jj]; /* east */
+  tmp_cells[2*nx*ny + y_n*nx + jj] = cells[2*nx*ny + ii*nx + jj]; /* north */
+  tmp_cells[3*nx*ny + ii*nx + x_w] = cells[3*nx*ny + ii*nx + jj]; /* west */
+  tmp_cells[4*nx*ny + y_s*nx + jj] = cells[4*nx*ny + ii*nx + jj]; /* south */
+  tmp_cells[5*nx*ny + y_n*nx + x_e] = cells[5*nx*ny + ii*nx + jj]; /* north-east */
+  tmp_cells[6*nx*ny + y_n*nx + x_w] = cells[6*nx*ny + ii*nx + jj]; /* north-west */
+  tmp_cells[7*nx*ny + y_s*nx + x_w] = cells[7*nx*ny + ii*nx + jj]; /* south-west */
+  tmp_cells[8*nx*ny + y_s*nx + x_e] = cells[8*nx*ny + ii*nx + jj]; /* south-east */
 }
 
 kernel void rebound(global t_speed* cells,
