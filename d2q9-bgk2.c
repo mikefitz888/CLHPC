@@ -302,7 +302,7 @@ int main(int argc, char* argv[])
   for (int tt = 0; tt < params.maxIters; tt++)
   {
 
-    err = clSetKernelArg(ocl.collision2, 11, sizeof(cl_int), &tt);
+    err = clSetKernelArg(ocl.collision1, 11, sizeof(cl_int), &tt);
     checkError(err, "setting collision arg 11", __LINE__);
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
                                1, NULL, global, local, 0, NULL, NULL);
