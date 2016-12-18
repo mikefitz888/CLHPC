@@ -683,7 +683,7 @@ int initialise(const char* paramfile, const char* obstaclefile,
   size_t work_group_size = WORK_GROUP_SIZE;
   size_t num_work_groups = (params->nx * params->ny)/work_group_size;
   char* build_options = malloc(sizeof *build_options * 500);
-  sprintf(build_options, "-D NUM_WORK_GROUPS", num_work_groups);
+  sprintf(build_options, "-D NUM_WORK_GROUPS=%d", num_work_groups);
 
   // Create OpenCL program
   ocl->program = clCreateProgramWithSource(
