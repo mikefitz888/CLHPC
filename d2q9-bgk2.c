@@ -185,7 +185,8 @@ int main(int argc, char* argv[])
   /* initialise our data structures and load values from file */
   initialise(paramfile, obstaclefile, &params, &cells, &tmp_cells, &obstacles, &av_vels, &ocl);
 
-  
+  gettimeofday(&timstr, NULL);
+  tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
 
   // Write cells to OpenCL buffer
   err = clEnqueueWriteBuffer(
@@ -290,18 +291,17 @@ int main(int argc, char* argv[])
 
   accelerate_flow(params, cells, obstacles, ocl);
   propagate(params, cells, tmp_cells, ocl);
-  size_t global = params.nx * params.ny;
-  size_t local = 64;
+  size_t &global = {params.nx * params.ny};
+  size_t &local = {64};
   /* iterate for maxIters timesteps */
-  gettimeofday(&timstr, NULL);
-  tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
+  
   printf("wgs=%d\n", work_group_size);
 
   float inverse_available_cells = 1.0f/(126.0*126.0);
   for (int tt = 0; tt < 1+0*params.maxIters/2; tt++)
   {
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
-                               1, NULL, &global, &local, 0, NULL, NULL);
+                               1, NULL, global, local, 0, NULL, NULL);
     
     err = clEnqueueReadBuffer(ocl.queue, ocl.lbuffer, CL_TRUE, 0, sizeof(cl_float) * (params.ny * params.nx), params.partial_sums, 0, NULL, NULL);
     checkError(err, "reading partial_sums data", __LINE__);
@@ -317,7 +317,7 @@ int main(int argc, char* argv[])
     }
 
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision2,
-                               1, NULL, &global, &local, 0, NULL, NULL);
+                               1, NULL, global, local, 0, NULL, NULL);
   //checkError(err, "enqueueing collision kernel", __LINE__);
     err = clEnqueueReadBuffer(ocl.queue, ocl.lbuffer, CL_TRUE, 0, sizeof(cl_float) * (params.ny * params.nx), params.partial_sums, 0, NULL, NULL);
     checkError(err, "reading partial_sums data", __LINE__);
