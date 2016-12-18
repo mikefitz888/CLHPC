@@ -193,6 +193,7 @@ kernel void collision(global t_speed* restrict cells,
     e[7] = ((e[5] - px) - py);
     e[8] = ((e[6] + px) - py);
 
+    #pragma unroll
     for(int i = 0; i < 9; i++){
       in[i] *= (1 - omega);
       in[i] += e[i];
