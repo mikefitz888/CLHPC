@@ -298,7 +298,7 @@ int main(int argc, char* argv[])
   tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
   printf("wgs=%d\n", work_group_size);
 
-  float inverse_available_cells = 1.0f;
+  float inverse_available_cells = 1.0f/(126.0*126.0);
   for (int tt = 0; tt < params.maxIters/2; tt++)
   {
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
@@ -356,10 +356,10 @@ int main(int argc, char* argv[])
     sizeof(t_speed) * params.nx * params.ny, cells, 0, NULL, NULL);
   checkError(err, "reading tmp_cells data", __LINE__);
 
-  err = clEnqueueReadBuffer(
+  /*err = clEnqueueReadBuffer(
     ocl.queue, ocl.av_vels, CL_TRUE, 0,
     sizeof(float) * (1+params.maxIters), av_vels, 0, NULL, NULL);
-  checkError(err, "reading tmp_cells data", __LINE__);
+  checkError(err, "reading tmp_cells data", __LINE__);*/
 
   /* write final values and free memory */
   printf("==done==\n");
