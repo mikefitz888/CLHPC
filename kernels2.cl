@@ -210,10 +210,20 @@ kernel void collision(global t_speed* cells,
 
     datastr[tid] = sum;
     barrier(CLK_LOCAL_MEM_FENCE);
-    if(blockSize >= 512){
-      if(tid < 256){
-        datastr[tid] += datastr[tid+256];
-      }
-      barrier(CLK_LOCAL_MEM_FENCE);
+    if(blockSize >= 512){ if(tid < 256){ datastr[tid] += datastr[tid+256]; } barrier(CLK_LOCAL_MEM_FENCE); }
+    if(blockSize >= 256){ if(tid < 128){ datastr[tid] += datastr[tid+128]; } barrier(CLK_LOCAL_MEM_FENCE); }
+    if(blockSize >= 128){ if(tid < 64){ datastr[tid] += datastr[tid+64]; } barrier(CLK_LOCAL_MEM_FENCE); }
+
+    if(tid < 32){
+      if(blockSize >= 64){  datastr[tid] += datastr[tid+32]; }
+      if(blockSize >= 32){  datastr[tid] += datastr[tid+32]; }
+      if(blockSize >= 16){  datastr[tid] += datastr[tid+32]; }
+      if(blockSize >= 8){  datastr[tid] += datastr[tid+32]; }
+      if(blockSize >= 4){  datastr[tid] += datastr[tid+32]; }
+      if(blockSize >= 2){  datastr[tid] += datastr[tid+32]; }
+    }
+
+    if(tid == 0){
+      //Write partial sum
     }
 }
