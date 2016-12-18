@@ -52,8 +52,9 @@ kernel void propagate(global t_speed* cells,
                       int nx, int ny)
 {
   /* get column and row indices */
-  int jj = get_global_id(0);
-  int ii = get_global_id(1);
+  int gid = get_global_id(0);
+  int jj = gid & (nx-1); // y*nx+x
+  int ii = (get_global_id(0)-jj)/nx;
   //float in[NSPEEDS];
   //for (int k = 0; k < NSPEEDS; k++) in[k] = cells[k*nx*ny + ii*nx + jj];
 
