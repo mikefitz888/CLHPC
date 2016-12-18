@@ -255,8 +255,6 @@ int main(int argc, char* argv[])
   checkError(err, "setting collision arg 7", __LINE__);
   err = clSetKernelArg(ocl.collision, 7, sizeof(cl_mem), &ocl.av_vels);
   checkError(err, "setting collision arg 7", __LINE__);
-  err = clSetKernelArg(ocl.collision, 7, sizeof(size_t), &itr);
-  checkError(err, "setting collision arg 7", __LINE__);
 
   err = clSetKernelArg(ocl.collision2, 0, sizeof(cl_mem), &ocl.tmp_cells);
   checkError(err, "setting collision arg 0", __LINE__);
@@ -275,8 +273,6 @@ int main(int argc, char* argv[])
   err = clSetKernelArg(ocl.collision2, 7, sizeof(cl_float), &params.accel);
   checkError(err, "setting collision arg 7", __LINE__);
   err = clSetKernelArg(ocl.collision, 7, sizeof(cl_mem), &ocl.av_vels);
-  checkError(err, "setting collision arg 7", __LINE__);
-  err = clSetKernelArg(ocl.collision, 7, sizeof(size_t), &itr);
   checkError(err, "setting collision arg 7", __LINE__);
 
   accelerate_flow(params, cells, obstacles, ocl);

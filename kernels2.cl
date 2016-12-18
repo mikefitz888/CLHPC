@@ -86,7 +86,7 @@ kernel void rebound(global t_speed* cells,
 kernel void collision(global t_speed* cells,
                       global t_speed* tmp_cells,
                       global int* obstacles,
-                      int nx, int ny, float omega, float density, float accel, global t_speed* av_vels, global size_t iteration){
+                      int nx, int ny, float omega, float density, float accel, global t_speed* av_vels){
   int jj = get_global_id(0);
   int ii = get_global_id(1);
   int yn = (ii + 1) % ny;
@@ -118,7 +118,7 @@ kernel void collision(global t_speed* cells,
 
     /* velocity squared */
     float sum = sqrt(ux * ux + uy * uy);
-    atomic_add();
+    atomic_add(av_vels, 1.0f);
 
 
     float uxsq = ux*ux;
