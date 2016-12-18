@@ -130,7 +130,7 @@ kernel void collision(global t_speed* cells,
     /*for(int i = 0; i < 9; i++){
       in[i] = speeds[i];
     }*/
-    t_speed cell = tmp_cells[gid]
+    t_speed cell = tmp_cells[gid];
             in = cell.speeds;
 
     float xneg = in[3] + in[6] + in[7];
