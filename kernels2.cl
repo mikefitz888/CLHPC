@@ -83,7 +83,11 @@ kernel void rebound(global t_speed* cells,
 
 }
 
-void reduce(global float* lbuffer, local volatile float* datastr){
+void reduceGlobal(global float* lbuffer, global float* av_vels){
+
+}
+
+void reduce(global float* lbuffer, local volatile float* datastr, global float* av_vels){
   float sum;
   if(get_local_id(0) == 0){
     sum = 0.0f;

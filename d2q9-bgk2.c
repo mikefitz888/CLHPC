@@ -67,6 +67,7 @@
 #define FINALSTATEFILE  "final_state.dat"
 #define AVVELSFILE      "av_vels.dat"
 #define OCLFILE         "kernels2.cl"
+#define WORK_GROUP_SIZE 64
 
 /* struct to hold the parameter values */
 typedef struct
@@ -286,7 +287,7 @@ int main(int argc, char* argv[])
   err = clSetKernelArg(ocl.collision2, 10, sizeof(cl_mem), &ocl.lbuffer);
   checkError(err, "setting collision arg 10", __LINE__);
 
-  size_t work_group_size = 64;
+  size_t work_group_size = WORK_GROUP_SIZE;
   size_t num_work_groups = (params.nx * params.ny)/work_group_size;
 
   accelerate_flow(params, cells, obstacles, ocl);
@@ -678,6 +679,12 @@ int initialise(const char* paramfile, const char* obstaclefile,
   fread(ocl_src, 1, ocl_size, fp);
   fclose(fp);
 
+
+  size_t work_group_size = WORK_GROUP_SIZE;
+  size_t num_work_groups = (params->nx * params->ny)/work_group_size;
+  char* build_options = malloc(sizeof *build_options * 500);
+  sprintf(build_options, "-D NUM_WORK_GROUPS", num_work_groups);
+
   // Create OpenCL program
   ocl->program = clCreateProgramWithSource(
     ocl->context, 1, (const char**)&ocl_src, NULL, &err);
@@ -685,7 +692,7 @@ int initialise(const char* paramfile, const char* obstaclefile,
   checkError(err, "creating program", __LINE__);
 
   // Build OpenCL program
-  err = clBuildProgram(ocl->program, 1, &ocl->device, "", NULL, NULL);
+  err = clBuildProgram(ocl->program, 1, &ocl->device, build_options, NULL, NULL);
   if (err == CL_BUILD_PROGRAM_FAILURE)
   {
     size_t sz;
