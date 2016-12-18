@@ -287,7 +287,7 @@ int main(int argc, char* argv[])
   accelerate_flow(params, cells, obstacles, ocl);
   propagate(params, cells, tmp_cells, ocl);
   size_t global[2] = {params.nx, params.ny};
-  size_t local[2] = {16, 8};
+  size_t local[2] = {128, 1};
   /* iterate for maxIters timesteps */
   gettimeofday(&timstr, NULL);
   tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
