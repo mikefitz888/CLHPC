@@ -121,8 +121,10 @@ kernel void collision(global t_speed* restrict cells,
     printf("group_id=%d, size=%d\n", get_group_id(0), get_local_size(0)=64);
   }*/
   t_speed cell = tmp_cells[gid];
-
   float* in = cell.speeds;
+
+  if (!obstacles[gid])
+  {
 
     /* compute x velocity component */
     //global float* speeds = tmp_cells[gid].speeds;
@@ -131,7 +133,7 @@ kernel void collision(global t_speed* restrict cells,
     /*for(int i = 0; i < 9; i++){
       in[i] = speeds[i];
     }*/
-    int obs_mul = 1 - obstacles[gid];
+    
 
     float xneg = in[3] + in[6] + in[7];
     float yneg = in[4] + in[7] + in[8]; 
@@ -149,7 +151,7 @@ kernel void collision(global t_speed* restrict cells,
 
     float uxsq = ux*ux;
     float uysq = uy*uy;
-    datastr[get_local_id(0)] = sqrt(uxsq + uysq)*obs_mul;
+    datastr[get_local_id(0)] = sqrt(uxsq + uysq);
     //lbuffer[get_global_id(0)] = sqrt(uxsq + uysq);
     //tot_u += sqrt(uxsq + uysq);
 
@@ -193,8 +195,8 @@ kernel void collision(global t_speed* restrict cells,
 
     #pragma unroll
     for(int i = 0; i < 9; i++){
-      in[i] *= (1 - omega)*obs_mul;
-      in[i] += e[i]*obs_mul;
+      in[i] *= (1 - omega);
+      in[i] += e[i];
     }
 
     //Acceleration
@@ -203,8 +205,7 @@ kernel void collision(global t_speed* restrict cells,
     if (ii == ny-2
         && (in[3] - w1) > 0.0f
         && (in[6] - w2) > 0.0f
-        && (in[7] - w2) > 0.0f
-        && obs_mul)
+        && (in[7] - w2) > 0.0f)
     {
       in[1] += w1;
       in[5] += w2;
@@ -215,17 +216,26 @@ kernel void collision(global t_speed* restrict cells,
     }
 
     cells[ii * nx + jj].speeds[0] = in[0];
-
-    size_t mod = (1-obs_mul)*2;
-    cells[ii * nx + xe].speeds[1] = in[1+mod]; // +2
-    cells[yn * nx + jj].speeds[2] = in[2+mod]; // +2
-    cells[ii * nx + xw].speeds[3] = in[3-mod]; // -2
-    cells[ys * nx + jj].speeds[4] = in[4-mod]; // -2
-    cells[yn * nx + xe].speeds[5] = in[5+mod]; // +2
-    cells[yn * nx + xw].speeds[6] = in[6+mod]; // +2
-    cells[ys * nx + xw].speeds[7] = in[7-mod]; // -2
-    cells[ys * nx + xe].speeds[8] = in[8-mod]; // -2
-
+    cells[ii * nx + xe].speeds[1] = in[1];
+    cells[yn * nx + jj].speeds[2] = in[2];
+    cells[ii * nx + xw].speeds[3] = in[3];
+    cells[ys * nx + jj].speeds[4] = in[4];
+    cells[yn * nx + xe].speeds[5] = in[5];
+    cells[yn * nx + xw].speeds[6] = in[6];
+    cells[ys * nx + xw].speeds[7] = in[7];
+    cells[ys * nx + xe].speeds[8] = in[8];
+  }else{
+    datastr[get_local_id(0)] = 0.0f;
+    //lbuffer[get_global_id(0)] = 0.0f;
+    cells[ii * nx + xe].speeds[1] = in[3];
+    cells[yn * nx + jj].speeds[2] = in[4];
+    cells[ii * nx + xw].speeds[3] = in[1];
+    cells[ys * nx + jj].speeds[4] = in[2];
+    cells[yn * nx + xe].speeds[5] = in[7];
+    cells[yn * nx + xw].speeds[6] = in[8];
+    cells[ys * nx + xw].speeds[7] = in[5];
+    cells[ys * nx + xe].speeds[8] = in[6];
+  }
 
   /* Reduction */
   //int num_wrk_items  = get_local_size(0);                 
