@@ -235,6 +235,7 @@ int main(int argc, char* argv[])
   err = clSetKernelArg(ocl.rebound, 4, sizeof(cl_int), &params.ny);
   checkError(err, "setting rebound arg 4", __LINE__);
 
+  size_t itr = 0;
   err = clSetKernelArg(ocl.collision, 0, sizeof(cl_mem), &ocl.cells);
   checkError(err, "setting collision arg 0", __LINE__);
   err = clSetKernelArg(ocl.collision, 1, sizeof(cl_mem), &ocl.tmp_cells);
@@ -250,6 +251,10 @@ int main(int argc, char* argv[])
   err = clSetKernelArg(ocl.collision, 6, sizeof(cl_float), &params.density);
   checkError(err, "setting collision arg 6", __LINE__);
   err = clSetKernelArg(ocl.collision, 7, sizeof(cl_float), &params.accel);
+  checkError(err, "setting collision arg 7", __LINE__);
+  err = clSetKernelArg(ocl.collision, 7, sizeof(cl_mem), &ocl.av_vels);
+  checkError(err, "setting collision arg 7", __LINE__);
+  err = clSetKernelArg(ocl.collision, 7, sizeof(size_t), &itr);
   checkError(err, "setting collision arg 7", __LINE__);
 
   err = clSetKernelArg(ocl.collision2, 0, sizeof(cl_mem), &ocl.tmp_cells);
@@ -267,6 +272,10 @@ int main(int argc, char* argv[])
   err = clSetKernelArg(ocl.collision2, 6, sizeof(cl_float), &params.density);
   checkError(err, "setting collision arg 6", __LINE__);
   err = clSetKernelArg(ocl.collision2, 7, sizeof(cl_float), &params.accel);
+  checkError(err, "setting collision arg 7", __LINE__);
+  err = clSetKernelArg(ocl.collision, 7, sizeof(cl_mem), &ocl.av_vels);
+  checkError(err, "setting collision arg 7", __LINE__);
+  err = clSetKernelArg(ocl.collision, 7, sizeof(size_t), &itr);
   checkError(err, "setting collision arg 7", __LINE__);
 
   accelerate_flow(params, cells, obstacles, ocl);
@@ -385,11 +394,7 @@ int rebound(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obsta
 
 int collision(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obstacles, t_ocl ocl, int iteration)
 {
-  cl_int err;
-  
-  
-
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
 
 double av_velocity(const t_param params, t_speed* cells, int* obstacles, t_ocl ocl)
@@ -595,7 +600,10 @@ int initialise(const char* paramfile, const char* obstaclefile,
   ** allocate space to hold a record of the avarage velocities computed
   ** at each timestep
   */
-  *av_vels_ptr = (double*)malloc(sizeof(double) * params->maxIters);
+  *av_vels_ptr = (float*)malloc(sizeof(float) * params->maxIters);
+  for(int i = 0; i < params->maxIters; i++){
+    (*av_vels_ptr)[i] = 0;
+  }
 
 
   cl_int err;
@@ -673,6 +681,10 @@ int initialise(const char* paramfile, const char* obstaclefile,
   ocl->obstacles = clCreateBuffer(
     ocl->context, CL_MEM_READ_WRITE,
     sizeof(cl_int) * params->nx * params->ny, NULL, &err);
+  checkError(err, "creating obstacles buffer", __LINE__);
+  ocl->av_vels = clCreateBuffer(
+    ocl->context, CL_MEM_READ_WRITE,
+    sizeof(cl_float) * params->maxIters, NULL, &err);
   checkError(err, "creating obstacles buffer", __LINE__);
 
   return EXIT_SUCCESS;
