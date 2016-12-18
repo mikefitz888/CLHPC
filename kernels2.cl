@@ -149,8 +149,8 @@ kernel void collision(global t_speed* cells,
     float py = local_density * ux3 * 2;
     e[1] = (local_density +(local_density * ((ux3 + uxsq3) - uysq15))); //East
     e[2] = (local_density +(local_density * ((uy3 + uysq3) - uxsq15))); //North
-    e[3] = (e1 - px); //West
-    e[4] = (e4 - py); //South
+    e[3] = (e[1] - px); //West
+    e[4] = (e[4] - py); //South
 
     //Diagonals
     local_density *= 0.25;
@@ -159,12 +159,12 @@ kernel void collision(global t_speed* cells,
     //NE NW SW SE
     e[5] = (density + (density * ((trailing_diag + (ux3 + uy3)) - u_sq)));
     e[6] = (density + (density * ((leading_diag + uy3) - (ux3 + u_sq) )));
-    e[7] = ((e3 - px) - py);
-    e[8] = ((e5 + px) - py);
+    e[7] = ((e[3] - px) - py);
+    e[8] = ((e[5] + px) - py);
 
     for(int i = 0; i < 9; i++){
-      o[i] *= (1 - omega);
-      o[i] += e[i];
+      in[i] *= (1 - omega);
+      in[i] += e[i];
     }
 
     //Acceleration
@@ -174,29 +174,29 @@ kernel void collision(global t_speed* cells,
     /* if the cell is not occupied and
     ** we don't send a negative density */
     if (ii == ny-2
-        && (o[3] - w1) > 0.0
-        && (o[6] - w2) > 0.0
-        && (o[7] - w2) > 0.0)
+        && (in[3] - w1) > 0.0
+        && (in[6] - w2) > 0.0
+        && (in[7] - w2) > 0.0)
     {
       /* increase 'east-side' densities */
-      o[1] += w1;
-      o[5] += w2;
-      o[8] += w2;
+      in[1] += w1;
+      in[5] += w2;
+      in[8] += w2;
       /* decrease 'west-side' densities */
-      o[3] -= w1;
-      o[6] -= w2;
-      o[7] -= w2;
+      in[3] -= w1;
+      in[6] -= w2;
+      in[7] -= w2;
     }
 
-    cells[ii * nx + jj].speeds[0] = o[0];
-    cells[ii * nx + xe].speeds[1] = o[1];
-    cells[yn * nx + jj].speeds[2] = o[2];
-    cells[ii * nx + xw].speeds[3] = o[3];
-    cells[ys * nx + jj].speeds[4] = o[4];
-    cells[yn * nx + xe].speeds[5] = o[5];
-    cells[yn * nx + xw].speeds[6] = o[6];
-    cells[ys * nx + xw].speeds[7] = o[7];
-    cells[ys * nx + xe].speeds[8] = o[8];
+    cells[ii * nx + jj].speeds[0] = in[0];
+    cells[ii * nx + xe].speeds[1] = in[1];
+    cells[yn * nx + jj].speeds[2] = in[2];
+    cells[ii * nx + xw].speeds[3] = in[3];
+    cells[ys * nx + jj].speeds[4] = in[4];
+    cells[yn * nx + xe].speeds[5] = in[5];
+    cells[yn * nx + xw].speeds[6] = in[6];
+    cells[ys * nx + xw].speeds[7] = in[7];
+    cells[ys * nx + xe].speeds[8] = in[8];
 
 
 
