@@ -83,6 +83,10 @@ kernel void rebound(global t_speed* cells,
 
 }
 
+void reduce(global float* lbuffer, local volatile float* datastr){
+
+}
+
 kernel void collision(global t_speed* cells,
                       global t_speed* tmp_cells,
                       global int* obstacles,
@@ -95,9 +99,9 @@ kernel void collision(global t_speed* cells,
   int xw = (jj == 0) ? (nx - 1) : (jj - 1);
   float sum = 0.0f;
   /*if(get_local_id(0) == 0){
-    printf("group_id=%d, size=%d\n", get_group_id(0), get_local_size(0));
+    printf("group_id=%d, size=%d\n", get_group_id(0), get_local_size(0)=64);
   }*/
-  if(get_group_id(0) == 0){
+  if(get_group_id(0) == 1023){
     printf("local_id=%d, size=%d\n", get_local_id(0), get_local_size(0));
   }
   if (!obstacles[ii * nx + jj])
@@ -124,10 +128,12 @@ kernel void collision(global t_speed* cells,
     float uy = (ypos - yneg)*inverse_local_density;
 
     /* velocity squared */
-    lbuffer[get_global_id(0)] = sqrt(ux * ux + uy * uy);
+    //lbuffer[get_global_id(0)] = sqrt(ux * ux + uy * uy);
+
 
     float uxsq = ux*ux;
     float uysq = uy*uy;
+    datastr[get_local_id(0)] = sqrt(uxsq + uysq);
     //tot_u += sqrt(uxsq + uysq);
 
     float ux3 = 3.0 * ux;
@@ -199,7 +205,8 @@ kernel void collision(global t_speed* cells,
     cells[ys * nx + xw].speeds[7] = in[7];
     cells[ys * nx + xe].speeds[8] = in[8];
   }else{
-    lbuffer[get_global_id(0)] = 0.0f;
+    datastr[get_local_id(0)] = 0.0f
+    //lbuffer[get_global_id(0)] = 0.0f;
     cells[ii * nx + xe].speeds[1] = tmp_cells[ii * nx + jj].speeds[3];
     cells[yn * nx + jj].speeds[2] = tmp_cells[ii * nx + jj].speeds[4];
     cells[ii * nx + xw].speeds[3] = tmp_cells[ii * nx + jj].speeds[1];
@@ -211,9 +218,10 @@ kernel void collision(global t_speed* cells,
   }
 
   /* Reduction */
-  int num_wrk_items  = get_local_size(0);                 
-  int local_id       = get_local_id(0);                   
-  int group_id       = get_group_id(0); 
+  //int num_wrk_items  = get_local_size(0);                 
+  //int local_id       = get_local_id(0);                   
+  //int group_id       = get_group_id(0); 
 
-  
+  //barrier(CLK_LOCAL_MEM_FENCE);
+  //reduce();
 }
