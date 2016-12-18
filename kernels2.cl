@@ -84,11 +84,12 @@ kernel void rebound(global t_speed* cells,
 }
 
 void reduceGlobal(global float* lbuffer, global float* av_vels, int iteration){
-
+  int i = get_group_id(0);
 }
 
 void reduce(global float* lbuffer, local volatile float* datastr, global float* av_vels, int iteration){
   int i = get_local_id(0);
+    if(i < 64){datastr[i] += datastr[i+64];}
     if(i < 32){datastr[i] += datastr[i+32];}
     if(i < 16){ datastr[i] += datastr[i+16]; }
     if(i < 8){ datastr[i] += datastr[i+8]; }
@@ -99,8 +100,8 @@ void reduce(global float* lbuffer, local volatile float* datastr, global float* 
     if(i == 0) {
       lbuffer[get_group_id(0)] = datastr[0];
     }
-    //barrier(CLK_GLOBAL_MEM_FENCE);
-    //if(i == 0) reduceGlobal(lbuffer, av_vels, iteration);
+    barrier(CLK_GLOBAL_MEM_FENCE);
+    if(i == 0) reduceGlobal(lbuffer, av_vels, iteration);
 }
 
 kernel void collision(global t_speed* cells,
