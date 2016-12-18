@@ -299,8 +299,11 @@ int main(int argc, char* argv[])
   printf("wgs=%d\n", work_group_size);
 
   float inverse_available_cells = 1.0f/(126.0*126.0);
-  for (int tt = 0; tt < params.maxIters/2; tt++)
+  for (int tt = 0; tt < params.maxIters; tt++)
   {
+
+    err = clSetKernelArg(ocl.collision2, 11, sizeof(cl_int), &tt);
+    checkError(err, "setting collision arg 11", __LINE__);
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
                                1, NULL, global, local, 0, NULL, NULL);
     
@@ -314,6 +317,12 @@ int main(int argc, char* argv[])
     for(int y = 0; y < num_work_groups; y++){
         av_vels[2*tt] += params.partial_sums[y]*inverse_available_cells;
     }
+
+    
+
+    tt++;
+    err = clSetKernelArg(ocl.collision2, 11, sizeof(cl_int), &tt);
+    checkError(err, "setting collision arg 11", __LINE__);
 
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision2,
                                1, NULL, global, local, 0, NULL, NULL);
