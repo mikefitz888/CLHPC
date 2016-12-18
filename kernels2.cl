@@ -108,6 +108,13 @@ kernel void collision(global t_speed* restrict cells,
                       global t_speed* restrict tmp_cells,
                       global int* restrict obstacles,
                       int nx, int ny, float omega, float density, float accel, global float* restrict av_vels, local volatile float* restrict datastr, global float* restrict lbuffer){
+
+  //for (int k = 0; k < NSPEEDS; k++) out_cells[k*nx*ny + gid] = out_cell[k];
+  //private float_t out_cell[NSPEEDS];
+
+  float in[NSPEEDS];
+  for (int k = 0; k < NSPEEDS; k++) in[k] = cells[k*nx*ny + i*nx + j];
+
   int gid = get_global_id(0);
   int jj = gid & (nx-1); // y*nx+x
   int ii = (get_global_id(0)-jj)/nx;
@@ -120,8 +127,8 @@ kernel void collision(global t_speed* restrict cells,
   /*if(get_local_id(0) == 0){
     printf("group_id=%d, size=%d\n", get_group_id(0), get_local_size(0)=64);
   }*/
-  t_speed cell = tmp_cells[gid];
-  float* in = cell.speeds;
+  //t_speed cell = tmp_cells[gid];
+  //float* in = cell.speeds;
 
   if (!obstacles[gid])
   {
@@ -214,7 +221,7 @@ kernel void collision(global t_speed* restrict cells,
       in[6] -= w2;
       in[7] -= w2;
     }
-
+    //for (int k = 0; k < NSPEEDS; k++) out_cells[k*nx*ny + gid] = out_cell[k];
     cells[ii * nx + jj].speeds[0] = in[0];
     cells[ii * nx + xe].speeds[1] = in[1];
     cells[yn * nx + jj].speeds[2] = in[2];
