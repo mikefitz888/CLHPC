@@ -204,7 +204,7 @@ kernel void collision(global t_speed* cells,
   }
 
   /* Reduction */
-    printf("local_id[0]=%d, group_id[0]=%d, local_size[0]=%d, global_size[0]=%d\n", get_local_id(0), get_group_id(0), get_local_size(0), get_global_size(0));
+    /*printf("local_id[0]=%d, group_id[0]=%d, local_size[0]=%d, global_size[0]=%d\n", get_local_id(0), get_group_id(0), get_local_size(0), get_global_size(0));
     unsigned int tid = get_local_id(0);
     unsigned int i   = (get_group_id(0)) * (get_local_size(0)*2) + tid;
     unsigned int blockSize = 64;
@@ -251,5 +251,5 @@ kernel void collision(global t_speed* cells,
       int id = (int)av_vels[0];
       av_vels[id+1] = lbuffer[0];
       av_vels[0] = id+1;
-    }
+    }*/
 }
