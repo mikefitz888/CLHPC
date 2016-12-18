@@ -155,19 +155,19 @@ kernel void collision(global t_speed* restrict cells,
     //lbuffer[get_global_id(0)] = sqrt(uxsq + uysq);
     //tot_u += sqrt(uxsq + uysq);
 
-    float ux3 = 3.0 * ux;
-    float uy3 = 3.0 * uy;
+    float ux3 = 3.0f * ux;
+    float uy3 = 3.0f * uy;
 
-    float uxsq3 = 3.0 * uxsq;
-    float uxsq15= 1.5 * uxsq;
+    float uxsq3 = 3.0f * uxsq;
+    float uxsq15= 1.5f * uxsq;
 
-    float uysq3 = 3.0 * uysq;
-    float uysq15= 1.5 * uysq;
+    float uysq3 = 3.0f * uysq;
+    float uysq15= 1.5f * uysq;
 
     float u_sq = uxsq15 + uysq15;
 
-    float leading_diag  = 4.5 * (ux-uy)*(ux-uy); // = 4.5*(x-y)^2 == 4.5*(y-x)^2
-    float trailing_diag = 4.5 * (ux+uy)*(ux+uy);
+    float leading_diag  = 4.5f * (ux-uy)*(ux-uy); // = 4.5*(x-y)^2 == 4.5*(y-x)^2
+    float trailing_diag = 4.5f * (ux+uy)*(ux+uy);
 
     local_density *= w0 * omega;
 
@@ -175,9 +175,9 @@ kernel void collision(global t_speed* restrict cells,
     float e[9];
     e[0] = local_density - local_density*(uxsq15 + uysq15);
 
-    local_density *= 0.25;
-    float px = local_density * ux3 * 2;
-    float py = local_density * uy3 * 2;
+    local_density *= 0.25f;
+    float px = local_density * ux3 * 2.0f;
+    float py = local_density * uy3 * 2.0f;
     e[1] = (local_density +(local_density * ((ux3 + uxsq3) - uysq15))); //East
     e[2] = (local_density +(local_density * ((uy3 + uysq3) - uxsq15))); //North
     e[3] = (e[1] - px); //West
@@ -185,8 +185,8 @@ kernel void collision(global t_speed* restrict cells,
 
     //Diagonals
     local_density *= 0.25;
-    px *= 0.25;
-    py *= 0.25;
+    px *= 0.25f;
+    py *= 0.25f;
     //NE NW SW SE
     e[5] = (local_density + (local_density * ((trailing_diag + (ux3 + uy3)) - u_sq)));
     e[6] = (local_density + (local_density * ((leading_diag + uy3) - (ux3 + u_sq) )));
@@ -199,12 +199,12 @@ kernel void collision(global t_speed* restrict cells,
     }
 
     //Acceleration
-    float w1 = density * accel / 9.0;
-    float w2 = density * accel / 36.0;
+    float w1 = density * accel / 9.0f;
+    float w2 = density * accel / 36.0f;
     if (ii == ny-2
-        && (in[3] - w1) > 0.0
-        && (in[6] - w2) > 0.0
-        && (in[7] - w2) > 0.0)
+        && (in[3] - w1) > 0.0f
+        && (in[6] - w2) > 0.0f
+        && (in[7] - w2) > 0.0f)
     {
       in[1] += w1;
       in[5] += w2;
