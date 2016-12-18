@@ -104,10 +104,10 @@ void reduce(global float* lbuffer, local volatile float* datastr, global float* 
     if(i == 0) reduceGlobal(lbuffer, av_vels, iteration);
 }
 
-kernel void collision(global t_speed* cells,
-                      global t_speed* tmp_cells,
-                      global int* obstacles,
-                      int nx, int ny, float omega, float density, float accel, global float* av_vels, local volatile float* datastr, global float* lbuffer, int iteration){
+kernel void collision(global t_speed* restrict cells,
+                      global t_speed* restrict tmp_cells,
+                      global int* restrict obstacles,
+                      int nx, int ny, float omega, float density, float accel, global float* restrict av_vels, local volatile float* restrict datastr, global float* restrict lbuffer, int iteration){
   int gid = get_global_id(0);
   int jj = gid & (nx-1); // y*nx+x
   int ii = (get_global_id(0)-jj)/nx;
