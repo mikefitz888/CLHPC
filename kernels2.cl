@@ -157,8 +157,8 @@ kernel void collision(global t_speed* cells,
     px *= 0.25;
     py *= 0.25;
     //NE NW SW SE
-    e[5] = (density + (density * ((trailing_diag + (ux3 + uy3)) - u_sq)));
-    e[6] = (density + (density * ((leading_diag + uy3) - (ux3 + u_sq) )));
+    e[5] = (local_density + (local_density * ((trailing_diag + (ux3 + uy3)) - u_sq)));
+    e[6] = (local_density + (local_density * ((leading_diag + uy3) - (ux3 + u_sq) )));
     e[7] = ((e[3] - px) - py);
     e[8] = ((e[5] + px) - py);
 
