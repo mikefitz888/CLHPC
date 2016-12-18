@@ -43,7 +43,7 @@ kernel void accelerate_flow(global t_speed* cells,
     /* decrease 'west-side' densities */
     cells[L(jj, ii, 3, nx)] -= w1;
     cells[L(jj, ii, 6, nx)] -= w2;
-    cells[L(jj, ii, 7L(jj, ii, 3, nx), nx)] -= w2;
+    cells[L(jj, ii, 7, nx)] -= w2;
   }
 }
 
