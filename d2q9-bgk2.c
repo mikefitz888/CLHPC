@@ -321,7 +321,7 @@ int main(int argc, char* argv[])
   checkError(err, "reading tmp_cells data", __LINE__);
 
   err = clEnqueueReadBuffer(
-    ocl.queue, ocl.cells, CL_TRUE, 0,
+    ocl.queue, ocl.av_vels, CL_TRUE, 0,
     sizeof(float) * (1+params.maxIters), av_vels, 0, NULL, NULL);
   checkError(err, "reading tmp_cells data", __LINE__);
 
