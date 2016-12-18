@@ -293,7 +293,7 @@ int main(int argc, char* argv[])
   accelerate_flow(params, cells, obstacles, ocl);
   propagate(params, cells, tmp_cells, ocl);
   size_t global[1] = {params.nx * params.ny};
-  size_t local[1] = {64};
+  size_t local[1] = {WORK_GROUP_SIZE};
   /* iterate for maxIters timesteps */
   
   printf("wgs=%d\n", work_group_size);
@@ -315,8 +315,8 @@ int main(int argc, char* argv[])
     err = clEnqueueReadBuffer(ocl.queue, ocl.lbuffer, CL_TRUE, 0, sizeof(cl_float) * (num_work_groups), params.partial_sums, 0, NULL, NULL);
     checkError(err, "reading partial_sums data", __LINE__);
 
-    err = clFinish(ocl.queue);
-    checkError(err, "waiting for collision kernel", __LINE__);
+    //err = clFinish(ocl.queue);
+    //checkError(err, "waiting for collision kernel", __LINE__);
 
     av_vels[2*tt] = 0.0f;
     for(int y = 0; y < num_work_groups; y++){
@@ -330,8 +330,8 @@ int main(int argc, char* argv[])
     err = clEnqueueReadBuffer(ocl.queue, ocl.lbuffer, CL_TRUE, 0, sizeof(cl_float) * (num_work_groups), params.partial_sums, 0, NULL, NULL);
     checkError(err, "reading partial_sums data", __LINE__);
 
-    err = clFinish(ocl.queue);
-    checkError(err, "waiting for collision kernel", __LINE__);
+    //err = clFinish(ocl.queue);
+    //checkError(err, "waiting for collision kernel", __LINE__);
 
     av_vels[2*tt+1] = 0.0f;
     for(int y = 0; y < num_work_groups; y++){
