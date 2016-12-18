@@ -295,9 +295,9 @@ int main(int argc, char* argv[])
   for (int tt = 0; tt < 1+0*params.maxIters/2; tt++)
   {
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
-                               2, NULL, global, local, 0, NULL, NULL);
+                               2, NULL, global, NULL, 0, NULL, NULL);
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision2,
-                               2, NULL, global, local, 0, NULL, NULL);
+                               2, NULL, global, NULL, 0, NULL, NULL);
   //checkError(err, "enqueueing collision kernel", __LINE__);
 #ifdef DEBUG
     printf("==timestep: %d==\n", tt);
