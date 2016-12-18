@@ -298,7 +298,7 @@ int main(int argc, char* argv[])
   tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
   printf("wgs=%d\n", work_group_size);
 
-  float inverse_available_cells = 1/(126*126);
+  float inverse_available_cells = 1.0f/(126.0f*126.0f);
   for (int tt = 0; tt < params.maxIters/2; tt++)
   {
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
