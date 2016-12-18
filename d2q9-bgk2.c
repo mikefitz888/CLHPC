@@ -295,7 +295,7 @@ int main(int argc, char* argv[])
   /* iterate for maxIters timesteps */
   gettimeofday(&timstr, NULL);
   tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
-
+  printf("wgs=%d\n", work_group_size);
   for (int tt = 0; tt < 1+0*params.maxIters/2; tt++)
   {
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
