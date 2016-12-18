@@ -96,7 +96,11 @@ void reduce(global float* lbuffer, local volatile float* datastr, global float* 
     if(i < 2){ datastr[i] += datastr[i+2]; }
     if(i < 1){ datastr[i] += datastr[i+1]; }
 
-    if(i == 0) lbuffer[get_group_id(0)] = datastr[0];
+    if(i == 0) {
+      lbuffer[get_group_id(0)] = datastr[0];
+    }
+    barrier(CLK_GLOBAL_MEM_FENCE);
+    if(i == 0) reduceGlobal(lbuffer, av_vels);
 }
 
 kernel void collision(global t_speed* cells,
