@@ -807,7 +807,7 @@ float total_density(const t_param params, t_speed* cells)
     return total;
 }
 
-void write_values(const t_param params, float_t* cells, int* obstacles, float_t* av_vels)
+int write_values(const t_param params, float_t* cells, int* obstacles, float_t* av_vels)
 {
     FILE* fp = fopen(FINALSTATEFILE, "w");
 
@@ -861,6 +861,7 @@ void write_values(const t_param params, float_t* cells, int* obstacles, float_t*
     if (!fp) die("could not open file output file", __LINE__, __FILE__);
     for (int i = 0; i < params.maxIters; i++) fprintf(fp, "%d:\t%.12E\n", i, av_vels[i]);
     fclose(fp);
+  return EXIT_SUCCESS;
 }
 
 void checkError(cl_int err, const char *op, const int line)
