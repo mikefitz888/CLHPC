@@ -182,9 +182,7 @@ int main(int argc, char* argv[])
   /* initialise our data structures and load values from file */
   initialise(paramfile, obstaclefile, &params, &cells, &tmp_cells, &obstacles, &av_vels, &ocl);
 
-  /* iterate for maxIters timesteps */
-  gettimeofday(&timstr, NULL);
-  tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
+  
 
   // Write cells to OpenCL buffer
   err = clEnqueueWriteBuffer(
@@ -273,17 +271,25 @@ int main(int argc, char* argv[])
 
   accelerate_flow(params, cells, obstacles, ocl);
   propagate(params, cells, tmp_cells, ocl);
-  for (int tt = 0; tt < params.maxIters; tt++)
+  size_t global[2] = {params.nx, params.ny};
+  /* iterate for maxIters timesteps */
+  gettimeofday(&timstr, NULL);
+  tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
+  for (int tt = 0; tt < params.maxIters/2; tt++)
   {
-    //timestep(params, cells, tmp_cells, obstacles, ocl);
-    collision(params, cells, tmp_cells, obstacles, ocl, tt);
-    //av_vels[tt] = av_velocity(params, cells, obstacles, ocl);
+  err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
+                               2, NULL, global, NULL, 0, NULL, NULL);
+  err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision2,
+                               2, NULL, global, NULL, 0, NULL, NULL);
+  //checkError(err, "enqueueing collision kernel", __LINE__);
 #ifdef DEBUG
     printf("==timestep: %d==\n", tt);
     printf("av velocity: %.12E\n", av_vels[tt]);
     printf("tot density: %.12E\n", total_density(params, cells));
 #endif
   }
+  err = clFinish(ocl.queue);
+  checkError(err, "waiting for collision kernel", __LINE__);
 
   gettimeofday(&timstr, NULL);
   toc = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
@@ -381,15 +387,7 @@ int collision(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obs
 {
   cl_int err;
   
-  // Enqueue kernel
-  size_t global[2] = {params.nx, params.ny};
-  err = clEnqueueNDRangeKernel(ocl.queue, iteration%2 ? ocl.collision : ocl.collision2,
-                               2, NULL, global, NULL, 0, NULL, NULL);
-  checkError(err, "enqueueing collision kernel", __LINE__);
-
-  // Wait for kernel to finish
-  err = clFinish(ocl.queue);
-  checkError(err, "waiting for collision kernel", __LINE__);
+  
 
   return EXIT_SUCCESS;
 }
