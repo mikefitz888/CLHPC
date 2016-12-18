@@ -126,12 +126,12 @@ kernel void collision(global t_speed* cells,
     /* compute x velocity component */
     global float* speeds = tmp_cells[gid].speeds;
 
-    float in[9];
+    //float in[9];
     /*for(int i = 0; i < 9; i++){
       in[i] = speeds[i];
     }*/
     t_speed cell = tmp_cells[gid];
-            in = cell.speeds;
+    float* in = cell.speeds;
 
     float xneg = in[3] + in[6] + in[7];
     float yneg = in[4] + in[7] + in[8]; 
