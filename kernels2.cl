@@ -120,6 +120,7 @@ kernel void collision(global t_speed* cells,
     float sum = sqrt(ux * ux + uy * uy);
     /* Reduction */
     unsigned int tid = get_local_id(0) + get_local_id(1)*get_local_size(0);
+    unsigned int i   = (get_group_id(0) + get_group_id(0)*get_num_groups(0)) * (get_local_size(0)*get_local_size(1)*2) + tid;
 
 
     float uxsq = ux*ux;
