@@ -83,11 +83,11 @@ kernel void rebound(global t_speed* cells,
 
 }
 
-void reduceGlobal(global float* lbuffer, global float* av_vels, int iteration){
+void reduceGlobal(global float* lbuffer, global float* av_vels,){
   int i = get_group_id(0);
 }
 
-void reduce(global float* lbuffer, local volatile float* datastr, global float* av_vels, int iteration){
+void reduce(global float* lbuffer, local volatile float* datastr, global float* av_vels){
   int i = get_local_id(0);
     //if(i < 64){datastr[i] += datastr[i+64];}
     if(i < 32){datastr[i] += datastr[i+32];}
@@ -101,13 +101,13 @@ void reduce(global float* lbuffer, local volatile float* datastr, global float* 
       lbuffer[get_group_id(0)] = datastr[0];
     }
     //barrier(CLK_GLOBAL_MEM_FENCE);
-    if(i == 0) reduceGlobal(lbuffer, av_vels, iteration);
+    //if(i == 0) reduceGlobal(lbuffer, av_vels, iteration);
 }
 
 kernel void collision(global t_speed* restrict cells,
                       global t_speed* restrict tmp_cells,
                       global int* restrict obstacles,
-                      int nx, int ny, float omega, float density, float accel, global float* restrict av_vels, local volatile float* restrict datastr, global float* restrict lbuffer, int iteration){
+                      int nx, int ny, float omega, float density, float accel, global float* restrict av_vels, local volatile float* restrict datastr, global float* restrict lbuffer){
   int gid = get_global_id(0);
   int jj = gid & (nx-1); // y*nx+x
   int ii = (get_global_id(0)-jj)/nx;
@@ -242,5 +242,5 @@ kernel void collision(global t_speed* restrict cells,
   //int group_id       = get_group_id(0); 
 
   barrier(CLK_LOCAL_MEM_FENCE);
-  reduce(lbuffer, datastr, av_vels, iteration);
+  reduce(lbuffer, datastr, av_vels);
 }

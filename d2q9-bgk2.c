@@ -301,14 +301,6 @@ int main(int argc, char* argv[])
   float inverse_available_cells = 1.0f/(126.0*126.0);
   for (int tt = 0; tt < params.maxIters/2; tt++)
   {
-
-    int a = tt;
-    int b = tt+1;
-    err = clSetKernelArg(ocl.collision, 11, sizeof(cl_int), &a);
-    checkError(err, "setting collision arg 11", __LINE__);
-    err = clSetKernelArg(ocl.collision2, 11, sizeof(cl_int), &b);
-    checkError(err, "setting collision arg 11", __LINE__);
-
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
                                1, NULL, global, local, 0, NULL, NULL);
     
