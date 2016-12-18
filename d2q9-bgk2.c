@@ -811,7 +811,7 @@ void write_values(const t_params params, float_t* cells, int* obstacles, float_t
 {
     FILE* fp = fopen(FINALSTATEFILE, "w");
 
-    if (not fp)
+    if (!fp)
     {
         die("could not open file output file", __LINE__, __FILE__);
     }
@@ -858,7 +858,7 @@ void write_values(const t_params params, float_t* cells, int* obstacles, float_t
 
     fp = fopen(AVVELSFILE, "w");
 
-    if (not fp) die("could not open file output file", __LINE__, __FILE__);
+    if (!fp) die("could not open file output file", __LINE__, __FILE__);
     for (int i = 0; i < params.maxIters; i++) fprintf(fp, "%d:\t%.12E\n", i, av_vels[i]);
     fclose(fp);
 }
