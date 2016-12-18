@@ -108,8 +108,9 @@ kernel void collision(global t_speed* cells,
   /*if(get_local_id(0) == 0){
     printf("group_id=%d, size=%d\n", get_group_id(0), get_local_size(0)=64);
   }*/
-  if(get_local_size(0) != 0){
-    printf("local_id=%d, size=%d\n", get_local_id(0), get_local_size(0));
+  int ls = get_local_size(0);
+  if(ls != 0){
+    printf("local_id=%d, size=%d\n", get_local_id(0), ls);
   }
   if (!obstacles[ii * nx + jj])
   {
