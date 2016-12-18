@@ -118,7 +118,7 @@ kernel void collision(global t_speed* cells,
     float uy = (ypos - yneg)*inverse_local_density;
 
     /* velocity squared */
-    sum = sqrt(ux * ux + uy * uy);
+    lbuffer[get_global_id(0)] = sqrt(ux * ux + uy * uy);
 
     float uxsq = ux*ux;
     float uysq = uy*uy;
@@ -208,57 +208,5 @@ kernel void collision(global t_speed* cells,
   int local_id       = get_local_id(0);                   
   int group_id       = get_group_id(0); 
 
-  if(ii == 40 && jj == 40){
-    printf("num_wrk_items = %d\n", num_wrk_items);
-    printf("local_id = %d\n", local_id);
-    printf("group_id = %d\n", group_id);
-  }
-    /*printf("local_id[0]=%d, group_id[0]=%d, local_size[0]=%d, global_size[0]=%d\n", get_local_id(0), get_group_id(0), get_local_size(0), get_global_size(0));
-    unsigned int tid = get_local_id(0);
-    unsigned int i   = (get_group_id(0)) * (get_local_size(0)*2) + tid;
-    unsigned int blockSize = 64;
-
-    datastr[tid] = sum;
-    barrier(CLK_LOCAL_MEM_FENCE);
-
-    if(tid == 0){
-      lbuffer[(get_group_id(0) + get_group_id(1)*get_num_groups(0))] = 0.0f;
-    }
-
-    //if(blockSize >= 512){ if(tid < 256){ datastr[tid] += datastr[tid+256]; } barrier(CLK_LOCAL_MEM_FENCE); }
-    //if(blockSize >= 256){ if(tid < 128){ datastr[tid] += datastr[tid+128]; } barrier(CLK_LOCAL_MEM_FENCE); }
-    //if(blockSize >= 128){ if(tid < 64){ datastr[tid] += datastr[tid+64]; } barrier(CLK_LOCAL_MEM_FENCE); }
-
-    if(tid < 32){
-      if(blockSize >= 64){  datastr[tid] += datastr[tid+32]; }
-      if(blockSize >= 32){  datastr[tid] += datastr[tid+16]; }
-      if(blockSize >= 16){  datastr[tid] += datastr[tid+8]; }
-      if(blockSize >= 8){  datastr[tid] += datastr[tid+4]; }
-      if(blockSize >= 4){  datastr[tid] += datastr[tid+2]; }
-      if(blockSize >= 2){  datastr[tid] += datastr[tid+1]; }
-    }
-
-    if(tid == 0){
-      lbuffer[(get_group_id(0) + get_group_id(1)*get_num_groups(0))] = datastr[0];
-    }
-
-    blockSize = get_num_groups(0) * get_num_groups(1);
-    tid = (get_group_id(0) + get_group_id(1)*get_num_groups(0));
-    if(blockSize >= 256){ if(tid < 128){ lbuffer[tid] += lbuffer[tid+128]; } barrier(CLK_GLOBAL_MEM_FENCE); }
-    if(blockSize >= 128){ if(tid < 64){ lbuffer[tid] += lbuffer[tid+64]; } barrier(CLK_GLOBAL_MEM_FENCE); }
-
-    if(tid < 32){
-      if(blockSize >= 64){  lbuffer[tid] += lbuffer[tid+32]; }
-      if(blockSize >= 32){  lbuffer[tid] += lbuffer[tid+16]; }
-      if(blockSize >= 16){  lbuffer[tid] += lbuffer[tid+8]; }
-      if(blockSize >= 8){  lbuffer[tid] += lbuffer[tid+4]; }
-      if(blockSize >= 4){  lbuffer[tid] += lbuffer[tid+2]; }
-      if(blockSize >= 2){  lbuffer[tid] += lbuffer[tid+1]; }
-    }
-
-    if(tid == 0){
-      int id = (int)av_vels[0];
-      av_vels[id+1] = lbuffer[0];
-      av_vels[0] = id+1;
-    }*/
+  
 }
