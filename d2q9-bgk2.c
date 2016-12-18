@@ -78,6 +78,7 @@ typedef struct
   float density;       /* density per link */
   float accel;         /* density redistribution */
   float omega;         /* relaxation parameter */
+  float* partial_sums;
 } t_param;
 
 /* struct to hold OpenCL objects */
@@ -296,13 +297,36 @@ int main(int argc, char* argv[])
   gettimeofday(&timstr, NULL);
   tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
   printf("wgs=%d\n", work_group_size);
+
+  float inverse_available_cells = 1/(126*126);
   for (int tt = 0; tt < params.maxIters/2; tt++)
   {
-  err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
+    err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
                                1, NULL, &global, &local, 0, NULL, NULL);
-  err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision2,
+    
+    err = clEnqueueReadBuffer(ocl.queue, ocl.lbuffer, CL_TRUE, 0, sizeof(cl_float) * (params->ny * params->nx), params.partial_sums, 0, NULL, NULL);
+    checkError(err, "reading partial_sums data", __LINE__);
+
+    av_vels[2*iteration] = 0.0f;
+    for(int y = 0; y < params->ny; y++){
+      for(int x = 0; x < params->nx; x++){
+        av_vels[2*iteration] += params.partial_sums[y*params->ny+x]*inverse_available_cells;
+      }
+    }
+
+    err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision2,
                                1, NULL, &global, &local, 0, NULL, NULL);
   //checkError(err, "enqueueing collision kernel", __LINE__);
+    err = clEnqueueReadBuffer(ocl.queue, ocl.lbuffer, CL_TRUE, 0, sizeof(cl_float) * (params->ny * params->nx), params.partial_sums, 0, NULL, NULL);
+    checkError(err, "reading partial_sums data", __LINE__);
+
+    av_vels[2*iteration+1] = 0.0f;
+    for(int y = 0; y < params->ny; y++){
+      for(int x = 0; x < params->nx; x++){
+        av_vels[2*iteration] += params.partial_sums[y*params->ny+x]*inverse_available_cells;
+      }
+    }
+
 #ifdef DEBUG
     printf("==timestep: %d==\n", tt);
     printf("av velocity: %.12E\n", av_vels[tt]);
@@ -552,6 +576,8 @@ int initialise(const char* paramfile, const char* obstaclefile,
 
   if (*obstacles_ptr == NULL) die("cannot allocate column memory for obstacles", __LINE__, __FILE__);
 
+  params->partial_sums = malloc(sizeof(float) * params->ny *params->nx);
+
   /* initialise densities */
   double w0 = params->density * 4.0 / 9.0;
   double w1 = params->density      / 9.0;
@@ -707,8 +733,8 @@ int initialise(const char* paramfile, const char* obstaclefile,
 
   ocl->lbuffer = clCreateBuffer(
     ocl->context, CL_MEM_READ_WRITE,
-    sizeof(cl_float) * 1024, NULL, &err);
-  checkError(err, "creating obstacles buffer", __LINE__);
+    sizeof(cl_float) * params->ny * params->nx, NULL, &err);
+  checkError(err, "creating reduction buffer", __LINE__);
 
   return EXIT_SUCCESS;
 }
