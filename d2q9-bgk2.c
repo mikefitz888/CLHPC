@@ -286,7 +286,7 @@ int main(int argc, char* argv[])
 
   size_t max_size, work_group_size = 8;
   err = clGetKernelWorkGroupInfo (ocl.collision, ocl.device, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &work_group_size, NULL);
-  checkError(err, "Getting kernel work group info");
+  checkError(err, "Getting kernel work group info", __LINE__);
 
   accelerate_flow(params, cells, obstacles, ocl);
   propagate(params, cells, tmp_cells, ocl);
