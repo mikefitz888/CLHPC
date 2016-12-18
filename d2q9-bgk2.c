@@ -808,7 +808,7 @@ float total_density(const t_param params, t_speed* cells)
     return total;
 }
 
-int write_values(const t_param params, float_t* cells, int* obstacles, float_t* av_vels)
+int write_values(const t_param params, float* cells, int* obstacles, float* av_vels)
 {
     FILE* fp = fopen(FINALSTATEFILE, "w");
 
