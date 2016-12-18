@@ -89,7 +89,7 @@ void reduceGlobal(global float* lbuffer, global float* av_vels, int iteration){
 
 void reduce(global float* lbuffer, local volatile float* datastr, global float* av_vels, int iteration){
   int i = get_local_id(0);
-    if(i < 64){datastr[i] += datastr[i+64];}
+    //if(i < 64){datastr[i] += datastr[i+64];}
     if(i < 32){datastr[i] += datastr[i+32];}
     if(i < 16){ datastr[i] += datastr[i+16]; }
     if(i < 8){ datastr[i] += datastr[i+8]; }

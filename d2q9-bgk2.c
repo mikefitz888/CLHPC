@@ -67,7 +67,7 @@
 #define FINALSTATEFILE  "final_state.dat"
 #define AVVELSFILE      "av_vels.dat"
 #define OCLFILE         "kernels2.cl"
-#define WORK_GROUP_SIZE 128
+#define WORK_GROUP_SIZE 64
 
 /* struct to hold the parameter values */
 typedef struct
