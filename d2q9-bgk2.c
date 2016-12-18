@@ -191,7 +191,7 @@ int main(int argc, char* argv[])
 
   gettimeofday(&timstr, NULL);
   tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
-  return;
+
   // Write cells to OpenCL buffer
   err = clEnqueueWriteBuffer(
     ocl.queue, ocl.cells, CL_TRUE, 0,
@@ -576,12 +576,12 @@ int initialise(const char* paramfile, const char* obstaclefile,
   */
 
   /* main grid */
-  *cells_ptr = (t_speed*)malloc(sizeof(t_speed) * (params->ny * params->nx));
+  *cells_ptr = (t_speed*)malloc(sizeof(t_speed) * (params->ny * params->nx) * 9);
 
   if (*cells_ptr == NULL) die("cannot allocate memory for cells", __LINE__, __FILE__);
 
   /* 'helper' grid, used as scratch space */
-  *tmp_cells_ptr = (t_speed*)malloc(sizeof(t_speed) * (params->ny * params->nx));
+  *tmp_cells_ptr = (t_speed*)malloc(sizeof(t_speed) * (params->ny * params->nx) * 9);
 
   if (*tmp_cells_ptr == NULL) die("cannot allocate memory for tmp_cells", __LINE__, __FILE__);
 
