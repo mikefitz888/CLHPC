@@ -162,7 +162,7 @@ kernel void collision(global t_speed* restrict cells,
 
     float uxsq = ux*ux;
     float uysq = uy*uy;
-    datastr[get_local_id(0)] = sqrt(uxsq + uysq);
+    datastr[get_local_id(0)] = native_sqrt(uxsq + uysq);
     //lbuffer[get_global_id(0)] = sqrt(uxsq + uysq);
     //tot_u += sqrt(uxsq + uysq);
 
