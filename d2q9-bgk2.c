@@ -113,7 +113,7 @@ typedef struct
 /* load params, allocate memory, load obstacles & initialise fluid particle densities */
 int initialise(const char* paramfile, const char* obstaclefile,
                t_param* params, t_speed** cells_ptr, t_speed** tmp_cells_ptr,
-               int** obstacles_ptr, double** av_vels_ptr, t_ocl* ocl);
+               int** obstacles_ptr, float** av_vels_ptr, t_ocl* ocl);
 
 /*
 ** The main calculation methods.
