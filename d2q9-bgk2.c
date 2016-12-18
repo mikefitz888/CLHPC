@@ -49,7 +49,7 @@
 ** if you choose a different obstacle file.
 */
 
-#define L(X, Y, V, W) = ((X) + ((V)*(W)) + ((Y)*(W)*(9))) 
+#define L(X, Y, V, W) ((X) + ((V)*(W)) + ((Y)*(W)*(9))) 
 
 #include<stdio.h>
 #include<stdlib.h>
