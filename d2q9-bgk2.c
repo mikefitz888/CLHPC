@@ -794,7 +794,7 @@ float calc_reynolds(const t_param params, t_speed* cells, int* obstacles, t_ocl 
   return av_velocity(params, cells, obstacles, ocl) * params.reynolds_dim / viscosity;
 }
 
-double total_density(const params_t params, t_speed* cells)
+double total_density(const t_params params, t_speed* cells)
 {
     double total = 0.0;
     for (int i = 0; i < params.ny; i++)
@@ -807,7 +807,7 @@ double total_density(const params_t params, t_speed* cells)
     return total;
 }
 
-void write_values(const params_t params, float_t* cells, bool* obstacles, float_t* av_vels)
+void write_values(const t_params params, float_t* cells, int* obstacles, float_t* av_vels)
 {
     FILE* fp = fopen(FINALSTATEFILE, "w");
 
