@@ -86,7 +86,7 @@ kernel void rebound(global t_speed* cells,
 kernel void collision(global t_speed* cells,
                       global t_speed* tmp_cells,
                       global int* obstacles,
-                      int nx, int ny, float omega, float density, float accel, global t_speed* av_vels, local volatile float data){
+                      int nx, int ny, float omega, float density, float accel, global t_speed* av_vels, local volatile float* datastr){
   int jj = get_global_id(0);
   int ii = get_global_id(1);
   int yn = (ii + 1) % ny;
