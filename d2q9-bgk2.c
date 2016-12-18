@@ -320,6 +320,11 @@ int main(int argc, char* argv[])
     sizeof(t_speed) * params.nx * params.ny, cells, 0, NULL, NULL);
   checkError(err, "reading tmp_cells data", __LINE__);
 
+  err = clEnqueueReadBuffer(
+    ocl.queue, ocl.cells, CL_TRUE, 0,
+    sizeof(float) * (1+params.maxIters), av_vels, 0, NULL, NULL);
+  checkError(err, "reading tmp_cells data", __LINE__);
+
   /* write final values and free memory */
   printf("==done==\n");
   printf("Reynolds number:\t\t%.12E\n", calc_reynolds(params, cells, obstacles, ocl));
@@ -606,7 +611,7 @@ int initialise(const char* paramfile, const char* obstaclefile,
   ** allocate space to hold a record of the avarage velocities computed
   ** at each timestep
   */
-  *av_vels_ptr = (float*)malloc(sizeof(float) * params->maxIters);
+  *av_vels_ptr = (float*)malloc(sizeof(float) * (params->maxIters + 1) );
   for(int i = 0; i < params->maxIters; i++){
     (*av_vels_ptr)[i] = 0;
   }
@@ -690,7 +695,7 @@ int initialise(const char* paramfile, const char* obstaclefile,
   checkError(err, "creating obstacles buffer", __LINE__);
   ocl->av_vels = clCreateBuffer(
     ocl->context, CL_MEM_READ_WRITE,
-    sizeof(cl_float) * params->maxIters, NULL, &err);
+    sizeof(cl_float) * (params->maxIters + 1), NULL, &err);
   checkError(err, "creating obstacles buffer", __LINE__);
 
   ocl->lbuffer = clCreateBuffer(
