@@ -291,7 +291,8 @@ int main(int argc, char* argv[])
   /* iterate for maxIters timesteps */
   gettimeofday(&timstr, NULL);
   tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
-  for (int tt = 0; tt < params.maxIters/2; tt++)
+
+  for (int tt = 0; tt < 1+0*params.maxIters/2; tt++)
   {
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
                                2, NULL, global, local, 0, NULL, NULL);
