@@ -84,10 +84,13 @@ kernel void rebound(global t_speed* cells,
 }
 
 void reduce(global float* lbuffer, local volatile float* datastr){
+  float sum;
   if(get_local_id(0) == 0){
+    sum = 0.0f;
     for(int i = 0; i < 64; i++){
-      lbuffer[get_group_id(0)] += datastr[i];
+      sum += datastr[i];
     }
+    lbuffer[get_group_id(0)] += datastr[i];
   }
 }
 
@@ -105,9 +108,9 @@ kernel void collision(global t_speed* cells,
   /*if(get_local_id(0) == 0){
     printf("group_id=%d, size=%d\n", get_group_id(0), get_local_size(0)=64);
   }*/
-  /*if(get_group_id(0) == 1023){
+  if(get_group_id(0) == 1023){
     printf("local_id=%d, size=%d\n", get_local_id(0), get_local_size(0));
-  }*/
+  }
   if (!obstacles[ii * nx + jj])
   {
 
@@ -132,12 +135,11 @@ kernel void collision(global t_speed* cells,
     float uy = (ypos - yneg)*inverse_local_density;
 
     /* velocity squared */
-    //lbuffer[get_global_id(0)] = sqrt(ux * ux + uy * uy);
-
 
     float uxsq = ux*ux;
     float uysq = uy*uy;
     datastr[get_local_id(0)] = sqrt(uxsq + uysq);
+    //lbuffer[get_global_id(0)] = sqrt(uxsq + uysq);
     //tot_u += sqrt(uxsq + uysq);
 
     float ux3 = 3.0 * ux;

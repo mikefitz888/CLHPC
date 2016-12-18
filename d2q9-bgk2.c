@@ -285,9 +285,8 @@ int main(int argc, char* argv[])
   err = clSetKernelArg(ocl.collision2, 10, sizeof(cl_mem), &ocl.lbuffer);
   checkError(err, "setting collision arg 10", __LINE__);
 
-  size_t max_size, work_group_size = 8;
-  err = clGetKernelWorkGroupInfo (ocl.collision, ocl.device, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &work_group_size, NULL);
-  checkError(err, "Getting kernel work group info", __LINE__);
+  size_t work_group_size = 64;
+  size_t num_work_groups = (params.nx * params.ny)/work_group_size;
 
   accelerate_flow(params, cells, obstacles, ocl);
   propagate(params, cells, tmp_cells, ocl);
@@ -311,10 +310,10 @@ int main(int argc, char* argv[])
     checkError(err, "waiting for collision kernel", __LINE__);
 
     av_vels[2*tt] = 0.0f;
-    for(int y = 0; y < 64; y++){
-      //for(int x = 0; x < params.nx; x++){
+    for(int y = 0; y < params.ny; y++){
+      for(int x = 0; x < params.nx; x++){
         av_vels[2*tt] += params.partial_sums[y]*inverse_available_cells;
-      //}
+      }
     }
 
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision2,
@@ -327,10 +326,10 @@ int main(int argc, char* argv[])
     checkError(err, "waiting for collision kernel", __LINE__);
 
     av_vels[2*tt+1] = 0.0f;
-    for(int y = 0; y < 64; y++){
-      //for(int x = 0; x < params.nx; x++){
+    for(int y = 0; y < params.ny; y++){
+      for(int x = 0; x < params.nx; x++){
         av_vels[2*tt+1] += params.partial_sums[y]*inverse_available_cells;
-      //}
+      }
     }
 
 #ifdef DEBUG
