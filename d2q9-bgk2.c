@@ -304,19 +304,26 @@ int main(int argc, char* argv[])
 
     /*err = clSetKernelArg(ocl.collision, 11, sizeof(cl_int), &tt);
     checkError(err, "setting collision arg 11", __LINE__);*/
+    int a = tt;
+    int b = tt+1;
+    err = clSetKernelArg(ocl.collision, 11, sizeof(cl_int), &a);
+    checkError(err, "setting collision arg 11", __LINE__);
+    err = clSetKernelArg(ocl.collision2, 11, sizeof(cl_int), &b);
+    checkError(err, "setting collision arg 11", __LINE__);
+
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
                                1, NULL, global, local, 0, NULL, NULL);
     
-    err = clEnqueueReadBuffer(ocl.queue, ocl.lbuffer, CL_TRUE, 0, sizeof(cl_float) * (num_work_groups), params.partial_sums, 0, NULL, NULL);
-    checkError(err, "reading partial_sums data", __LINE__);
+    /*err = clEnqueueReadBuffer(ocl.queue, ocl.lbuffer, CL_TRUE, 0, sizeof(cl_float) * (num_work_groups), params.partial_sums, 0, NULL, NULL);
+    checkError(err, "reading partial_sums data", __LINE__);*/
 
     //err = clFinish(ocl.queue);
     //checkError(err, "waiting for collision kernel", __LINE__);
 
-    av_vels[2*tt] = 0.0f;
+    /*av_vels[2*tt] = 0.0f;
     for(int y = 0; y < num_work_groups; y++){
         av_vels[2*tt] += params.partial_sums[y]*inverse_available_cells;
-    }
+    }*/
 
     
 
@@ -327,16 +334,16 @@ int main(int argc, char* argv[])
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision2,
                                1, NULL, global, local, 0, NULL, NULL);
   //checkError(err, "enqueueing collision kernel", __LINE__);
-    err = clEnqueueReadBuffer(ocl.queue, ocl.lbuffer, CL_TRUE, 0, sizeof(cl_float) * (num_work_groups), params.partial_sums, 0, NULL, NULL);
-    checkError(err, "reading partial_sums data", __LINE__);
+    //err = clEnqueueReadBuffer(ocl.queue, ocl.lbuffer, CL_TRUE, 0, sizeof(cl_float) * (num_work_groups), params.partial_sums, 0, NULL, NULL);
+    //checkError(err, "reading partial_sums data", __LINE__);
 
     //err = clFinish(ocl.queue);
     //checkError(err, "waiting for collision kernel", __LINE__);
 
-    av_vels[2*tt+1] = 0.0f;
+    /*av_vels[2*tt+1] = 0.0f;
     for(int y = 0; y < num_work_groups; y++){
         av_vels[2*tt+1] += params.partial_sums[y]*inverse_available_cells;
-    }
+    }*/
 
 #ifdef DEBUG
     printf("==timestep: %d==\n", tt);

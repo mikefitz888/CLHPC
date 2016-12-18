@@ -106,7 +106,7 @@ void reduce(global float* lbuffer, local volatile float* datastr, global float* 
 kernel void collision(global t_speed* cells,
                       global t_speed* tmp_cells,
                       global int* obstacles,
-                      int nx, int ny, float omega, float density, float accel, global float* av_vels, local volatile float* datastr, global float* lbuffer){
+                      int nx, int ny, float omega, float density, float accel, global float* av_vels, local volatile float* datastr, global float* lbuffer, int iteration){
   int gid = get_global_id(0);
   int jj = gid%nx; // y*nx+x
   int ii = (get_global_id(0)-jj)/nx;
@@ -115,7 +115,7 @@ kernel void collision(global t_speed* cells,
   int ys = (ii == 0) ? (ny - 1) : (ii - 1);
   int xw = (jj == 0) ? (nx - 1) : (jj - 1);
   float sum = 0.0f;
-  int iteration = 4;
+  //int iteration = 4;
   /*if(get_local_id(0) == 0){
     printf("group_id=%d, size=%d\n", get_group_id(0), get_local_size(0)=64);
   }*/
