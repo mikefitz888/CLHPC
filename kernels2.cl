@@ -193,6 +193,7 @@ kernel void collision(global t_speed* cells,
     cells[ys * nx + xw].speeds[7] = in[7];
     cells[ys * nx + xe].speeds[8] = in[8];
   }else{
+    lbuffer[get_global_id(0)] = 0.0f;
     cells[ii * nx + xe].speeds[1] = tmp_cells[ii * nx + jj].speeds[3];
     cells[yn * nx + jj].speeds[2] = tmp_cells[ii * nx + jj].speeds[4];
     cells[ii * nx + xw].speeds[3] = tmp_cells[ii * nx + jj].speeds[1];
