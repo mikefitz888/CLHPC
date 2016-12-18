@@ -287,15 +287,16 @@ int main(int argc, char* argv[])
   accelerate_flow(params, cells, obstacles, ocl);
   propagate(params, cells, tmp_cells, ocl);
   size_t global[2] = {params.nx, params.ny};
+  size_t local[2] = {16, 8};
   /* iterate for maxIters timesteps */
   gettimeofday(&timstr, NULL);
   tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
   for (int tt = 0; tt < params.maxIters/2; tt++)
   {
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
-                               2, NULL, global, NULL, 0, NULL, NULL);
+                               2, NULL, global, local, 0, NULL, NULL);
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision2,
-                               2, NULL, global, NULL, 0, NULL, NULL);
+                               2, NULL, global, local, 0, NULL, NULL);
   //checkError(err, "enqueueing collision kernel", __LINE__);
 #ifdef DEBUG
     printf("==timestep: %d==\n", tt);
