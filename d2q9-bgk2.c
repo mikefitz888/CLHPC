@@ -98,6 +98,7 @@ typedef struct
   cl_mem tmp_cells;
   cl_mem obstacles;
   cl_mem av_vels;
+  cl_mem lbuffer;
 } t_ocl;
 
 /* struct to hold the 'speed' values */
@@ -236,7 +237,6 @@ int main(int argc, char* argv[])
   err = clSetKernelArg(ocl.rebound, 4, sizeof(cl_int), &params.ny);
   checkError(err, "setting rebound arg 4", __LINE__);
 
-  size_t itr = 0;
   err = clSetKernelArg(ocl.collision, 0, sizeof(cl_mem), &ocl.cells);
   checkError(err, "setting collision arg 0", __LINE__);
   err = clSetKernelArg(ocl.collision, 1, sizeof(cl_mem), &ocl.tmp_cells);
@@ -253,8 +253,10 @@ int main(int argc, char* argv[])
   checkError(err, "setting collision arg 6", __LINE__);
   err = clSetKernelArg(ocl.collision, 7, sizeof(cl_float), &params.accel);
   checkError(err, "setting collision arg 7", __LINE__);
-  err = clSetKernelArg(ocl.collision, 7, sizeof(cl_mem), &ocl.av_vels);
-  checkError(err, "setting collision arg 7", __LINE__);
+  err = clSetKernelArg(ocl.collision, 8, sizeof(cl_mem), &ocl.av_vels);
+  checkError(err, "setting collision arg 8", __LINE__);
+  err = clSetKernelArg(ocl.collision, 9, sizeof(cl_mem), &ocl.lbuffer);
+  checkError(err, "setting collision arg 9", __LINE__);
 
   err = clSetKernelArg(ocl.collision2, 0, sizeof(cl_mem), &ocl.tmp_cells);
   checkError(err, "setting collision arg 0", __LINE__);
@@ -272,8 +274,10 @@ int main(int argc, char* argv[])
   checkError(err, "setting collision arg 6", __LINE__);
   err = clSetKernelArg(ocl.collision2, 7, sizeof(cl_float), &params.accel);
   checkError(err, "setting collision arg 7", __LINE__);
-  err = clSetKernelArg(ocl.collision, 7, sizeof(cl_mem), &ocl.av_vels);
-  checkError(err, "setting collision arg 7", __LINE__);
+  err = clSetKernelArg(ocl.collision2, 8, sizeof(cl_mem), &ocl.av_vels);
+  checkError(err, "setting collision arg 8", __LINE__);
+  err = clSetKernelArg(ocl.collision2, 9, sizeof(cl_mem), &ocl.lbuffer);
+  checkError(err, "setting collision arg 9", __LINE__);
 
   accelerate_flow(params, cells, obstacles, ocl);
   propagate(params, cells, tmp_cells, ocl);
@@ -682,6 +686,11 @@ int initialise(const char* paramfile, const char* obstaclefile,
   ocl->av_vels = clCreateBuffer(
     ocl->context, CL_MEM_READ_WRITE,
     sizeof(cl_float) * params->maxIters, NULL, &err);
+  checkError(err, "creating obstacles buffer", __LINE__);
+
+  ocl->lbuffer = clCreateBuffer(
+    ocl->context, CL_MEM_READ_WRITE,
+    sizeof(cl_float) * 1024, NULL, &err);
   checkError(err, "creating obstacles buffer", __LINE__);
 
   return EXIT_SUCCESS;
