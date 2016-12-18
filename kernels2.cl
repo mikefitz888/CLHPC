@@ -204,10 +204,10 @@ kernel void collision(global t_speed* cells,
   }
 
   /* Reduction */
-    //printf("local_id[0]=%d, local_id[1]=%d, local_size[0]=%d, local_size[1]=%d, group_size[0]=%d, group_size[2]=%d\n", get_local_id(0), get_local_id(1), get_local_size(0), get_local_size(1), get_num_groups(0), get_num_groups(2));
-    unsigned int tid = get_local_id(0) + get_local_id(1)*get_local_size(0);
-    unsigned int i   = (get_group_id(0) + get_group_id(1)*get_num_groups(0)) * (get_local_size(0)*get_local_size(1)*2) + tid;
-    unsigned int blockSize = get_local_size(0) * get_local_size(1);
+    printf("local_id[0]=%d, group_id[0]=%d, local_size[0]=%d\n", get_local_id(0), get_group_id(0), get_local_size(0));
+    unsigned int tid = get_local_id(0);
+    unsigned int i   = (get_group_id(0)) * (get_local_size(0)*2) + tid;
+    unsigned int blockSize = 64;
 
     datastr[tid] = sum;
     barrier(CLK_LOCAL_MEM_FENCE);
@@ -216,9 +216,9 @@ kernel void collision(global t_speed* cells,
       lbuffer[(get_group_id(0) + get_group_id(1)*get_num_groups(0))] = 0.0f;
     }
 
-    if(blockSize >= 512){ if(tid < 256){ datastr[tid] += datastr[tid+256]; } barrier(CLK_LOCAL_MEM_FENCE); }
-    if(blockSize >= 256){ if(tid < 128){ datastr[tid] += datastr[tid+128]; } barrier(CLK_LOCAL_MEM_FENCE); }
-    if(blockSize >= 128){ if(tid < 64){ datastr[tid] += datastr[tid+64]; } barrier(CLK_LOCAL_MEM_FENCE); }
+    //if(blockSize >= 512){ if(tid < 256){ datastr[tid] += datastr[tid+256]; } barrier(CLK_LOCAL_MEM_FENCE); }
+    //if(blockSize >= 256){ if(tid < 128){ datastr[tid] += datastr[tid+128]; } barrier(CLK_LOCAL_MEM_FENCE); }
+    //if(blockSize >= 128){ if(tid < 64){ datastr[tid] += datastr[tid+64]; } barrier(CLK_LOCAL_MEM_FENCE); }
 
     if(tid < 32){
       if(blockSize >= 64){  datastr[tid] += datastr[tid+32]; }
