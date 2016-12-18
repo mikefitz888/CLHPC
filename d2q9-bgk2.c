@@ -407,9 +407,10 @@ int propagate(const t_param params, t_speed* cells, t_speed* tmp_cells, t_ocl oc
   cl_int err;
 
   // Enqueue kernel
-  size_t global[2] = {params.nx, params.ny};
+  size_t global[1] = {params.nx * params.ny};
+  size_t local[1] = {WORK_GROUP_SIZE};
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.propagate,
-                               2, NULL, global, NULL, 0, NULL, NULL);
+                               1, NULL, global, local, 0, NULL, NULL);
   checkError(err, "enqueueing propagate kernel", __LINE__);
 
   // Wait for kernel to finish

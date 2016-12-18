@@ -2,10 +2,11 @@
 
 #define NSPEEDS         9
 
-typedef struct
+/*typedef struct
 {
   float speeds[NSPEEDS];
-} t_speed;
+} t_speed;*/
+typedef float t_speed;
 
 constant float c_sq = 1.0 / 3.0; /* square of speed of sound */
 constant float w0 = 4.0 / 9.0;  /* weighting factor */
@@ -30,18 +31,18 @@ kernel void accelerate_flow(global t_speed* cells,
   /* if the cell is not occupied and
   ** we don't send a negative density */
   if (!obstacles[ii * nx + jj]
-      && (cells[ii * nx + jj].speeds[3] - w1) > 0.0
-      && (cells[ii * nx + jj].speeds[6] - w2) > 0.0
-      && (cells[ii * nx + jj].speeds[7] - w2) > 0.0)
+      && (cells[3*nx*ny + ii*nx + jj] - w1) > 0.0
+      && (cells[6*nx*ny + ii*nx + jj] - w2) > 0.0
+      && (cells[7*nx*ny + ii*nx + jj] - w2) > 0.0)
   {
     /* increase 'east-side' densities */
-    cells[ii * nx + jj].speeds[1] += w1;
-    cells[ii * nx + jj].speeds[5] += w2;
-    cells[ii * nx + jj].speeds[8] += w2;
+    cells[1*nx*ny + ii*nx + jj] += w1;
+    cells[5*nx*ny + ii*nx + jj] += w2;
+    cells[8*nx*ny + ii*nx + jj] += w2;
     /* decrease 'west-side' densities */
-    cells[ii * nx + jj].speeds[3] -= w1;
-    cells[ii * nx + jj].speeds[6] -= w2;
-    cells[ii * nx + jj].speeds[7] -= w2;
+    cells[3*nx*ny + ii*nx + jj] -= w1;
+    cells[6*nx*ny + ii*nx + jj] -= w2;
+    cells[7*nx*ny + ii*nx + jj] -= w2;
   }
 }
 
@@ -53,6 +54,8 @@ kernel void propagate(global t_speed* cells,
   /* get column and row indices */
   int jj = get_global_id(0);
   int ii = get_global_id(1);
+  //float in[NSPEEDS];
+  //for (int k = 0; k < NSPEEDS; k++) in[k] = cells[k*nx*ny + ii*nx + jj];
 
   /* determine indices of axis-direction neighbours
   ** respecting periodic boundary conditions (wrap around) */
@@ -63,15 +66,15 @@ kernel void propagate(global t_speed* cells,
   /* propagate densities to neighbouring cells, following
   ** appropriate directions of travel and writing into
   ** scratch space grid */
-  tmp_cells[ii  * nx + jj ].speeds[0] = cells[ii * nx + jj].speeds[0]; /* central cell, no movement */
-  tmp_cells[ii  * nx + x_e].speeds[1] = cells[ii * nx + jj].speeds[1]; /* east */
-  tmp_cells[y_n * nx + jj ].speeds[2] = cells[ii * nx + jj].speeds[2]; /* north */
-  tmp_cells[ii  * nx + x_w].speeds[3] = cells[ii * nx + jj].speeds[3]; /* west */
-  tmp_cells[y_s * nx + jj ].speeds[4] = cells[ii * nx + jj].speeds[4]; /* south */
-  tmp_cells[y_n * nx + x_e].speeds[5] = cells[ii * nx + jj].speeds[5]; /* north-east */
-  tmp_cells[y_n * nx + x_w].speeds[6] = cells[ii * nx + jj].speeds[6]; /* north-west */
-  tmp_cells[y_s * nx + x_w].speeds[7] = cells[ii * nx + jj].speeds[7]; /* south-west */
-  tmp_cells[y_s * nx + x_e].speeds[8] = cells[ii * nx + jj].speeds[8]; /* south-east */
+  tmp_cells[0*nx*ny + ii*nx + jj] = cells[0*nx*ny + ii*nx + jj]; /* central cell, no movement */
+  tmp_cells[1*nx*ny + x_e*nx + jj] = cells[1*nx*ny + ii*nx + jj]; /* east */
+  tmp_cells[2*nx*ny + ii*nx + y_n] = cells[2*nx*ny + ii*nx + jj]; /* north */
+  tmp_cells[3*nx*ny + x_w*nx + jj] = cells[3*nx*ny + ii*nx + jj]; /* west */
+  tmp_cells[4*nx*ny + ii*nx + y_s] = cells[4*nx*ny + ii*nx + jj]; /* south */
+  tmp_cells[5*nx*ny + x_e*nx + y_n] = cells[5*nx*ny + ii*nx + jj]; /* north-east */
+  tmp_cells[6*nx*ny + x_w*nx + y_n] = cells[6*nx*ny + ii*nx + jj]; /* north-west */
+  tmp_cells[7*nx*ny + x_w*nx + y_s] = cells[7*nx*ny + ii*nx + jj]; /* south-west */
+  tmp_cells[8*nx*ny + x_e*nx + y_s] = cells[8*nx*ny + ii*nx + jj]; /* south-east */
 }
 
 kernel void rebound(global t_speed* cells,
@@ -112,9 +115,6 @@ kernel void collision(global t_speed* restrict cells,
   //for (int k = 0; k < NSPEEDS; k++) out_cells[k*nx*ny + gid] = out_cell[k];
   //private float_t out_cell[NSPEEDS];
 
-  float in[NSPEEDS];
-  for (int k = 0; k < NSPEEDS; k++) in[k] = cells[k*nx*ny + i*nx + j];
-
   int gid = get_global_id(0);
   int jj = gid & (nx-1); // y*nx+x
   int ii = (get_global_id(0)-jj)/nx;
@@ -129,6 +129,9 @@ kernel void collision(global t_speed* restrict cells,
   }*/
   //t_speed cell = tmp_cells[gid];
   //float* in = cell.speeds;
+
+  float in[NSPEEDS];
+  for (int k = 0; k < NSPEEDS; k++) in[k] = cells[k*nx*ny + ii*nx + jj];
 
   if (!obstacles[gid])
   {
@@ -222,26 +225,27 @@ kernel void collision(global t_speed* restrict cells,
       in[7] -= w2;
     }
     //for (int k = 0; k < NSPEEDS; k++) out_cells[k*nx*ny + gid] = out_cell[k];
-    cells[ii * nx + jj].speeds[0] = in[0];
-    cells[ii * nx + xe].speeds[1] = in[1];
-    cells[yn * nx + jj].speeds[2] = in[2];
-    cells[ii * nx + xw].speeds[3] = in[3];
-    cells[ys * nx + jj].speeds[4] = in[4];
-    cells[yn * nx + xe].speeds[5] = in[5];
-    cells[yn * nx + xw].speeds[6] = in[6];
-    cells[ys * nx + xw].speeds[7] = in[7];
-    cells[ys * nx + xe].speeds[8] = in[8];
+    //nx*ny + ii*nx + jj
+    cells[0*nx*ny + ii*nx + jj] = in[0];
+    cells[1*nx*ny + ii*nx + xe] = in[1];
+    cells[2*nx*ny + yn*nx + jj] = in[2];
+    cells[3*nx*ny + ii*nx + xw] = in[3];
+    cells[4*nx*ny + ys*nx + jj] = in[4];
+    cells[5*nx*ny + yn*nx + xe] = in[5];
+    cells[6*nx*ny + yn*nx + xw] = in[6];
+    cells[7*nx*ny + ys*nx + xw] = in[7];
+    cells[8*nx*ny + ys*nx + xe] = in[8];
   }else{
     datastr[get_local_id(0)] = 0.0f;
     //lbuffer[get_global_id(0)] = 0.0f;
-    cells[ii * nx + xe].speeds[1] = in[3];
-    cells[yn * nx + jj].speeds[2] = in[4];
-    cells[ii * nx + xw].speeds[3] = in[1];
-    cells[ys * nx + jj].speeds[4] = in[2];
-    cells[yn * nx + xe].speeds[5] = in[7];
-    cells[yn * nx + xw].speeds[6] = in[8];
-    cells[ys * nx + xw].speeds[7] = in[5];
-    cells[ys * nx + xe].speeds[8] = in[6];
+    cells[1*nx*ny + ii*nx + xe] = in[3];
+    cells[2*nx*ny + yn*nx + jj] = in[4];
+    cells[3*nx*ny + ii*nx + xw] = in[1];
+    cells[4*nx*ny + ys*nx + jj] = in[2];
+    cells[5*nx*ny + yn*nx + xe] = in[7];
+    cells[6*nx*ny + yn*nx + xw] = in[8];
+    cells[7*nx*ny + ys*nx + xw] = in[5];
+    cells[8*nx*ny + ys*nx + xe] = in[6];
   }
 
   /* Reduction */
