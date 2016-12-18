@@ -107,7 +107,8 @@ kernel void collision(global t_speed* cells,
                       global t_speed* tmp_cells,
                       global int* obstacles,
                       int nx, int ny, float omega, float density, float accel, global float* av_vels, local volatile float* datastr, global float* lbuffer){
-  int jj = get_global_id(0)%nx; // y*nx+x
+  int gid = get_global_id(0);
+  int jj = gid%nx; // y*nx+x
   int ii = (get_global_id(0)-jj)/nx;
   int yn = (ii + 1) % ny;
   int xe = (jj + 1) % nx;
@@ -119,16 +120,18 @@ kernel void collision(global t_speed* cells,
     printf("group_id=%d, size=%d\n", get_group_id(0), get_local_size(0)=64);
   }*/
 
-  if (!obstacles[ii * nx + jj])
+  if (!obstacles[gid])
   {
 
     /* compute x velocity component */
-    global float* speeds = tmp_cells[ii * nx + jj].speeds;
+    global float* speeds = tmp_cells[gid].speeds;
 
     float in[9];
-    for(int i = 0; i < 9; i++){
+    /*for(int i = 0; i < 9; i++){
       in[i] = speeds[i];
-    }
+    }*/
+    t_speed cell = tmp_cells[gid]
+            in = cell.speeds;
 
     float xneg = in[3] + in[6] + in[7];
     float yneg = in[4] + in[7] + in[8]; 
