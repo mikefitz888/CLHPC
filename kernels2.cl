@@ -109,7 +109,7 @@ kernel void collision(global t_speed* cells,
                       global int* obstacles,
                       int nx, int ny, float omega, float density, float accel, global float* av_vels, local volatile float* datastr, global float* lbuffer, int iteration){
   int gid = get_global_id(0);
-  int jj = gid%nx; // y*nx+x
+  int jj = gid & (nx-1); // y*nx+x
   int ii = (get_global_id(0)-jj)/nx;
   int yn = (ii + 1) & (ny-1);
   int xe = (jj + 1) & (nx-1);
