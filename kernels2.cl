@@ -1,11 +1,13 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
 #define NSPEEDS         9
+#define L(X, Y, V, W) ((X) + ((V)*(W)) + ((Y)*(W)*(9))) 
 
-typedef struct
+/*typedef struct
 {
   float speeds[NSPEEDS];
-} t_speed;
+} t_speed;*/
+typedef float t_speed;
 
 constant float c_sq = 1.0 / 3.0; /* square of speed of sound */
 constant float w0 = 4.0 / 9.0;  /* weighting factor */
@@ -30,18 +32,18 @@ kernel void accelerate_flow(global t_speed* cells,
   /* if the cell is not occupied and
   ** we don't send a negative density */
   if (!obstacles[ii * nx + jj]
-      && (cells[ii * nx + jj].speeds[3] - w1) > 0.0
-      && (cells[ii * nx + jj].speeds[6] - w2) > 0.0
-      && (cells[ii * nx + jj].speeds[7] - w2) > 0.0)
+      && (cells[L(jj, ii, 3, nx)] - w1) > 0.0
+      && (cells[L(jj, ii, 6, nx)] - w2) > 0.0
+      && (cells[L(jj, ii, 7, nx)] - w2) > 0.0)
   {
     /* increase 'east-side' densities */
-    cells[ii * nx + jj].speeds[1] += w1;
-    cells[ii * nx + jj].speeds[5] += w2;
-    cells[ii * nx + jj].speeds[8] += w2;
+    cells[L(jj, ii, 1, nx)] += w1;
+    cells[L(jj, ii, 5, nx)] += w2;
+    cells[L(jj, ii, 8, nx)] += w2;
     /* decrease 'west-side' densities */
-    cells[ii * nx + jj].speeds[3] -= w1;
-    cells[ii * nx + jj].speeds[6] -= w2;
-    cells[ii * nx + jj].speeds[7] -= w2;
+    cells[L(jj, ii, 3, nx)] -= w1;
+    cells[L(jj, ii, 6, nx)] -= w2;
+    cells[L(jj, ii, 7L(jj, ii, 3, nx), nx)] -= w2;
   }
 }
 
@@ -63,15 +65,15 @@ kernel void propagate(global t_speed* cells,
   /* propagate densities to neighbouring cells, following
   ** appropriate directions of travel and writing into
   ** scratch space grid */
-  tmp_cells[ii  * nx + jj ].speeds[0] = cells[ii * nx + jj].speeds[0]; /* central cell, no movement */
-  tmp_cells[ii  * nx + x_e].speeds[1] = cells[ii * nx + jj].speeds[1]; /* east */
-  tmp_cells[y_n * nx + jj ].speeds[2] = cells[ii * nx + jj].speeds[2]; /* north */
-  tmp_cells[ii  * nx + x_w].speeds[3] = cells[ii * nx + jj].speeds[3]; /* west */
-  tmp_cells[y_s * nx + jj ].speeds[4] = cells[ii * nx + jj].speeds[4]; /* south */
-  tmp_cells[y_n * nx + x_e].speeds[5] = cells[ii * nx + jj].speeds[5]; /* north-east */
-  tmp_cells[y_n * nx + x_w].speeds[6] = cells[ii * nx + jj].speeds[6]; /* north-west */
-  tmp_cells[y_s * nx + x_w].speeds[7] = cells[ii * nx + jj].speeds[7]; /* south-west */
-  tmp_cells[y_s * nx + x_e].speeds[8] = cells[ii * nx + jj].speeds[8]; /* south-east */
+  tmp_cells[L(jj, ii, 0, nx)] = cells[L(jj, ii, 0, nx)]; /* central cell, no movement */
+  tmp_cells[L(x_e, ii, 1, nx)] = cells[L(jj, ii, 1, nx)]; /* east */
+  tmp_cells[L(jj, y_n, 2, nx)] = cells[L(jj, ii, 2, nx)]; /* north */
+  tmp_cells[L(x_w, ii, 3, nx)] = cells[L(jj, ii, 3, nx)]; /* west */
+  tmp_cells[L(jj, y_s, 4, nx)] = cells[L(jj, ii, 4, nx)]; /* south */
+  tmp_cells[L(x_e, y_n, 5, nx)] = cells[L(jj, ii, 5, nx)]; /* north-east */
+  tmp_cells[L(x_w, y_n, 6, nx)] = cells[L(jj, ii, 6, nx)]; /* north-west */
+  tmp_cells[L(x_w, y_s, 7, nx)] = cells[L(jj, ii, 7, nx)]; /* south-west */
+  tmp_cells[L(x_e, y_s, 8, nx)] = cells[L(jj, ii, 8, nx)]; /* south-east */
 }
 
 kernel void rebound(global t_speed* cells,
@@ -120,8 +122,11 @@ kernel void collision(global t_speed* restrict cells,
   /*if(get_local_id(0) == 0){
     printf("group_id=%d, size=%d\n", get_group_id(0), get_local_size(0)=64);
   }*/
-  t_speed cell = tmp_cells[gid];
-  float* in = cell.speeds;
+  //t_speed cell = tmp_cells[gid];
+  float* in;// = cell.speeds;
+  for(int i = 0; i < 9; i++){
+    in[i] = cell[L(jj, ii, i, nx)];
+  }
 
   if (!obstacles[gid])
   {
@@ -214,26 +219,27 @@ kernel void collision(global t_speed* restrict cells,
       in[7] -= w2;
     }
 
-    cells[gid].speeds[0] = in[0];
-    cells[ii * nx + xe].speeds[1] = in[1];
-    cells[yn * nx + jj].speeds[2] = in[2];
-    cells[ii * nx + xw].speeds[3] = in[3];
-    cells[ys * nx + jj].speeds[4] = in[4];
-    cells[yn * nx + xe].speeds[5] = in[5];
-    cells[yn * nx + xw].speeds[6] = in[6];
-    cells[ys * nx + xw].speeds[7] = in[7];
-    cells[ys * nx + xe].speeds[8] = in[8];
+    cells[L(jj, ii, 0, nx)]  =in[0]; /* central cell, no movement */
+    cells[L(x_e, ii, 1, nx)] =in[1]; /* east */
+    cells[L(jj, y_n, 2, nx)] =in[2]; /* north */
+    cells[L(x_w, ii, 3, nx)] =in[3]; /* west */
+    cells[L(jj, y_s, 4, nx)] =in[4]; /* south */
+    cells[L(x_e, y_n, 5, nx)]=in[5]; /* north-east */
+    cells[L(x_w, y_n, 6, nx)]=in[6]; /* north-west */
+    cells[L(x_w, y_s, 7, nx)]=in[7]; /* south-west */
+    cells[L(x_e, y_s, 8, nx)]=in[8]; /* south-east */
   }else{
     datastr[get_local_id(0)] = 0.0f;
     //lbuffer[get_global_id(0)] = 0.0f;
-    cells[ii * nx + xe].speeds[1] = in[3];
-    cells[yn * nx + jj].speeds[2] = in[4];
-    cells[ii * nx + xw].speeds[3] = in[1];
-    cells[ys * nx + jj].speeds[4] = in[2];
-    cells[yn * nx + xe].speeds[5] = in[7];
-    cells[yn * nx + xw].speeds[6] = in[8];
-    cells[ys * nx + xw].speeds[7] = in[5];
-    cells[ys * nx + xe].speeds[8] = in[6];
+
+    cells[L(x_e, ii, 1, nx)] =in[3]; /* east */
+    cells[L(jj, y_n, 2, nx)] =in[4]; /* north */
+    cells[L(x_w, ii, 3, nx)] =in[1]; /* west */
+    cells[L(jj, y_s, 4, nx)] =in[2]; /* south */
+    cells[L(x_e, y_n, 5, nx)]=in[7]; /* north-east */
+    cells[L(x_w, y_n, 6, nx)]=in[8]; /* north-west */
+    cells[L(x_w, y_s, 7, nx)]=in[5]; /* south-west */
+    cells[L(x_e, y_s, 8, nx)]=in[6]; /* south-east */
   }
 
   /* Reduction */
