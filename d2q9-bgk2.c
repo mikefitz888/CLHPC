@@ -291,8 +291,8 @@ int main(int argc, char* argv[])
 
   accelerate_flow(params, cells, obstacles, ocl);
   propagate(params, cells, tmp_cells, ocl);
-  size_t &global = {params.nx * params.ny};
-  size_t &local = {64};
+  size_t global = {params.nx * params.ny};
+  size_t local = {64};
   /* iterate for maxIters timesteps */
   
   printf("wgs=%d\n", work_group_size);
