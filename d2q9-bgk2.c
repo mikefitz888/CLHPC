@@ -299,7 +299,7 @@ int main(int argc, char* argv[])
   printf("wgs=%d\n", work_group_size);
 
   float inverse_available_cells = 1.0f/(126.0*126.0);
-  for (int tt = 0; tt < params.maxIters/2; tt++)
+  for (int tt = 0; tt < 1+0*params.maxIters/2; tt++)
   {
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
                                1, NULL, &global, &local, 0, NULL, NULL);

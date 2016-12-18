@@ -94,6 +94,9 @@ kernel void collision(global t_speed* cells,
   int ys = (ii == 0) ? (ny - 1) : (ii - 1);
   int xw = (jj == 0) ? (nx - 1) : (jj - 1);
   float sum = 0.0f;
+  if(get_local_id(0) == 0){
+    printf("group_id=%d\n", get_group_id(0));
+  }
   if (!obstacles[ii * nx + jj])
   {
 
