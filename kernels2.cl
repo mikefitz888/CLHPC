@@ -141,7 +141,7 @@ kernel void collision(global t_speed* cells,
     local_density *= w0 * omega;
 
     //local_density is no longer local density
-    float e[9];
+    /*float e[9];
     e[0] = local_density - local_density*(uxsq15 + uysq15);
 
     local_density *= 0.25;
@@ -165,30 +165,25 @@ kernel void collision(global t_speed* cells,
     for(int i = 0; i < 9; i++){
       in[i] *= (1 - omega);
       in[i] += e[i];
-    }
+    }*/
 
     //Acceleration
-    float w1 = density * accel / 9.0;
+    /*float w1 = density * accel / 9.0;
     float w2 = density * accel / 36.0;
-
-    /* if the cell is not occupied and
-    ** we don't send a negative density */
     if (ii == ny-2
         && (in[3] - w1) > 0.0
         && (in[6] - w2) > 0.0
         && (in[7] - w2) > 0.0)
     {
-      /* increase 'east-side' densities */
       in[1] += w1;
       in[5] += w2;
       in[8] += w2;
-      /* decrease 'west-side' densities */
       in[3] -= w1;
       in[6] -= w2;
       in[7] -= w2;
-    }
+    }*/
 
-    cells[ii * nx + jj].speeds[0] = in[0];
+    /*cells[ii * nx + jj].speeds[0] = in[0];
     cells[ii * nx + xe].speeds[1] = in[1];
     cells[yn * nx + jj].speeds[2] = in[2];
     cells[ii * nx + xw].speeds[3] = in[3];
@@ -196,10 +191,12 @@ kernel void collision(global t_speed* cells,
     cells[yn * nx + xe].speeds[5] = in[5];
     cells[yn * nx + xw].speeds[6] = in[6];
     cells[ys * nx + xw].speeds[7] = in[7];
-    cells[ys * nx + xe].speeds[8] = in[8];
+    cells[ys * nx + xe].speeds[8] = in[8];*/
+
+    /*other*/
 
 
-    /*cells[ii * nx + jj].speeds[0] = in[0] * (1 - omega) + (local_density + local_density * (-uxsq15 - uysq15));
+    cells[ii * nx + jj].speeds[0] = in[0] * (1 - omega) + (local_density + local_density * (-uxsq15 - uysq15));
 
     local_density *= 0.25;
     cells[ii * nx + xe].speeds[1] = in[1] * (1 - omega) + (local_density + local_density * ( ux3 + uxsq3 - uysq15));
@@ -215,24 +212,24 @@ kernel void collision(global t_speed* cells,
 
 
     float w1 = density * accel / 9.0;
-    float w2 = density * accel / 36.0;*/
+    float w2 = density * accel / 36.0;
 
     /* if the cell is not occupied and
     ** we don't send a negative density */
-    //if (ii == ny-2
-     //   && (cells[ii * nx + xw].speeds[3] - w1) > 0.0
-      //  && (cells[yn * nx + xw].speeds[6] - w2) > 0.0
-       // && (cells[ys * nx + xw].speeds[7] - w2) > 0.0)
-    //{
+    if (ii == ny-2
+        && (cells[ii * nx + xw].speeds[3] - w1) > 0.0
+        && (cells[yn * nx + xw].speeds[6] - w2) > 0.0
+        && (cells[ys * nx + xw].speeds[7] - w2) > 0.0)
+    {
       /* increase 'east-side' densities */
-      //cells[ii * nx + xe].speeds[1] += w1;
-      //cells[yn * nx + xe].speeds[5] += w2;
-      //cells[ys * nx + xe].speeds[8] += w2;
-      ///* decrease 'west-side' densities */
-      //cells[ii * nx + xw].speeds[3] -= w1;
-      //cells[yn * nx + xw].speeds[6] -= w2;
-      //cells[ys * nx + xw].speeds[7] -= w2;
-    //}
+      cells[ii * nx + xe].speeds[1] += w1;
+      cells[yn * nx + xe].speeds[5] += w2;
+      cells[ys * nx + xe].speeds[8] += w2;
+      /* decrease 'west-side' densities */
+      cells[ii * nx + xw].speeds[3] -= w1;
+      cells[yn * nx + xw].speeds[6] -= w2;
+      cells[ys * nx + xw].speeds[7] -= w2;
+    }
 
   }else{
     cells[ii * nx + xe].speeds[1] = tmp_cells[ii * nx + jj].speeds[3];
