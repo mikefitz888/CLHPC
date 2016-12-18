@@ -232,5 +232,5 @@ kernel void collision(global t_speed* cells,
   //int group_id       = get_group_id(0); 
 
   barrier(CLK_LOCAL_MEM_FENCE);
-  reduce(lbuffer, datastr);
+  reduce(lbuffer, datastr, av_vels);
 }
