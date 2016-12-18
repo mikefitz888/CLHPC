@@ -83,7 +83,7 @@ kernel void rebound(global t_speed* cells,
 
 }
 
-void reduceGlobal(global float* lbuffer, global float* av_vels,){
+void reduceGlobal(global float* lbuffer, global float* av_vels){
   int i = get_group_id(0);
 }
 
