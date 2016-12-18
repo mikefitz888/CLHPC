@@ -150,7 +150,7 @@ kernel void collision(global t_speed* cells,
     e[1] = (local_density +(local_density * ((ux3 + uxsq3) - uysq15))); //East
     e[2] = (local_density +(local_density * ((uy3 + uysq3) - uxsq15))); //North
     e[3] = (e[1] - px); //West
-    e[4] = (e[4] - py); //South
+    e[4] = (e[2] - py); //South
 
     //Diagonals
     local_density *= 0.25;
@@ -159,8 +159,8 @@ kernel void collision(global t_speed* cells,
     //NE NW SW SE
     e[5] = (local_density + (local_density * ((trailing_diag + (ux3 + uy3)) - u_sq)));
     e[6] = (local_density + (local_density * ((leading_diag + uy3) - (ux3 + u_sq) )));
-    e[7] = ((e[3] - px) - py);
-    e[8] = ((e[5] + px) - py);
+    e[7] = ((e[5] - px) - py);
+    e[8] = ((e[6] + px) - py);
 
     for(int i = 0; i < 9; i++){
       in[i] *= (1 - omega);
@@ -197,19 +197,6 @@ kernel void collision(global t_speed* cells,
     cells[yn * nx + xw].speeds[6] = in[6];
     cells[ys * nx + xw].speeds[7] = in[7];
     cells[ys * nx + xe].speeds[8] = in[8];
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /*cells[ii * nx + jj].speeds[0] = in[0] * (1 - omega) + (local_density + local_density * (-uxsq15 - uysq15));
