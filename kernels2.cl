@@ -223,7 +223,7 @@ kernel void collision(global t_speed* restrict cells,
     cells[L(xe, ii, 1, nx)] =in[1]; /* east */
     cells[L(jj, yn, 2, nx)] =in[2]; /* north */
     cells[L(xw, ii, 3, nx)] =in[3]; /* west */
-    cells[L(jj, y_s, 4, nx)] =in[4]; /* south */
+    cells[L(jj, ys, 4, nx)] =in[4]; /* south */
     cells[L(xe, yn, 5, nx)]=in[5]; /* north-east */
     cells[L(xw, yn, 6, nx)]=in[6]; /* north-west */
     cells[L(xw, ys, 7, nx)]=in[7]; /* south-west */
