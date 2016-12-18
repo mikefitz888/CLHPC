@@ -277,7 +277,7 @@ int main(int argc, char* argv[])
   {
     //timestep(params, cells, tmp_cells, obstacles, ocl);
     collision(params, cells, tmp_cells, obstacles, ocl, tt);
-    av_vels[tt] = av_velocity(params, cells, obstacles, ocl);
+    //av_vels[tt] = av_velocity(params, cells, obstacles, ocl);
 #ifdef DEBUG
     printf("==timestep: %d==\n", tt);
     printf("av velocity: %.12E\n", av_vels[tt]);

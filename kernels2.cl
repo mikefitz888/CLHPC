@@ -192,12 +192,6 @@ kernel void collision(global t_speed* cells,
     cells[yn * nx + xw].speeds[6] = in[6];
     cells[ys * nx + xw].speeds[7] = in[7];
     cells[ys * nx + xe].speeds[8] = in[8];
-
-    /*other*/
-
-
-    
-
   }else{
     cells[ii * nx + xe].speeds[1] = tmp_cells[ii * nx + jj].speeds[3];
     cells[yn * nx + jj].speeds[2] = tmp_cells[ii * nx + jj].speeds[4];
