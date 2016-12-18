@@ -304,26 +304,26 @@ int main(int argc, char* argv[])
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
                                1, NULL, &global, &local, 0, NULL, NULL);
     
-    err = clEnqueueReadBuffer(ocl.queue, ocl.lbuffer, CL_TRUE, 0, sizeof(cl_float) * (params->ny * params->nx), params.partial_sums, 0, NULL, NULL);
+    err = clEnqueueReadBuffer(ocl.queue, ocl.lbuffer, CL_TRUE, 0, sizeof(cl_float) * (params.ny * params.nx), params.partial_sums, 0, NULL, NULL);
     checkError(err, "reading partial_sums data", __LINE__);
 
     av_vels[2*iteration] = 0.0f;
-    for(int y = 0; y < params->ny; y++){
-      for(int x = 0; x < params->nx; x++){
-        av_vels[2*iteration] += params.partial_sums[y*params->ny+x]*inverse_available_cells;
+    for(int y = 0; y < params.ny; y++){
+      for(int x = 0; x < params.nx; x++){
+        av_vels[2*iteration] += params.partial_sums[y*params.ny+x]*inverse_available_cells;
       }
     }
 
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision2,
                                1, NULL, &global, &local, 0, NULL, NULL);
   //checkError(err, "enqueueing collision kernel", __LINE__);
-    err = clEnqueueReadBuffer(ocl.queue, ocl.lbuffer, CL_TRUE, 0, sizeof(cl_float) * (params->ny * params->nx), params.partial_sums, 0, NULL, NULL);
+    err = clEnqueueReadBuffer(ocl.queue, ocl.lbuffer, CL_TRUE, 0, sizeof(cl_float) * (params.ny * params.nx), params.partial_sums, 0, NULL, NULL);
     checkError(err, "reading partial_sums data", __LINE__);
 
     av_vels[2*iteration+1] = 0.0f;
-    for(int y = 0; y < params->ny; y++){
-      for(int x = 0; x < params->nx; x++){
-        av_vels[2*iteration] += params.partial_sums[y*params->ny+x]*inverse_available_cells;
+    for(int y = 0; y < params.ny; y++){
+      for(int x = 0; x < params.nx; x++){
+        av_vels[2*iteration] += params.partial_sums[y*params.ny+x]*inverse_available_cells;
       }
     }
 
