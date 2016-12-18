@@ -247,6 +247,8 @@ kernel void collision(global t_speed* cells,
     }
 
     if(tid == 0){
-      av_vels[0] = lbuffer[0];
+      int id = (int)av_vels[0];
+      av_vels[id+1] = lbuffer[0];
+      av_vels[0] = id+1;
     }
 }
