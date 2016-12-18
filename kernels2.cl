@@ -86,7 +86,7 @@ kernel void rebound(global t_speed* cells,
 kernel void collision(global t_speed* cells,
                       global t_speed* tmp_cells,
                       global int* obstacles,
-                      int nx, int ny, float omega, float density, float accel, global t_speed* av_vels, local volatile float* datastr, global float* lbuffer){
+                      int nx, int ny, float omega, float density, float accel, global float* av_vels, local volatile float* datastr, global float* lbuffer){
   int jj = get_global_id(0);
   int ii = get_global_id(1);
   int yn = (ii + 1) % ny;
@@ -232,7 +232,7 @@ kernel void collision(global t_speed* cells,
       lbuffer[(get_group_id(0) + get_group_id(1)*get_num_groups(0))] = datastr[0];
     }
 
-    blockSize = get_group_size(0) * get_group_size(1);
+    blockSize = get_num_groups(0) * get_num_groups(1);
     tid = (get_group_id(0) + get_group_id(1)*get_num_groups(0));
     if(blockSize >= 256){ if(tid < 128){ lbuffer[tid] += lbuffer[tid+128]; } barrier(CLK_GLOBAL_MEM_FENCE); }
     if(blockSize >= 128){ if(tid < 64){ lbuffer[tid] += lbuffer[tid+64]; } barrier(CLK_GLOBAL_MEM_FENCE); }
