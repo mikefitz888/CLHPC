@@ -299,7 +299,7 @@ int main(int argc, char* argv[])
   printf("wgs=%d\n", work_group_size);
 
   float inverse_available_cells = 1.0f/(126.0*126.0);
-  for (int tt = 0; tt < 1+0*params.maxIters/2; tt++)
+  for (int tt = 0; tt < params.maxIters/2; tt++)
   {
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
                                1, NULL, &global, &local, 0, NULL, NULL);
@@ -311,10 +311,10 @@ int main(int argc, char* argv[])
     checkError(err, "waiting for collision kernel", __LINE__);
 
     av_vels[2*tt] = 0.0f;
-    for(int y = 0; y < params.ny; y++){
-      for(int x = 0; x < params.nx; x++){
-        av_vels[2*tt] += params.partial_sums[y*params.nx+x]*inverse_available_cells;
-      }
+    for(int y = 0; y < 64; y++){
+      //for(int x = 0; x < params.nx; x++){
+        av_vels[2*tt] += params.partial_sums[y]*inverse_available_cells;
+      //}
     }
 
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision2,
@@ -327,10 +327,10 @@ int main(int argc, char* argv[])
     checkError(err, "waiting for collision kernel", __LINE__);
 
     av_vels[2*tt+1] = 0.0f;
-    for(int y = 0; y < params.ny; y++){
-      for(int x = 0; x < params.nx; x++){
-        av_vels[2*tt+1] += params.partial_sums[y*params.nx+x]*inverse_available_cells;
-      }
+    for(int y = 0; y < 64; y++){
+      //for(int x = 0; x < params.nx; x++){
+        av_vels[2*tt+1] += params.partial_sums[y]*inverse_available_cells;
+      //}
     }
 
 #ifdef DEBUG

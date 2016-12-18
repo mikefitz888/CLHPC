@@ -84,7 +84,11 @@ kernel void rebound(global t_speed* cells,
 }
 
 void reduce(global float* lbuffer, local volatile float* datastr){
-
+  if(get_local_id(0) == 0){
+    for(int i = 0; i < 64; i++){
+      lbuffer[get_group_id(0)] += datastr[i];
+    }
+  }
 }
 
 kernel void collision(global t_speed* cells,
@@ -101,9 +105,9 @@ kernel void collision(global t_speed* cells,
   /*if(get_local_id(0) == 0){
     printf("group_id=%d, size=%d\n", get_group_id(0), get_local_size(0)=64);
   }*/
-  if(get_group_id(0) == 1023){
+  /*if(get_group_id(0) == 1023){
     printf("local_id=%d, size=%d\n", get_local_id(0), get_local_size(0));
-  }
+  }*/
   if (!obstacles[ii * nx + jj])
   {
 
@@ -222,6 +226,6 @@ kernel void collision(global t_speed* cells,
   //int local_id       = get_local_id(0);                   
   //int group_id       = get_group_id(0); 
 
-  //barrier(CLK_LOCAL_MEM_FENCE);
-  //reduce();
+  barrier(CLK_LOCAL_MEM_FENCE);
+  reduce(lbuffer, datastr);
 }
