@@ -110,7 +110,7 @@ kernel void collision(global t_speed* cells,
   }*/
   int ls = get_local_size(0);
   if(ls != 0){
-    printf("local_id=%d, size=%d\n", get_local_id(0), ls);
+    printf("local_id=%d, size(making sure git is working)=%d\n", get_local_id(0), ls);
   }
   if (!obstacles[ii * nx + jj])
   {
