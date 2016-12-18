@@ -204,7 +204,7 @@ kernel void collision(global t_speed* cells,
   }
 
   /* Reduction */
-    /*unsigned int tid = get_local_id(0) + get_local_id(1)*get_local_size(0);
+    unsigned int tid = get_local_id(0) + get_local_id(1)*get_local_size(0);
     unsigned int i   = (get_group_id(0) + get_group_id(1)*get_num_groups(0)) * (get_local_size(0)*get_local_size(1)*2) + tid;
     unsigned int blockSize = get_local_size(0) * get_local_size(1);
 
@@ -250,5 +250,5 @@ kernel void collision(global t_speed* cells,
       int id = (int)av_vels[0];
       av_vels[id+1] = lbuffer[0];
       av_vels[0] = id+1;
-    }*/
+    }
 }
