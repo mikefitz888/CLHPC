@@ -293,8 +293,8 @@ int main(int argc, char* argv[])
   size_t work_group_size = WORK_GROUP_SIZE;
   size_t num_work_groups = (params.nx * params.ny)/work_group_size;
 
-  //accelerate_flow(params, cells, obstacles, ocl);
-  //propagate(params, cells, tmp_cells, ocl);
+  accelerate_flow(params, cells, obstacles, ocl);
+  propagate(params, cells, tmp_cells, ocl);
   size_t global[1] = {params.nx * params.ny};
   size_t local[1] = {WORK_GROUP_SIZE};
   /* iterate for maxIters timesteps */
