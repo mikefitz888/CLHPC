@@ -398,7 +398,7 @@ int collision(const t_param params, t_speed* cells, t_speed* tmp_cells, int* obs
     return EXIT_SUCCESS;
 }
 
-double av_velocity(const t_param params, t_speed* cells, int* obstacles, t_ocl ocl)
+float av_velocity(const t_param params, t_speed* cells, int* obstacles, t_ocl ocl)
 {
   int    tot_cells = 0;  /* no. of cells used in calculation */
   double tot_u;          /* accumulated magnitudes of velocity for each cell */
@@ -722,14 +722,14 @@ int finalise(const t_param* params, t_speed** cells_ptr, t_speed** tmp_cells_ptr
 }
 
 
-double calc_reynolds(const t_param params, t_speed* cells, int* obstacles, t_ocl ocl)
+float calc_reynolds(const t_param params, t_speed* cells, int* obstacles, t_ocl ocl)
 {
   const double viscosity = 1.0 / 6.0 * (2.0 / params.omega - 1.0);
 
   return av_velocity(params, cells, obstacles, ocl) * params.reynolds_dim / viscosity;
 }
 
-double total_density(const t_param params, t_speed* cells)
+float total_density(const t_param params, t_speed* cells)
 {
   double total = 0.0;  /* accumulator */
 
