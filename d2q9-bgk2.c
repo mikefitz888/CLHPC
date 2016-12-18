@@ -116,7 +116,7 @@ typedef struct
 /* load params, allocate memory, load obstacles & initialise fluid particle densities */
 int initialise(const char* paramfile, const char* obstaclefile,
                t_param* params, t_speed** cells_ptr, t_speed** tmp_cells_ptr,
-               int** obstacles_ptr, float** av_vels_ptr, t_ocl* ocl);
+               int** obstacles_ptr, float** av_vels_ptr, t_ocl* ocl, float* inverse_available_cells);
 
 /*
 ** The main calculation methods.
@@ -184,7 +184,8 @@ int main(int argc, char* argv[])
   }
 
   /* initialise our data structures and load values from file */
-  initialise(paramfile, obstaclefile, &params, &cells, &tmp_cells, &obstacles, &av_vels, &ocl);
+  float inverse_available_cells;
+  initialise(paramfile, obstaclefile, &params, &cells, &tmp_cells, &obstacles, &av_vels, &ocl, %inverse_available_cells);
 
   gettimeofday(&timstr, NULL);
   tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
@@ -298,7 +299,6 @@ int main(int argc, char* argv[])
   
   printf("wgs=%d\n", work_group_size);
 
-  float inverse_available_cells = 1.0f/(126.0*126.0);
   for (int tt = 0; tt < params.maxIters/2; tt++)
   {
     err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
@@ -494,7 +494,7 @@ float av_velocity(const t_param params, t_speed* cells, int* obstacles, t_ocl oc
 
 int initialise(const char* paramfile, const char* obstaclefile,
                t_param* params, t_speed** cells_ptr, t_speed** tmp_cells_ptr,
-               int** obstacles_ptr, float** av_vels_ptr, t_ocl *ocl)
+               int** obstacles_ptr, float** av_vels_ptr, t_ocl *ocl, float* inverse_available_cells)
 {
   char   message[1024];  /* message buffer */
   FILE*   fp;            /* file pointer */
@@ -637,6 +637,15 @@ int initialise(const char* paramfile, const char* obstaclefile,
 
     /* assign to array */
     (*obstacles_ptr)[yy * params->nx + xx] = blocked;
+  }
+
+  *inverse_available_cells = params->ny * params->nx;
+  for (int ii = 0; ii < params->ny; ii++)
+  {
+    for (int jj = 0; jj < params->nx; jj++)
+    {
+      *inverse_available_cells -= (*obstacles_ptr)[ii * params->nx + jj];
+    }
   }
 
   /* and close the file */
