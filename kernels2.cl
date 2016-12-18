@@ -119,19 +119,20 @@ kernel void collision(global t_speed* cells,
   /*if(get_local_id(0) == 0){
     printf("group_id=%d, size=%d\n", get_group_id(0), get_local_size(0)=64);
   }*/
+  t_speed cell = tmp_cells[gid];
+  float* in = cell.speeds;
 
   if (!obstacles[gid])
   {
 
     /* compute x velocity component */
-    global float* speeds = tmp_cells[gid].speeds;
+    //global float* speeds = tmp_cells[gid].speeds;
 
     //float in[9];
     /*for(int i = 0; i < 9; i++){
       in[i] = speeds[i];
     }*/
-    t_speed cell = tmp_cells[gid];
-    float* in = cell.speeds;
+    
 
     float xneg = in[3] + in[6] + in[7];
     float yneg = in[4] + in[7] + in[8]; 
@@ -224,14 +225,14 @@ kernel void collision(global t_speed* cells,
   }else{
     datastr[get_local_id(0)] = 0.0f;
     //lbuffer[get_global_id(0)] = 0.0f;
-    cells[ii * nx + xe].speeds[1] = tmp_cells[ii * nx + jj].speeds[3];
-    cells[yn * nx + jj].speeds[2] = tmp_cells[ii * nx + jj].speeds[4];
-    cells[ii * nx + xw].speeds[3] = tmp_cells[ii * nx + jj].speeds[1];
-    cells[ys * nx + jj].speeds[4] = tmp_cells[ii * nx + jj].speeds[2];
-    cells[yn * nx + xe].speeds[5] = tmp_cells[ii * nx + jj].speeds[7];
-    cells[yn * nx + xw].speeds[6] = tmp_cells[ii * nx + jj].speeds[8];
-    cells[ys * nx + xw].speeds[7] = tmp_cells[ii * nx + jj].speeds[5];
-    cells[ys * nx + xe].speeds[8] = tmp_cells[ii * nx + jj].speeds[6];
+    cells[ii * nx + xe].speeds[1] = in[3];
+    cells[yn * nx + jj].speeds[2] = in[4];
+    cells[ii * nx + xw].speeds[3] = in[1];
+    cells[ys * nx + jj].speeds[4] = in[2];
+    cells[yn * nx + xe].speeds[5] = in[7];
+    cells[yn * nx + xw].speeds[6] = in[8];
+    cells[ys * nx + xw].speeds[7] = in[5];
+    cells[ys * nx + xe].speeds[8] = in[6];
   }
 
   /* Reduction */
