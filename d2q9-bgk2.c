@@ -284,10 +284,14 @@ int main(int argc, char* argv[])
   err = clSetKernelArg(ocl.collision2, 10, sizeof(cl_mem), &ocl.lbuffer);
   checkError(err, "setting collision arg 10", __LINE__);
 
+  size_t max_size, work_group_size = 8;
+  err = clGetKernelWorkGroupInfo (ocl.collision, ocl.device, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &work_group_size, NULL);
+  checkError(err, "Getting kernel work group info");
+
   accelerate_flow(params, cells, obstacles, ocl);
   propagate(params, cells, tmp_cells, ocl);
-  size_t global[1] = {params.nx * params.ny};
-  size_t local[1] = {64};
+  size_t global = params.nx * params.ny;
+  size_t local = work_group_size;
   /* iterate for maxIters timesteps */
   gettimeofday(&timstr, NULL);
   tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
@@ -295,9 +299,9 @@ int main(int argc, char* argv[])
   for (int tt = 0; tt < 1+0*params.maxIters/2; tt++)
   {
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision,
-                               1, NULL, global, local, 0, NULL, NULL);
+                               1, NULL, &global, &local, 0, NULL, NULL);
   err = clEnqueueNDRangeKernel(ocl.queue, ocl.collision2,
-                               1, NULL, global, local, 0, NULL, NULL);
+                               1, NULL, &global, &local, 0, NULL, NULL);
   //checkError(err, "enqueueing collision kernel", __LINE__);
 #ifdef DEBUG
     printf("==timestep: %d==\n", tt);
@@ -681,6 +685,7 @@ int initialise(const char* paramfile, const char* obstaclefile,
   checkError(err, "creating propagate kernel", __LINE__);
   ocl->collision2 = clCreateKernel(ocl->program, "collision", &err);
   checkError(err, "creating propagate kernel", __LINE__);
+
 
   // Allocate OpenCL buffers
   ocl->cells = clCreateBuffer(
