@@ -639,14 +639,16 @@ int initialise(const char* paramfile, const char* obstaclefile,
     (*obstacles_ptr)[yy * params->nx + xx] = blocked;
   }
 
-  *inverse_available_cells = params->ny * params->nx;
+  
+  int available_cells = params->ny * params->nx;
   for (int ii = 0; ii < params->ny; ii++)
   {
     for (int jj = 0; jj < params->nx; jj++)
     {
-      *inverse_available_cells -= (*obstacles_ptr)[ii * params->nx + jj];
+      available_cells -= (*obstacles_ptr)[ii * params->nx + jj];
     }
   }
+  *inverse_available_cells = 1.0/available_cells;
 
   /* and close the file */
   fclose(fp);
