@@ -185,7 +185,7 @@ int main(int argc, char* argv[])
 
   /* initialise our data structures and load values from file */
   float inverse_available_cells;
-  initialise(paramfile, obstaclefile, &params, &cells, &tmp_cells, &obstacles, &av_vels, &ocl, %inverse_available_cells);
+  initialise(paramfile, obstaclefile, &params, &cells, &tmp_cells, &obstacles, &av_vels, &ocl, &inverse_available_cells);
 
   gettimeofday(&timstr, NULL);
   tic = timstr.tv_sec + (timstr.tv_usec / 1000000.0);
