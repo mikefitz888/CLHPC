@@ -93,6 +93,7 @@ kernel void collision(global t_speed* cells,
   int xe = (jj + 1) % nx;
   int ys = (ii == 0) ? (ny - 1) : (ii - 1);
   int xw = (jj == 0) ? (nx - 1) : (jj - 1);
+  float sum = 0.0f;
   if (!obstacles[ii * nx + jj])
   {
 
@@ -117,11 +118,7 @@ kernel void collision(global t_speed* cells,
     float uy = (ypos - yneg)*inverse_local_density;
 
     /* velocity squared */
-    float sum = sqrt(ux * ux + uy * uy);
-    /* Reduction */
-    unsigned int tid = get_local_id(0) + get_local_id(1)*get_local_size(0);
-    unsigned int i   = (get_group_id(0) + get_group_id(0)*get_num_groups(0)) * (get_local_size(0)*get_local_size(1)*2) + tid;
-
+    sum = sqrt(ux * ux + uy * uy);
 
     float uxsq = ux*ux;
     float uysq = uy*uy;
@@ -205,4 +202,18 @@ kernel void collision(global t_speed* cells,
     cells[ys * nx + xw].speeds[7] = tmp_cells[ii * nx + jj].speeds[5];
     cells[ys * nx + xe].speeds[8] = tmp_cells[ii * nx + jj].speeds[6];
   }
+
+  /* Reduction */
+    unsigned int tid = get_local_id(0) + get_local_id(1)*get_local_size(0);
+    unsigned int i   = (get_group_id(0) + get_group_id(0)*get_num_groups(0)) * (get_local_size(0)*get_local_size(1)*2) + tid;
+    unsigned int blockSize = get_local_size(0) * get_local_size(1);
+
+    datastr[tid] = sum;
+    barrier(CLK_LOCAL_MEM_FENCE);
+    if(blockSize >= 512){
+      if(tid < 256){
+        datastr[tid] += datastr[tid+256];
+      }
+      barrier(CLK_LOCAL_MEM_FENCE);
+    }
 }
