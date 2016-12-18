@@ -90,7 +90,7 @@ void reduce(global float* lbuffer, local volatile float* datastr){
     for(int i = 0; i < 64; i++){
       sum += datastr[i];
     }
-    lbuffer[get_group_id(0)] += datastr[i];
+    lbuffer[get_group_id(0)] = sum;
   }
 }
 
