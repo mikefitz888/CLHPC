@@ -257,7 +257,7 @@ int main(int argc, char* argv[])
   checkError(err, "setting collision arg 8", __LINE__);
   err = clSetKernelArg(ocl.collision, 9, sizeof(cl_float)*1024, NULL);
   checkError(err, "setting collision arg 9", __LINE__);
-  err = clSetKernelArg(ocl.collision2, 10, sizeof(cl_mem), &ocl.lbuffer);
+  err = clSetKernelArg(ocl.collision, 10, sizeof(cl_mem), &ocl.lbuffer);
   checkError(err, "setting collision arg 10", __LINE__);
 
 
