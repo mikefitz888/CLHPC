@@ -111,8 +111,8 @@ kernel void collision(global t_speed* cells,
   int gid = get_global_id(0);
   int jj = gid%nx; // y*nx+x
   int ii = (get_global_id(0)-jj)/nx;
-  int yn = (ii + 1) % ny;
-  int xe = (jj + 1) % nx;
+  int yn = (ii + 1) & ny;
+  int xe = (jj + 1) & nx;
   int ys = (ii == 0) ? (ny - 1) : (ii - 1);
   int xw = (jj == 0) ? (nx - 1) : (jj - 1);
   float sum = 0.0f;
