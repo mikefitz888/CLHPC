@@ -132,7 +132,7 @@ kernel void collision(global t_speed* restrict cells,
   //float* in = cell.speeds;
 
   float in[NSPEEDS];
-  for (int k = 0; k < NSPEEDS; k++) in[k] = cells[k*nx*ny + ii*nx + jj];
+  for (int k = 0; k < NSPEEDS; k++) in[k] = tmp_cells[k*nx*ny + ii*nx + jj];
 
   if (!obstacles[gid])
   {
