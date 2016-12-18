@@ -214,7 +214,7 @@ kernel void collision(global t_speed* restrict cells,
       in[7] -= w2;
     }
 
-    cells[ii * nx + jj].speeds[0] = in[0];
+    cells[gid].speeds[0] = in[0];
     cells[ii * nx + xe].speeds[1] = in[1];
     cells[yn * nx + jj].speeds[2] = in[2];
     cells[ii * nx + xw].speeds[3] = in[3];
