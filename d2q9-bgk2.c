@@ -465,19 +465,19 @@ float av_velocity(const t_param params, t_speed* cells, int* obstacles, t_ocl oc
         for (int k = 0; k < NSPEEDS; k++) {
           local_density += cells[k*params.nx*params.ny + i * params.nx + j];
         }
-        double u_x = (cells[1*params.nx*params.ny + i * params.nx + j]
-                   + cells[5*params.nx*params.ny + i * params.nx + j]
-                   + cells[8*params.nx*params.ny + i * params.nx + j]
-                   - (cells[3*params.nx*params.ny + i * params.nx + j]
-                    + cells[6*params.nx*params.ny + i * params.nx + j]
-                    + cells[7*params.nx*params.ny + i * params.nx + j])) / local_density;
+        double u_x = (cells[1*params.nx*params.ny + ii * params.nx + jj]
+                   + cells[5*params.nx*params.ny + ii * params.nx + jj]
+                   + cells[8*params.nx*params.ny + ii * params.nx + jj]
+                   - (cells[3*params.nx*params.ny + ii * params.nx + jj]
+                    + cells[6*params.nx*params.ny + ii * params.nx + jj]
+                    + cells[7*params.nx*params.ny + ii * params.nx + jj])) / local_density;
 
-        double u_y = (cells[2*params.nx*params.ny + i * params.nx + j]
-                   + cells[5*params.nx*params.ny + i * params.nx + j]
-                   + cells[6*params.nx*params.ny + i * params.nx + j]
-                   - (cells[4*params.nx*params.ny + i * params.nx + j]
-                    + cells[7*params.nx*params.ny + i * params.nx + j]
-                    + cells[8*params.nx*params.ny + i * params.nx + j])) / local_density;
+        double u_y = (cells[2*params.nx*params.ny + ii * params.nx + jj]
+                   + cells[5*params.nx*params.ny + ii * params.nx + jj]
+                   + cells[6*params.nx*params.ny + ii * params.nx + jj]
+                   - (cells[4*params.nx*params.ny + ii * params.nx + jj]
+                    + cells[7*params.nx*params.ny + ii * params.nx + jj]
+                    + cells[8*params.nx*params.ny + ii * params.nx + jj])) / local_density;
         /* accumulate the norm of x- and y- velocity components */
         tot_u += sqrt((u_x * u_x) + (u_y * u_y));
         /* increase counter of inspected cells */
