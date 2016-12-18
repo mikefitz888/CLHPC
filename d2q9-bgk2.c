@@ -463,7 +463,7 @@ float av_velocity(const t_param params, t_speed* cells, int* obstacles, t_ocl oc
         double local_density = 0.0;
 
         for (int k = 0; k < NSPEEDS; k++) {
-          local_density += cells[k*params.nx*params.ny + i * params.nx + j];
+          local_density += cells[k*params.nx*params.ny + ii * params.nx + jj];
         }
         double u_x = (cells[1*params.nx*params.ny + ii * params.nx + jj]
                    + cells[5*params.nx*params.ny + ii * params.nx + jj]
@@ -794,9 +794,9 @@ float calc_reynolds(const t_param params, t_speed* cells, int* obstacles, t_ocl 
   return av_velocity(params, cells, obstacles, ocl) * params.reynolds_dim / viscosity;
 }
 
-double total_density(const t_param params, t_speed* cells)
+float total_density(const t_param params, t_speed* cells)
 {
-    double total = 0.0;
+    float total = 0.0;
     for (int i = 0; i < params.ny; i++)
     {
         for (int j = 0; j < params.nx; j++)
